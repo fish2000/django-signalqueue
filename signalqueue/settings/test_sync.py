@@ -1,4 +1,4 @@
-
+from ..settings import *
 
 SQ_QUEUES = {
     'default': {                                                # you need at least one dict named 'default' in SQ_QUEUES

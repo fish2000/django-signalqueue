@@ -30,7 +30,6 @@ class PoolQueue(object):
         self.queue_name = kwargs.get('queue_name', "default")
         
         self.queues = queues
-        #self.queues.runmode = runmode['SQ_RUNMODE_DAEMON']
         self.signalqueue = self.queues[self.queue_name]
         self.signalqueue.runmode = runmode['SQ_ASYNC_DAEMON']
         

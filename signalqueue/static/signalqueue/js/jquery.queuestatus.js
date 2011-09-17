@@ -3,17 +3,17 @@
     
     /*
     
-    JQuery plugin encapsulating an ImageKit queue's status readout.
+    JQuery plugin encapsulating display of a signal queue's status.
     
-    You can bind an element or group of elements to a queue like so:
+    You can bind an element or group of elements to a queue by name, like so:
     
         $('#elem').queuestatus({ queuename: 'somequeue' });
     
-    Or if you only want to monitor the default queue, omit the name for simplicity:
+    If you only want to monitor the default queue, the name can be omitted:
     
         $('#elem').queuestatus();
     
-    Start monitoring with the 'start' call and stop, predictibly, with 'stop':
+    Start monitoring with the 'start' call, and stop (predictibly) with 'stop':
     
         $('#elem').queuestatus('start');
         $('#elem').queuestatus('stop');

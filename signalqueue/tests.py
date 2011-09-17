@@ -48,9 +48,7 @@ test_autodiscover (signalqueue.tests.RegistryTests) ... passed
 from django.conf import settings
 
 if __name__ == '__main__':
-    from signalqueue import settings as signalqueue_settings
-    from signalqueue.settings import test_sync, test_async
-    signalqueue_settings.__dict__.update(test_async.__dict__)
+    from signalqueue.settings import test_async as signalqueue_settings
     signalqueue_settings.__dict__.update({
         "NOSE_ARGS": ['--rednose', '--nocapture', '--nologcapture'],
     })
@@ -101,10 +99,7 @@ class TestModel(models.Model):
         signal.send_now(sender=self, instance=self, signal_label="save_now")
     
     def callback(self, sender=None, **kwargs):
-        #from django.core.serializers import serialize
         msg =  "********** MODEL CALLBACK: %s sent %s\n" % (sender, kwargs.items())
-        #msg += "********** MODEL JSONDUMP: %s" % serialize('json', (self,))
-        #print msg
         raise TestException(msg)
 
 class TestException(Exception):
@@ -115,7 +110,7 @@ def callback(sender, **kwargs):
     #print msg
     raise TestException(msg)
 
-class DatabaseDequeueTests(TestCase):
+class DequeueFromDatabaseTests(TestCase):
     
     fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
     

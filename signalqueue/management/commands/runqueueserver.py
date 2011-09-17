@@ -44,8 +44,26 @@ class Command(BaseCommand):
         from tornado.httpserver import HTTPServer
         from tornado.ioloop import IOLoop
         from signalqueue.worker.vortex import Application
+        from signalqueue.worker import queues
         
-        http_server = HTTPServer(Application(queue_name=options.get('queue_name')))
+        queue_name = options.get('queue_name')
+        queue = queues[queue_name]
+        
+        try:
+            queue_available = queue.ping()
+        except:
+            self.echo("\n--- Can't ping the backend for %s named '%s'" % (queue.__class__.__name__, queue_name), color=16)
+            self.echo("\n--- Is the server running?", color=16)
+            self.echo("\n+++ Exiting ...\n\n", color=16)
+            sys.exit(2)
+        
+        if not queue_available:
+            self.echo("\n--- Can't ping the backend for %s named '%s'" % (queue.__class__.__name__, queue_name), color=16)
+            self.echo("\n--- Is the server running?", color=16)
+            self.echo("\n+++ Exiting ...\n\n", color=16)
+            sys.exit(2)
+        
+        http_server = HTTPServer(Application(queue_name=queue_name))
         http_server.listen(int(options.get('port')), address=options.get('addr'))
         
         try:
@@ -91,7 +109,7 @@ class Command(BaseCommand):
         self.validate(display_num_errors=True)
         
         self.echo(("\nDjango version %(version)s, using settings %(settings)r\n"
-                   "Queue \"%(queue_name)s\" running at http://%(addr)s:%(port)s/\n"
+                   "Tornado worker for queue \"%(queue_name)s\" binding to http://%(addr)s:%(port)s/\n"
                    "Quit the server with %(quit_command)s.\n" ) % {
                         "version": self.get_version(),
                         "settings": settings.SETTINGS_MODULE,
