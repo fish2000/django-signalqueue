@@ -32,7 +32,7 @@ class PoolQueue(object):
         self.queues = queues
         #self.queues.runmode = runmode['SQ_RUNMODE_DAEMON']
         self.signalqueue = self.queues[self.queue_name]
-        self.signalqueue.runmode = runmode['SQ_RUNMODE_DAEMON']
+        self.signalqueue.runmode = runmode['SQ_ASYNC_DAEMON']
         
         # use interval from the config if it exists
         interval = kwargs.pop('interval', self.signalqueue.queue_interval)
