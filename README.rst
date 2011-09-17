@@ -1,137 +1,106 @@
-
 ==================
 django-signalqueue
 ==================
 
 After a certain amount of time anyone concerning themselves with the Django framework is going
-to ask the question:
+to ask the question: **I love Django's signals... ah, but if only I could dispatch them asynchronously.
+Like, on some other thread or something, I don't know.**
 
-What is up with signals???
-==========================
+Well, now you can, and it's super easy.
+=======================================
 
-Soon after that, the person asking this question will sit back in their chair and say, "Ahaaaa...
-Hmmmm yes I see. They aren't asynchronous, or multithreaded, or symmetric; nor are they concurrent or reentrant or
-simultaneous in any fashion. Huh."
-
-Now look, I love signals -- I point this out because coming to terms with the fact that signals are basically 
-a completely synchronous centralized-callback registry type of thing, the implementation of which will look 
-spiffy right off while slowly confounding you throughout the marginally longer term, resisting the ex-post-facto
-testing approach that you adopted when you finally sorted out what django signals were actually doing -- what all
-the enigmatic hoohah with, like, stuff all like the Heisenbergian-y weakref-based connections, arg options like
-"dispatch_uid" which (if you go and look) have implementations that are some kind of Einstein/Macgyver hybrid,
-bending python's uglier and harsher edges into a probalistic weapon of NP-hardness... yes, like that, clearly, OR... or
-actually when you sit down and give it the benefit of the doubt, the signals code is basically an unclear mess. 
-
-
-Look, Stuff in there doesn't work like it says it does. Many of the flaws were right there, if you read the source... 
-I did not need to write enormous test suites, or wade through terabytes of log data, or any of that shit. Look at this bit --
+Watch, I'll show you. First, install django-signalqueue:
 
 ::
 
-    def send_robust(self, sender, **named):
-        """
-        Send signal from sender to all connected receivers catching errors.
+    $ pip install django-signalqueue            # this will install tornado and django-delegate if necessary
 
-        Arguments:
-        
-            sender
-                The sender of the signal. Can be any python object (normally one
-                registered with a connect if you actually want something to
-                occur).
-
-            named
-                Named arguments which will be passed to receivers. *These
-                arguments must be a subset of the argument names defined in
-                providing_args.*
-
-        Return a list of tuple pairs [(receiver, response), ... ]. May raise
-        DispatcherKeyError.
-
-        If any receiver raises an error (specifically any subclass of
-        Exception), the error instance is returned as the result for that
-        receiver.
-        """
-        responses = []
-        if not self.receivers:
-            return responses
-
-        # Call each receiver with whatever arguments it can accept.
-        # Return a list of tuple pairs [(receiver, response), ... ].
-        for receiver in self._live_receivers(_make_id(sender)):
-            try:
-                response = receiver(signal=self, sender=sender, **named)
-            except Exception, err:
-                responses.append((receiver, err))
-            else:
-                responses.append((receiver, response))
-        return responses
-
--- which this couldn't stand the scrutiny of a casual code-review, like say e.g. this implementation of `Signal.send()` from `django.dispatch.dispatcher`:
-
-Emphasis is mine -- this isn't some nightly tarball or third-order github fork, this is from the certified Release Quality
-Django 1.3 stuff. It's pretty hillarious when you finally read through it all -- you may not find this one method as funny as I do,
-just because there is ABSOLUTELY NOTHING to back up the claim about the `providing_args` subset requirement for `**kwargs` (or `**named`;
-so which ok, you'd expect the signals author to be a beautiful and unique snoflake who is way to special for )
-
+... you may also want some of these optional packages, if you don't have them already:
 
 ::
 
-    >>> SomeModel.objects.custom_query().another_custom_query()
+    $ brew install redis yajl                   # s/brew/apt-get/ to taste
+    $ pip install redis hiredis                 # recommended
+    $ pip install ujson                         # recommended
+    $ pip install czjson yajl simplejson        # these work too
+    $ pip install nose django-nose              # for the tests
 
-... unless you duplicate your methods and define a redundant queryset subclass... UNTIL NOW. 
-
-With DelegateManager and @delegate, you can write maintainable custom-query logic
-with free chaining. instead of defining manager methods, you define queryset methods,
-decorate those you'd like to delegate, and a two-line DelegateManager subclass
-specifying the queryset. ET VIOLA. Like so:
-
-::
-
-    class CustomQuerySet(models.query.QuerySet):
-    
-        @delegate
-        def qs_method(self, some_value):
-            return self.filter(some_param__icontains=some_value)
-    
-        def dont_delegate_me(self):
-            return self.filter(some_other_param="something else")
-    
-    class CustomManager(DelegateManager):
-        __queryset__ = CustomQuerySet
-    
-    class SomeModel(models.Model):
-        objects = CustomManager()
-    
-    
-    # will work:
-    SomeModel.objects.qs_method('yo dogg')
-    # will also work:
-    SomeModel.objects.qs_method('yo dogg').qs_method('i heard you like queryset method delegation')
-
-To delegate all of the methods in a QuerySet automatically, you can create a subclass
-of DelegateQuerySet. These two QuerySet subclasses work identically:
+Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, while you're in your `settings.py`:
 
 ::
 
-    class ManualDelegator(models.query.QuerySet):
-        @delegate
-        def qs_method(self):
-            # ...
+    # settings.py
     
-    class AutomaticDelegator(DelegateQuerySet):
-        def qs_method(self):
-            # ...
+    INSTALLED_APPS = [
+        'signalqueue', # ...
+    ]
+    
+    SQ_QUEUES = {
+        'default': {                                # you need at least one dict named 'default' in SQ_QUEUES
+            'NAME': 'signalqueue_default',          # optional - defaults to 'signalqueue_default'
+            'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',  # required - this is your queue's driver
+            'INTERVAL': 30,                         # 1/3 sec
+            'OPTIONS': dict(),
+        },
+    }
+    SQ_RUNMODE = 'SQ_ASYNC_REQUEST'                 # use async dispatch by default
+    SQ_WORKER_PORT = 11231                          # the port your queue worker process will bind to
 
-
-You can also apply the @delegate decorator directly to a class -- this permits you to
-delegate all the methods in a class without disrupting its inheritance chain. This example
-works identically to the previous two:
+Besides all that, you just need a call to `signalqueue.autodiscover()` in your root URLConf:
 
 ::
 
-    @delegate
-    class CustomQuerySet(models.query.QuerySet):
+    # urls.py
     
-        def qs_method(self, some_value):
-            return self.filter(some_param__icontains=some_value)
+    import signalqueue
+    signalqueue.autodiscover()
 
+You can define async signals!
+=============================
+
+Asynchronous signals are instances of `signalqueue.dispatch.AsyncSignal` that you've defined in one of the following places:
+
+* `your_app/signals.py` (it's fine if you already use this file, as many do)
+* Modules named in a `settings.SQ_ADDITIONAL_SIGNALS` list or tuple
+* *Coming soon:* `signalqueue.register()` *-- so you can put them anywhere else.*
+
+AsyncSignals are defined much like the familiar instances of `django.dispatch.Signal` you know and love:
+
+::
+
+    # yourapp/signals.py
+    
+    from signalqueue.dispatch import AsyncSignal
+    from signalqueue.mappings import ModelInstanceMap
+    
+    # these two constructors do the same thing
+    my_signal = AsyncSignal(providing_args=['instance'])                            # the yuge
+    my_other_signal = AsyncSignal(providing_args={'instance':ModelInstanceMap})     # with mappings
+    
+    # what follows can go anywhere -- only the instances need to be in yourapp/signals.py:
+    
+    def callback(sender, **kwargs):
+        print "I, %s, have been hereby dispatched asynchronously by %s, thanks to django-signalqueue." % (
+            str(kwargs['instance']),
+            sender.__name__)
+    
+    my_signal.connect(callback)
+
+... The main difference is the second definition, which specifies `providing_args` as a dict with *mapping classes*
+instead of a plain list. We'll explain mapping classes later on, but if you are passing Django model instances
+to your signals, you don't have to worry about this.
+
+Once the worker is running, you can send the signal to the queue like so:
+
+::
+
+    >>> my_signal.send(sender=AModelClass, instance=a_model_instance)
+
+To fire your signal like a normal Django signal, you can do this:
+
+::
+
+    >>> my_signal.send_now(sender=AModelClass, instance=a_model_instance)
+
+
+*Tune in tomorrow for the astonishing conclusion of... the django-signalqueue README!!!!!!*
