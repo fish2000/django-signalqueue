@@ -1,8 +1,13 @@
 
+import os
+from django.conf import settings
 from django import template
 from signalqueue.worker import queues
 
 register = template.Library()
+
+# get the URL for a static asset (css, js, et cetera.)
+static = lambda pth: os.path.join(settings.STATIC_URL, 'signalqueue', pth)
 
 @register.simple_tag
 def queue_length(queue_name):
@@ -17,12 +22,10 @@ def queue_classname(queue_name):
 @register.simple_tag
 def sock_status_url():
     import socket
-    from django.conf import settings
     return "ws://%s:%s/sock/status" % (socket.gethostname().lower(), settings.SQ_WORKER_PORT)
 
 @register.inclusion_tag('admin/sidebar_queue_module.html', takes_context=True)
 def sidebar_queue_module(context):
-    from signalqueue.utils import static
     qs = dict(queues.items())
     default = qs.pop('default')
     qjs = static('js/jquery.queuestatus.js')

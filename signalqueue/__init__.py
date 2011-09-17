@@ -26,11 +26,10 @@ from signalqueue.utils import import_module, logg
 SQ_RUNMODES = {
     'SQ_SYNC':                      1, # synchronous operation -- fire signals concurrently with save() and cache pragma
     'SQ_ASYNC_MGMT':                2, # async operation -- we are running from the command line, fire signals concurrently
-    'SQ_ASYNC_DAEMON':              3, # async operation -- deque images from cache, fire imagekit signals but don't save
+    'SQ_ASYNC_DAEMON':              3, # async operation -- deque images from cache, fire signals but don't save
     'SQ_ASYNC_REQUEST':             4, # async operation -- queue up signals on save() and cache pragma
 }
 
-SQ_ROOT = os.path.dirname(os.path.abspath(__file__))
 SQ_DMV = defaultdict(set)
 
 def autodiscover():

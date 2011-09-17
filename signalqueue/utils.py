@@ -1,7 +1,8 @@
 
+import os
 
-# get the URL for a static asset (css, js, et cetera.)
-static = lambda pth: os.path.join(settings.STATIC_URL, 'signalqueue', pth)
+# Root directory of this package
+SQ_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Similar arrangement that affords us some kind of reasonable
 # implementation of import_module
@@ -14,6 +15,7 @@ def simple_import_module(name, package=None):
     import sys
     __import__(name)
     return sys.modules[name]
+
 
 try:
     from importlib import import_module
@@ -41,6 +43,7 @@ class FakeLogger(object):
         for fname in ('critical', 'debug', 'error', 'exception', 'info', 'warning'):
             setattr(self, fname, self.logg)
 
+
 try:
     from jogging import logging as logg
 except ImportError:
@@ -51,7 +54,6 @@ except ImportError:
         print "WTF: You have no logging facilities available whatsoever -- initializing a fake logger class. Love, django-signalqueue."
         # set up fake logger
         logg = FakeLogger()
-
 
 
 class ADict(dict):
