@@ -19,7 +19,7 @@ Created by FI$H 2000 on 2011-09-09.
 Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 
 """
-import threading
+import os, threading
 from collections import defaultdict
 from signalqueue.utils import import_module, logg
 
@@ -30,7 +30,7 @@ SQ_RUNMODES = {
     'SQ_ASYNC_REQUEST':             4, # async operation -- queue up signals on save() and cache pragma
 }
 
-#SQ_AUTODISCOVERING = threading.Lock()
+SQ_ROOT = os.path.dirname(os.path.abspath(__file__))
 SQ_DMV = defaultdict(set)
 
 def autodiscover():
