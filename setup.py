@@ -2,26 +2,43 @@
 from distutils.core import setup
 
 setup(
-    name='django-delegate',
+    name='django-signalqueue',
     version='0.1.0',
-    description='Automatic delegate methods for Django managers and querysets without runtime dispatch penalties.',
+    description='Asynchronous signals for Django.',
     author='Alexander Bohn',
     author_email='fish2000@gmail.com',
     maintainer='Alexander Bohn',
     maintainer_email='fish2000@gmail.com',
     license='BSD',
-    url='http://github.com/fish2000/django-delegate/',
+    url='http://github.com/fish2000/django-signalqueue/',
     keywords=[
         'django',
-        'delegate',
-        'queryset',
-        'manager',
+        'signals',
+        'async',
+        'asynchronous',
+        'queue',
     ],
     packages=[
-        'delegate',
+        'signalqueue',
+        'signalqueue.management',
+        'signalqueue.management.commands',
+        'signalqueue.worker',
+        'signalqueue.settings',
+    ],
+    package_data={
+        'signalqueue': ['fixtures/*.json',],
+    },
+    install_requires=[
+        'django-delegate',
+        'redis',
+        'ujson',
+        'tornado',
+    ],
+    test_requires=[
+        'nose', 'django-nose',
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

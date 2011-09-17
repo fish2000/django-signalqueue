@@ -1,0 +1,164 @@
+
+[
+    {
+        "pk": 1,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":1,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 2,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":2,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 3,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":3,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 4,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":4,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 5,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":5,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 6,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":6,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 7,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":7,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 8,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":8,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 9,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":9,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 10,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":10,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 11,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":11,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 12,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":12,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 13,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":13,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 14,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":14,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 15,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":15,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    },
+    {
+        "pk": 16,
+         "model": "signalqueue.enqueuedsignal",
+         "fields": 
+        {
+            "enqueued": true,
+            "queue_name": "db",
+            "value": "{\"instance\":{\"modl_name\":\"testmodel\",\"obj_id\":16,\"app_label\":\"signalqueue\"},\"signal\":{\"signalqueue.tests\":\"test_sync_function_signal\"},\"sender\":{\"modl_name\":\"testmodel\",\"app_label\":\"signalqueue\"},\"enqueue_runmode\":4}"
+        }
+    }
+    
+]
