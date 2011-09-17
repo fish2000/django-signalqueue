@@ -35,7 +35,7 @@ setup(
         ],
     },
     install_requires=[
-        'django-delegate', 'ujson', 'tornado',
+        'django-delegate', 'tornado',
     ],
     test_requires=[
         'nose', 'django-nose',
