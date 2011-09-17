@@ -22,17 +22,20 @@ setup(
         'signalqueue',
         'signalqueue.management',
         'signalqueue.management.commands',
-        'signalqueue.worker',
         'signalqueue.settings',
+        'signalqueue.templatetags',
+        'signalqueue.worker',
     ],
     package_data={
-        'signalqueue': ['fixtures/*.json',],
+        'signalqueue': [
+            'fixtures/*.json',
+            'static/signalqueue/js/*.js',
+            'templates/admin/*.html',
+            'templates/queueserver/*.html',
+        ],
     },
     install_requires=[
-        'django-delegate',
-        'redis',
-        'ujson',
-        'tornado',
+        'django-delegate', 'ujson', 'tornado',
     ],
     test_requires=[
         'nose', 'django-nose',

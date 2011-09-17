@@ -1,10 +1,48 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
+Run this file to test the signal queue -- you'll want nose and django-nose installed.
+The output should look something like this:
 
-Replace these with more appropriate tests for your application.
+nosetests --verbosity 2 signalqueue --rednose --nocapture --nologcapture
+Creating test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpDMgFyb/signalqueue-test.db')...
+Destroying old test database 'default'...
+Creating tables ...
+Creating table auth_permission
+Creating table auth_group_permissions
+Creating table auth_group
+Creating table auth_user_user_permissions
+Creating table auth_user_groups
+Creating table auth_user
+Creating table django_content_type
+Creating table django_session
+Creating table django_site
+Creating table django_admin_log
+Creating table signalqueue_testmodel
+Creating table signalqueue_enqueuedsignal
+Installing custom SQL ...
+Installing indexes ...
+No fixtures found.
+test_dequeue (signalqueue.tests.DatabaseDequeueTests) ... passed
+test_NOW_sync_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+test_NOW_sync_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+test_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+test_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+
+        signalqueue.tests:
+                                   AsyncSignal: test_sync_function_signal
+                                   AsyncSignal: additional_signal
+                                   AsyncSignal: test_sync_method_signal
+      signalqueue.signals:
+                                   AsyncSignal: test_signal
+
+Destroying test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpDMgFyb/signalqueue-test.db')...
+test_additional_signals (signalqueue.tests.RegistryTests) ... passed
+test_autodiscover (signalqueue.tests.RegistryTests) ... passed
+
+-----------------------------------------------------------------------------
+7 tests run in 0.9 seconds (7 tests passed)
+
 
 """
 from django.conf import settings
@@ -20,8 +58,6 @@ if __name__ == '__main__':
     settings.configure(**signalqueue_settings.__dict__)
     
     from django.core.management import call_command
-    call_command('syncdb',
-        interactive=False, verbosity=1)
     call_command('test', 'signalqueue',
         interactive=False, traceback=True, verbosity=2)
     
@@ -179,43 +215,6 @@ class RegistryTests(TestCase):
         
         for sig in [s for s in signals.__dict__.values() if isinstance(s, dispatcher.AsyncSignal)]:
             self.assertTrue(sig in signalqueue.SQ_DMV['signalqueue.signals'])
-
-
-class IDMapTests(TestCase):
-    def setUp(self):
-        self.id_map = mappings.IDMap()
-
-
-class ModelInstanceMapTests(TestCase):
-    
-    fixtures = ['OST-DUMP-NICE.json']
-    
-    def setUp(self):
-        self.id_map = mappings.ModelInstanceMap()
-        import ost2.forsale.models as fs
-        import ost2.blog.models as sb
-        import ost2.portfolio.models as ax
-        self.fs = fs
-        self.sb = sb
-        self.ax = ax
-    
-    def _test_all_over_my_fs(self):
-        for fsim in self.fs.FSImage.objects.all()[:10]:
-            cereal = self.id_map.map(fsim)
-            balancedbreakfast = self.id_map.remap(cereal)
-            self.assertEqual(fsim.pk, balancedbreakfast.pk)
-    
-    def _test_all_over_my_sb(self):
-        for sbim in self.sb.SBImage.objects.all()[:10]:
-            cereal = self.id_map.map(sbim)
-            balancedbreakfast = self.id_map.remap(cereal)
-            self.assertEqual(sbim.pk, balancedbreakfast.pk)
-    
-    def _test_all_over_my_ax(self):
-        for axim in self.ax.AXImage.objects.all()[:10]:
-            cereal = self.id_map.map(axim)
-            balancedbreakfast = self.id_map.remap(cereal)
-            self.assertEqual(axim.pk, balancedbreakfast.pk)
 
 
 class ICCProfileMapTests(TestCase):

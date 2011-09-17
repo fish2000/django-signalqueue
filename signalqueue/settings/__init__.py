@@ -60,24 +60,15 @@ DATABASES = {
     }
 }
 
-
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 TIME_ZONE = 'America/New_York'
-
-# http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
 USE_I18N = False
-
 MEDIA_ROOT = '/Users/fish/Dropbox/ost2/face'
 MEDIA_URL = '/face/'
 STATIC_ROOT = '/Users/fish/Dropbox/ost2/staticfiles'
 STATIC_URL = '/staticfiles/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
-SECRET_KEY = 'nkuu@86hsm_w8n4nuaqeh2=6pin2r&03!-cqnsc5r*a1cx0%#q'
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
@@ -85,12 +76,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-)
-APPEND_SLASH = True
-ROOT_URLCONF = 'ost2.urls'
-TEMPLATE_DIRS = (
-    # Don't forget to use absolute paths, not relative paths.
-    '/Users/fish/Dropbox/ost2/ost2/templates',
 )
 
 
@@ -112,7 +97,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django_nose',
     'delegate',
-    'imagekit',
     'signalqueue',
 )
 

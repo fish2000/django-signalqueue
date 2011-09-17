@@ -1,8 +1,10 @@
 
-#
+
+# get the URL for a static asset (css, js, et cetera.)
+static = lambda pth: os.path.join(settings.STATIC_URL, 'signalqueue', pth)
+
 # Similar arrangement that affords us some kind of reasonable
 # implementation of import_module
-
 def simple_import_module(name, package=None):
     """
     Dumb version of import_module.
