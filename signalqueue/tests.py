@@ -122,6 +122,34 @@ def callback(sender, **kwargs):
     #print msg
     raise TestException(msg)
 
+def callback_no_exception(sender, **kwargs):
+    msg = "********** NOEXEPT: %s" % kwargs.keys()
+    print msg
+
+class DequeueManagementCommandTests(TestCase):
+    
+    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
+    
+    def setUp(self):
+        self.dqsettings = dict(
+            SQ_ADDITIONAL_SIGNALS=['signalqueue.tests'],
+            SQ_RUNMODE='SQ_ASYNC_REQUEST')
+        with self.settings(**self.dqsettings):
+            import signalqueue
+            signalqueue.autodiscover()
+            from signalqueue.worker import queues
+            self.queue = queues['db']
+    
+    def test_dequeue_management_command(self):
+        with self.settings(**self.dqsettings):
+            test_sync_function_signal.disconnect(callback)
+            test_sync_function_signal.connect(callback_no_exception)
+            
+            from django.core.management import call_command
+            call_command('dequeue',
+                queue_name='db', verbosity=2)
+
+
 class DjangoAdminQueueWidgetTests(TestCase):
     """
     DjangoAdminQueueWidgetTests.setUp() creates a superuser for admin testing.
@@ -201,8 +229,9 @@ class DequeueFromDatabaseTests(TestCase):
     def test_dequeue(self):
         with self.settings(**self.dqsettings):
             test_sync_function_signal.connect(callback)
-            with self.assertRaises(TestException):
-                for enqd in self.queue:
+            for enqd in self.queue:
+                with self.assertRaises(TestException):
+                    self.queue.dequeue(enqd)
                     print "*** QUEUED SIGNAL: %s" % enqd
 
 

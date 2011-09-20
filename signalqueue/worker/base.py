@@ -5,7 +5,43 @@ from signalqueue import SQ_RUNMODES as runmodes
 from django.db.models.loading import cache
 
 class QueueBase(object):
+    """
+    Base class for a signalqueue backend.
     
+    Implementors of backend interfaces will want to override these methods:
+    
+        * ping(self)            # returns a boolean
+        * push(self, value)
+        * pop(self)             # returns a serialized signal value
+        * count(self)           # returns an integer
+        * clear(self)
+        * values(self)          # returns a list of serialized signal values
+    
+    If your implementation has those methods implemented and working,
+    your queue should run.
+    
+    Only reimplement enqueue(), retrieve(), and dequeue() if you know what
+    you are doing and have some debugging time on your hands.
+    
+    The JSON structure of a serialized signal value looks like this:
+    
+        {
+            "instance": {
+                "modl_name": "testmodel",
+                "obj_id": 1,
+                "app_label": "signalqueue"
+            },
+            "signal": {
+                "signalqueue.tests": "test_sync_function_signal"
+            },
+            "sender": {
+                "modl_name": "testmodel",
+                "app_label": "signalqueue"
+            },
+            "enqueue_runmode": 4
+        }
+    
+    """
     runmode = None
     queue_name = "default"
     queue_interval = None
@@ -73,11 +109,11 @@ class QueueBase(object):
         logg.info("Dequeueing signal: %s" % queued_signal)
         
         if queued_signal is not None:
-            signal_dict = queued_signal.pop('signal')
-            sender_dict = queued_signal.pop('sender')
-            regkey, name = signal_dict.items().pop()
+            signal_dict = queued_signal.get('signal')
+            sender_dict = queued_signal.get('sender')
+            regkey, name = signal_dict.items()[0]
             
-            enqueue_runmode = queued_signal.pop('enqueue_runmode', runmodes['SQ_ASYNC_REQUEST'])
+            enqueue_runmode = queued_signal.get('enqueue_runmode', runmodes['SQ_ASYNC_REQUEST'])
             sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
             kwargs = {
                 'dequeue_runmode': self.runmode,
@@ -100,7 +136,7 @@ class QueueBase(object):
                         kwargs.update({ k: thesignal.mapping[k]().remap(v), })
                 
                 thesignal.send_now(sender=sender, **kwargs)
-                return
+                return queued_signal
             
             else:
                 raise signalqueue.SignalRegistryError("Couldn't find a registered signal named '%s'." % name)
@@ -108,7 +144,7 @@ class QueueBase(object):
     def next(self):
         if not self.count() > 0:
             raise StopIteration
-        return self.dequeue()
+        return self.retrieve()
     
     def __iter__(self):
         return self

@@ -272,6 +272,8 @@ class ConnectionHandler(object):
     def __len__(self):
         return len(self.keys())
     
+    def __contains__(self, item):
+        return item in dict(self.items())
     
     
 
