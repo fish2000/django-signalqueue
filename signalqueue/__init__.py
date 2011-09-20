@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 __author__ = 'Alexader Bohn'
-__version__ = (0, 1, 0)
+__version__ = (0, 1, 2)
 
 """
 signalqueue/__init__.py
