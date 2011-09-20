@@ -61,6 +61,7 @@ if __name__ == '__main__':
     
     import os
     tempdata = settings.tempdata
+    print "Deleting test data: %s" % tempdata
     os.rmdir(tempdata)
     
     import sys
@@ -109,6 +110,66 @@ def callback(sender, **kwargs):
     msg = "********** CALLBACK: %s" % kwargs.items()
     #print msg
     raise TestException(msg)
+
+class DjangoAdminQueueWidgetTests(TestCase):
+    """
+    DjangoAdminQueueWidgetTests.setUp() creates a superuser for admin testing.
+    See also http://www.djangosnippets.org/snippets/1875/
+    
+    """
+    def setUp(self):
+        from django.contrib.auth import models as auth_models
+        self.testuser = 'yodogg'
+        self.testpass = 'iheardyoulikeunittests'
+        try:
+            self.user = auth_models.User.objects.get(username=self.testuser)
+        except auth_models.User.DoesNotExist:
+            #logg.info('Creating test user: %s' % self.testuser)
+            #print '*' * 80
+            print 'Creating test user -- login: %s, password: %s' % (self.testuser, self.testpass)
+            #print '*' * 80
+            assert auth_models.User.objects.create_superuser(self.testuser, '%s@%s.com' % (self.testuser, self.testuser), self.testpass)
+            self.user = auth_models.User.objects.get(username=self.testuser)
+        else:
+            #logg.info('Test user %s already exists.' % self.testuser)
+            print 'Test user %s already exists.' % self.testuser
+        from django.test.client import Client
+        self.client = Client()
+        import os
+        self.testroot = os.path.dirname(os.path.abspath(__file__))
+    
+    def test_widget_contains_queue_names(self):
+        from signalqueue.worker import queues
+        post_out = self.client.post('/admin/', dict(
+            username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
+        admin_root_page = self.client.get('/admin/')
+        for queue_name in queues.keys():
+            self.assertContains(admin_root_page, queue_name.capitalize())
+            self.assertTrue(queue_name.capitalize() in admin_root_page.content)
+        self.client.get('/admin/logout/')
+    
+    def test_widget_sidebar_queue_module_template(self):
+        post_out = self.client.post('/admin/', dict(
+            username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
+        admin_root_page = self.client.get('/admin/')
+        import os
+        self.assertTemplateUsed(admin_root_page, os.path.join(self.testroot, 'templates/admin/index_with_queues.html'))
+        self.client.get('/admin/logout/')
+    
+    def test_admin_root_page(self):
+        self.client.post('/admin/', dict(user=self.user.username, password=self.testpass))
+        admin_root_page = self.client.get('/admin/')
+        self.assertEquals(admin_root_page.status_code, 200)
+        self.client.get('/admin/logout/')
+    
+    def test_login(self):
+        self.assertTrue(self.client.login(username=self.testuser, password=self.testpass))
+        self.assertEquals(self.client.logout(), None)
+    
+    def test_testuser(self):
+        self.assertEquals(self.user.username, 'yodogg')
+        login_response = self.client.post('/admin/login/', dict(user=self.user.username, password=self.testpass))
+        self.assertEquals(login_response.status_code, 200)
 
 class DequeueFromDatabaseTests(TestCase):
     
@@ -210,34 +271,4 @@ class RegistryTests(TestCase):
         
         for sig in [s for s in signals.__dict__.values() if isinstance(s, dispatcher.AsyncSignal)]:
             self.assertTrue(sig in signalqueue.SQ_DMV['signalqueue.signals'])
-
-
-class ICCProfileMapTests(TestCase):
-    
-    fixtures = ['IMAGEKIT-ICCMODELS.json']
-    
-    def setUp(self):
-        self.id_map = mappings.ICCProfileMap()
-    
-    def _test_icc_profile_data(self):
-        import hashlib
-        import imagekit.models as ik
-        print "*** TESTING %s PROFILES." % ik.ICCModel.objects.count()
-        
-        for icc in [iccm.icc for iccm in ik.ICCModel.objects.all()]:
-            cereal = self.id_map.map(icc)
-            balancedbreakfast = self.id_map.remap(cereal)
-            
-            '''
-            print ''
-            print "*** CEREAL HSH: %s" % cereal['obj_id']
-            #print "*** BREKKY HSH: %s" % balancedbreakfast
-            if balancedbreakfast is not None:
-                print "*** ICCVAL HSH: %s" % hashlib.sha1(balancedbreakfast.data).hexdigest()
-            else:
-                print "xxx NO BREKKY"
-            '''
-            if balancedbreakfast is not None:
-                self.assertEqual(icc.data, balancedbreakfast.data)
-            
 

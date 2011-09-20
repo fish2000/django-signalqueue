@@ -1,44 +1,4 @@
 
-
-SQ_TEST_SETTINGS = dict(
-    SQ_QUEUES={
-        'default': {
-            'NAME': 'test_default_queue',
-            'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',
-            'INTERVAL': 30,
-            'OPTIONS': dict(),
-        },
-        'sift': {
-            'NAME': 'sift',
-            'ENGINE': 'signalqueue.worker.backends.DatabaseQueueProxy',
-            'INTERVAL': 30,
-            'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
-        },
-    },
-    SQ_RUNMODE=3,
-    SQ_WORKER_PORT=3447,
-)
-SQ_TEST_SYNC_SETTINGS = dict(
-    SQ_QUEUES={
-        'default': {
-            'NAME': 'test_default_queue',
-            'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',
-            'INTERVAL': 30,
-            'OPTIONS': dict(),
-        },
-        'sift': {
-            'NAME': 'sift',
-            'ENGINE': 'signalqueue.worker.backends.DatabaseQueueProxy',
-            'INTERVAL': 30,
-            'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
-        },
-    },
-    SQ_RUNMODE=1,
-    SQ_WORKER_PORT=3447,
-)
-
-
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -48,7 +8,10 @@ ADMINS = (
 MANAGERS = ADMINS
 
 import tempfile, os
+from django import contrib
 tempdata = tempfile.mkdtemp()
+approot = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+adminroot = os.path.join(contrib.__path__[0], 'admin')
 
 DATABASES = {
     'default': {
@@ -64,11 +27,34 @@ TIME_ZONE = 'America/New_York'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = False
-MEDIA_ROOT = '/Users/fish/Dropbox/ost2/face'
+MEDIA_ROOT = os.path.join(approot, 'static')
 MEDIA_URL = '/face/'
-STATIC_ROOT = '/Users/fish/Dropbox/ost2/staticfiles'
+STATIC_ROOT = os.path.join(adminroot, 'static', 'admin')[0]
 STATIC_URL = '/staticfiles/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
+ROOT_URLCONF = 'settings.urlconf'
+
+from django.core.files.storage import FileSystemStorage
+#STATICFILES_STORAGE = FileSystemStorage(location=STATIC_ROOT, base_url=STATIC_URL)
+#STATICFILES_STORAGE = FileSystemStorage
+
+TEMPLATE_DIRS = (
+    os.path.join(approot, 'templates'),
+    os.path.join(adminroot, 'templates'),
+    os.path.join(adminroot, 'templates', 'admin'),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
+
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.eggs.Loader',
+)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
@@ -78,9 +64,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.request",
     "django.core.context_processors.debug",
     #"django.core.context_processors.i18n", this is AMERICA
@@ -94,7 +79,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'django.contrib.humanize',
     'django_nose',
     'delegate',
     'signalqueue',
@@ -117,6 +101,5 @@ LOGGING = dict(
         '': {  'handlers': ['default'], 'level': 'INFO', 'propagate': False },
     },
 )
-
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

@@ -15,5 +15,5 @@ SQ_QUEUES = {
     },
 }
 
-
 SQ_RUNMODE = 'SQ_SYNC'
+SQ_WORKER_PORT = 11201
