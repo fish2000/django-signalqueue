@@ -4,44 +4,55 @@
 Run this file to test the signal queue -- you'll want nose and django-nose installed.
 The output should look something like this:
 
-nosetests --verbosity 2 signalqueue --rednose --nocapture --nologcapture
-Creating test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpDMgFyb/signalqueue-test.db')...
-Destroying old test database 'default'...
-Creating tables ...
-Creating table auth_permission
-Creating table auth_group_permissions
-Creating table auth_group
-Creating table auth_user_user_permissions
-Creating table auth_user_groups
-Creating table auth_user
-Creating table django_content_type
-Creating table django_session
-Creating table django_site
-Creating table django_admin_log
-Creating table signalqueue_testmodel
-Creating table signalqueue_enqueuedsignal
-Installing custom SQL ...
-Installing indexes ...
-No fixtures found.
-test_dequeue (signalqueue.tests.DatabaseDequeueTests) ... passed
-test_NOW_sync_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-test_NOW_sync_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-test_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-test_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+    nosetests --verbosity 2 signalqueue --rednose --nocapture --nologcapture
+    Creating test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpZW2k7h/signalqueue-test.db')...
+    Destroying old test database 'default'...
+    Creating tables ...
+    Creating table auth_permission
+    Creating table auth_group_permissions
+    Creating table auth_group
+    Creating table auth_user_user_permissions
+    Creating table auth_user_groups
+    Creating table auth_user
+    Creating table django_content_type
+    Creating table django_session
+    Creating table django_site
+    Creating table django_admin_log
+    Creating table signalqueue_testmodel
+    Creating table signalqueue_enqueuedsignal
+    Installing custom SQL ...
+    Installing indexes ...
+    No fixtures found.
+    test_NOW_sync_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+    test_NOW_sync_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+    test_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+    test_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
+    test_dequeue (signalqueue.tests.DequeueFromDatabaseTests) ... passed
+    Creating test user -- login: yodogg, password: iheardyoulikeunittests
+    test_admin_root_page (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    Creating test user -- login: yodogg, password: iheardyoulikeunittests
+    test_login (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    Creating test user -- login: yodogg, password: iheardyoulikeunittests
+    test_testuser (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    Creating test user -- login: yodogg, password: iheardyoulikeunittests
+    test_widget_contains_queue_names (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    Creating test user -- login: yodogg, password: iheardyoulikeunittests
+    test_widget_sidebar_queue_module_template (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    
+            signalqueue.tests:
+                                        AsyncSignal: test_sync_method_signal
+                                        AsyncSignal: additional_signal
+                                        AsyncSignal: test_sync_function_signal
+          signalqueue.signals:
+                                        AsyncSignal: test_signal
 
-        signalqueue.tests:
-                                   AsyncSignal: test_sync_function_signal
-                                   AsyncSignal: additional_signal
-                                   AsyncSignal: test_sync_method_signal
-      signalqueue.signals:
-                                   AsyncSignal: test_signal
+    Destroying test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpZW2k7h/signalqueue-test.db')...
+    Deleting test data: /var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpZW2k7h
+    test_additional_signals (signalqueue.tests.RegistryTests) ... passed
+    test_autodiscover (signalqueue.tests.RegistryTests) ... passed
 
-Destroying test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpDMgFyb/signalqueue-test.db')...
-test_additional_signals (signalqueue.tests.RegistryTests) ... passed
-test_autodiscover (signalqueue.tests.RegistryTests) ... passed
-
------------------------------------------------------------------------------
-7 tests run in 0.9 seconds (7 tests passed)
+    -----------------------------------------------------------------------------
+    12 tests run in 0.6 seconds (12 tests passed)
 
 
 """
@@ -138,7 +149,7 @@ class DjangoAdminQueueWidgetTests(TestCase):
         import os
         self.testroot = os.path.dirname(os.path.abspath(__file__))
     
-    def test_widget_contains_queue_names(self):
+    def test_admin_queue_status_widget_contains_queue_names(self):
         from signalqueue.worker import queues
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
@@ -148,7 +159,7 @@ class DjangoAdminQueueWidgetTests(TestCase):
             self.assertTrue(queue_name.capitalize() in admin_root_page.content)
         self.client.get('/admin/logout/')
     
-    def test_widget_sidebar_queue_module_template(self):
+    def test_admin_widget_sidebar_uses_queue_module_template(self):
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
         admin_root_page = self.client.get('/admin/')
@@ -156,20 +167,22 @@ class DjangoAdminQueueWidgetTests(TestCase):
         self.assertTemplateUsed(admin_root_page, os.path.join(self.testroot, 'templates/admin/index_with_queues.html'))
         self.client.get('/admin/logout/')
     
-    def test_admin_root_page(self):
-        self.client.post('/admin/', dict(user=self.user.username, password=self.testpass))
+    def test_get_admin_root_page(self):
+        post_out = self.client.post('/admin/', dict(
+            username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
         admin_root_page = self.client.get('/admin/')
         self.assertEquals(admin_root_page.status_code, 200)
         self.client.get('/admin/logout/')
     
-    def test_login(self):
+    def test_testuser_admin_login_via_client(self):
         self.assertTrue(self.client.login(username=self.testuser, password=self.testpass))
         self.assertEquals(self.client.logout(), None)
     
-    def test_testuser(self):
+    def test_testuser_admin_login(self):
         self.assertEquals(self.user.username, 'yodogg')
-        login_response = self.client.post('/admin/login/', dict(user=self.user.username, password=self.testpass))
-        self.assertEquals(login_response.status_code, 200)
+        post_out = self.client.post('/admin/', dict(
+            username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
+        self.assertEquals(post_out.status_code, 302) # you get a redirect when you log in correctly
 
 class DequeueFromDatabaseTests(TestCase):
     
