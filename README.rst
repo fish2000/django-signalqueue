@@ -3,11 +3,13 @@ django-signalqueue
 ==================
 
 After a certain amount of time anyone concerning themselves with the Django framework is going
-to ask the question: **I love Django's signals... ah, but if only I could dispatch them asynchronously.
-Like, on some other thread or something, I don't know.**
+to ask the question: *I love Django's signals, indeed. But if only I could dispatch them asynchronously.
+Like, on some other thread or something, I don't really know.... Is that somehow possible?*
 
-Well, now you can, and it's super easy.
-=======================================
+Well, now you can easily do that:
+
+With django-signalqueue, asynchronous dispatch is not even a thing -- that's how easy it is.
+============================================================================================
 
 Watch, I'll show you. First, install django-signalqueue:
 
