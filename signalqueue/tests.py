@@ -232,7 +232,6 @@ class DequeueFromDatabaseTests(TestCase):
             for enqd in self.queue:
                 with self.assertRaises(TestException):
                     self.queue.dequeue(enqd)
-                    print "*** QUEUED SIGNAL: %s" % enqd
 
 
 class DatabaseQueuedVersusSyncSignalTests(TestCase):
