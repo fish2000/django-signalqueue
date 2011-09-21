@@ -15,6 +15,7 @@ Copyright (c) 2011 OST, LLC. All rights reserved.
 #setup_environ(settings)
 
 from tornado.ioloop import PeriodicCallback
+from signalqueue.models import log_exceptions
 from signalqueue.utils import logg
 
 class PoolQueue(object):
@@ -53,4 +54,5 @@ class PoolQueue(object):
         self.shark.start()
     
     def cueball(self):
-        self.signalqueue.dequeue()
+        with log_exceptions(queue_name=self.queue_name):
+            self.signalqueue.dequeue()
