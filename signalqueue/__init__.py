@@ -50,6 +50,8 @@ def autodiscover():
         https://github.com/jorgebastida/django-dajaxice/blob/master/dajaxice/core/Dajaxice.py#L155
     
     ... which in turn was inspired/copied from django.contrib.admin.autodiscover().
+    One key modification is our use of threading.Lock instead of the global state variables
+    used by Dajaxice.
     
     """
     

@@ -52,6 +52,8 @@ class Command(BaseCommand):
         from django.conf import settings
         from signalqueue import SQ_RUNMODES as runmodes
         from signalqueue.worker import backends
+        from signalqueue.models import log_exceptions
+        
         queue_name = options.get('queue_name')
         queues = backends.ConnectionHandler(settings.SQ_QUEUES, runmodes['SQ_ASYNC_MGMT'])
         
@@ -90,13 +92,11 @@ class Command(BaseCommand):
                 sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
                 signal = signalblip.get('signal')
                 
-                self.echo("\n>>> Processing signal sent by %s.%s: %s.%s" % (
+                self.echo(">>> Processing signal sent by %s.%s: %s.%s" % (
                     sender._meta.app_label, sender.__name__, signal.keys()[0], signal.values()[0]), color=31)
                 
-                try:
+                with log_exceptions(queue_name=queue_name):
                     queue.dequeue(queued_signal=signalblip)
-                except Exception, err:
-                    self.echo("\n>>> Queue process threw an exception: %s" % err, color=31)
         
         self.echo(">>> Done flushing signal queue '%s' -- %s enqueued signals remaining" % (
             queue.queue_name, queue.count()), color=31)

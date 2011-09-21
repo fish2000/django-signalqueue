@@ -128,6 +128,77 @@ def callback_no_exception(sender, **kwargs):
     msg = "********** NOEXEPT: %s" % kwargs.keys()
     print msg
 
+
+class ExceptionLogTests(TestCase):
+    
+    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
+    
+    def setUp(self):
+        self.dqsettings = dict(
+            SQ_ADDITIONAL_SIGNALS=['signalqueue.tests'],
+            SQ_RUNMODE='SQ_ASYNC_REQUEST')
+        with self.settings(**self.dqsettings):
+            import signalqueue
+            signalqueue.autodiscover()
+            from signalqueue.worker import queues
+            self.queue = queues['db']
+    
+    def test_exception_log_context_manager(self):
+        from signalqueue.models import log_exceptions
+        
+        with log_exceptions(queue_name="db", exc_type=ValueError):
+            raise ValueError("Yo dogg: I hear you like logged exception messages")
+        
+        with self.assertRaises(TestException):
+            with log_exceptions(queue_name="db", exc_type=ValueError):
+                raise TestException("Yo dogg: I hear you like logged exception messages") 
+        
+        exc_message = "Yo dogg: I hear you like logged exception messages"
+        for exc in (ValueError, TestException):
+            with log_exceptions(queue_name="db", exc_type=(ValueError, TestException)):
+                raise exc(exc_message)
+        
+        '''
+        from signalqueue.models import WorkerExceptionLog
+        from pprint import pformat
+        import simplejson
+        #from django.core.serializers import serialize
+        print ""
+        print "*********** LOGGED EXCEPTIONS:"
+        #print pformat(WorkerExceptionLog.objects._exceptions, indent=4, depth=16)
+        print serialize('json', WorkerExceptionLog.objects.all(), indent=4)
+        #print "-----------"
+        #print simplejson.dumps(WorkerExceptionLog.objects._exceptions, indent=4)
+        print "***********"
+        print ""
+        '''
+        
+    
+    def test_exception_log_context_manager_dequeue(self):
+        with self.settings(**self.dqsettings):
+            test_sync_function_signal.disconnect(callback_no_exception)
+            test_sync_function_signal.connect(callback)
+            
+            from django.core.management import call_command
+            call_command('dequeue',
+                queue_name='db', verbosity=2)
+            
+            from signalqueue.models import WorkerExceptionLog
+            self.assertTrue(WorkerExceptionLog.objects.count() == 1)
+            self.assertTrue(WorkerExceptionLog.objects.get().count == 16)
+            
+            '''
+            from pprint import pformat
+            from django.core.serializers import serialize
+            print ""
+            print "*********** LOGGED EXCEPTIONS:"
+            print pformat(WorkerExceptionLog.objects.all())
+            print serialize('json', WorkerExceptionLog.objects.all(), indent=4)
+            print "***********"
+            print ""
+            '''
+
+
 class DequeueManagementCommandTests(TestCase):
     
     fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']

@@ -7,3 +7,4 @@ admin.site.app_index_template = os.path.join(SQ_ROOT, 'templates/admin/app_index
 
 import signalqueue.models
 admin.site.register(signalqueue.models.EnqueuedSignal)
+admin.site.register(signalqueue.models.WorkerExceptionLog)
