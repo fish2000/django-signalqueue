@@ -168,6 +168,10 @@ class WorkerExceptionLogQuerySet(models.query.QuerySet):
         elif type(exception) == type(type):
             return self.withtype(exception.__name__).withmodule(exception.__module__)
         return self.none()
+    
+    @delegate
+    def totalcount(self):
+        return self.aggregate(totalcount=models.Sum('count'))['totalcount']
 
 
 class WorkerExceptionLogManager(DelegateManager):

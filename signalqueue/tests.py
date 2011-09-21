@@ -158,6 +158,11 @@ class ExceptionLogTests(TestCase):
             with log_exceptions(queue_name="db", exc_type=(ValueError, TestException)):
                 raise exc(exc_message)
         
+        from signalqueue.models import WorkerExceptionLog
+        self.assertEqual(WorkerExceptionLog.objects.totalcount(), 3)
+        self.assertEqual(WorkerExceptionLog.objects.withtype('ValueError').totalcount(), 2)
+        self.assertEqual(WorkerExceptionLog.objects.withtype('TestException').totalcount(), 1)
+        
         '''
         from signalqueue.models import WorkerExceptionLog
         from pprint import pformat
