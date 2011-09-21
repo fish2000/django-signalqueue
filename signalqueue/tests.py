@@ -292,9 +292,10 @@ class RegistryTests(TestCase):
     def test_register_function(self):
         import signalqueue
         signalqueue.register(additional_signal, 'additional_signal', 'signalqueue.tests')
-        signalqueue.register(additional_signal, 'yo_dogg', 'signalqueue.tests')
+        signalqueue.register(additional_signal, 'yo_dogg', 'i-heard-you-like-signal-registration-keys')
         
         self.assertTrue(additional_signal in signalqueue.SQ_DMV['signalqueue.tests'])
+        self.assertTrue(additional_signal in signalqueue.SQ_DMV['i-heard-you-like-signal-registration-keys'])
     
     def test_additional_signals(self):
         from signalqueue import signals
