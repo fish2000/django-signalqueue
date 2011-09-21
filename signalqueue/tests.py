@@ -102,13 +102,15 @@ class TestModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=False, null=False, unique=False, default="Test Model Instance.")
     
-    def save(self, signal, force_insert=False, force_update=False):
+    def save(self, signal=None, force_insert=False, force_update=False):
         super(TestModel, self).save(force_insert, force_update)
-        signal.send(sender=self, instance=self, signal_label="save")
+        if signal is not None:
+            signal.send(sender=self, instance=self, signal_label="save")
     
-    def save_now(self, signal, force_insert=False, force_update=False):
+    def save_now(self, signal=None, force_insert=False, force_update=False):
         super(TestModel, self).save(force_insert, force_update)
-        signal.send_now(sender=self, instance=self, signal_label="save_now")
+        if signal is not None:
+            signal.send_now(sender=self, instance=self, signal_label="save_now")
     
     def callback(self, sender=None, **kwargs):
         msg =  "********** MODEL CALLBACK: %s sent %s\n" % (sender, kwargs.items())
@@ -287,9 +289,15 @@ class RegistryTests(TestCase):
     def setUp(self):
         pass
     
+    def test_register_function(self):
+        import signalqueue
+        signalqueue.register(additional_signal, 'additional_signal', 'signalqueue.tests')
+        signalqueue.register(additional_signal, 'yo_dogg', 'signalqueue.tests')
+        
+        self.assertTrue(additional_signal in signalqueue.SQ_DMV['signalqueue.tests'])
+    
     def test_additional_signals(self):
         from signalqueue import signals
-        from django.conf import settings
         
         with self.settings(SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']):
             import signalqueue

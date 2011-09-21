@@ -32,6 +32,13 @@ SQ_RUNMODES = {
 
 SQ_DMV = defaultdict(set)
 
+class SignalRegistryError(AttributeError):
+    pass
+
+class SignalDispatchError(AttributeError):
+    pass
+
+
 def autodiscover():
     """
     Auto-discover signals.py modules in the apps in INSTALLED_APPS;
@@ -104,23 +111,31 @@ def autodiscover():
 
 autodiscover.lock = threading.Lock()
 
-class Registrar(object):
-    """
-    Interface for the async signal registry.
+def register(signal, name, regkey=None):
+    if regkey is None:
+        if hasattr(signal, '__module__'):
+            regkey = signal.__module__
+        else:
+            raise SignalRegistryError("Cannot register signal: register() called without a regkey and signal '%s' has no __module__ attribute." % (
+                signal,))
     
-    """
-    queues = {}
-    queue_name = None
-    runmode = None
+    from signalqueue.dispatcher import AsyncSignal
+    if not isinstance(signal, AsyncSignal):
+        raise SignalRegistryError("Cannot register signal: '%s' is not an instance of AsyncSignal." % (
+            signal,))
     
+    logg.info("*** Registering signal '%s' %s to '%s'" % (name, signal, regkey))
+    autodiscover.lock.acquire()
     
+    try:
+        if not hasattr(signal, 'name'):
+            signal.name = name
+        if not hasattr(signal, 'regkey'):
+            signal.regkey = regkey
+        SQ_DMV[regkey].add(signal)
     
-
-class SignalRegistryError(AttributeError):
-    pass
-
-class SignalDispatchError(AttributeError):
-    pass
+    finally:
+        autodiscover.lock.release()
 
 
 

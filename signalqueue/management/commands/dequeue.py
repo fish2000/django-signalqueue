@@ -79,7 +79,6 @@ class Command(BaseCommand):
         
         self.echo("\n>>> Flushing signal queue '%s' -- %s enqueued signals total" % (
             queue.queue_name, queue.count()), color=31)
-        self.echo("\n")
         
         from django.db.models.loading import cache
         if queue.count() > 0:
@@ -93,7 +92,6 @@ class Command(BaseCommand):
                 
                 self.echo("\n>>> Processing signal sent by %s.%s: %s.%s" % (
                     sender._meta.app_label, sender.__name__, signal.keys()[0], signal.values()[0]), color=31)
-                self.echo("\n")
                 
                 try:
                     queue.dequeue(queued_signal=signalblip)
