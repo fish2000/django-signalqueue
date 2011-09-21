@@ -3,7 +3,7 @@ from distutils.core import setup
 
 setup(
     name='django-signalqueue',
-    version='0.1.5',
+    version='0.1.8',
     description='Asynchronous signals for Django.',
     author='Alexander Bohn',
     author_email='fish2000@gmail.com',
