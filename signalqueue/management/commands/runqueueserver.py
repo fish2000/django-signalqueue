@@ -46,7 +46,7 @@ class Command(BaseCommand):
             print text
     
     def exit(self, status=2):
-        self.echo("\n+++ Exiting ...\n\n", color=16)
+        self.echo("+++ Exiting ...\n", color=16)
         if self.exit_when_halting:
             sys.exit(status)
 
@@ -84,7 +84,7 @@ class Command(BaseCommand):
             IOLoop.instance().start()
         
         except KeyboardInterrupt:
-            self.echo("\nShutting down signal queue worker ...\n", color=31)
+            self.echo("Shutting down signal queue worker ...", color=31)
     
     def handle(self, addrport='', *args, **options):
         echo_banner()
@@ -116,7 +116,7 @@ class Command(BaseCommand):
             'port': port,
         })
         
-        self.echo("Validating models...\n")
+        self.echo("Validating models...")
         self.validate(display_num_errors=True)
         
         self.echo(("\nDjango version %(version)s, using settings %(settings)r\n"
