@@ -1,13 +1,14 @@
 #/usr/bin/env python
 from distutils.core import setup
+import signalqueue
 
 setup(
     name='django-signalqueue',
-    version='0.1.8',
+    version='%s.%s.%s' % signalqueue.__version__,
     description='Asynchronous signals for Django.',
-    author='Alexander Bohn',
+    author=signalqueue.__author__,
     author_email='fish2000@gmail.com',
-    maintainer='Alexander Bohn',
+    maintainer=signalqueue.__author__,
     maintainer_email='fish2000@gmail.com',
     license='BSD',
     url='http://github.com/fish2000/django-signalqueue/',
@@ -47,7 +48,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Topic :: Utilities'
     ]
