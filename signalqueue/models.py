@@ -1,4 +1,5 @@
 
+import sys
 from django.db import models
 from django.core.urlresolvers import reverse
 from datetime import datetime
@@ -187,13 +188,10 @@ class WorkerExceptionLogManager(DelegateManager):
         ))
     
     def log_exception(self, exception, queue_name='default'):
-        import sys
-        
-        try:
-            raise exception
-        except:
-            exc_type, exc_value, tb = sys.exc_info()
-        
+        exc_type, exc_value, tb = sys.exc_info()
+        return self.log_exception_data(exception, exc_type, exc_value, tb, queue_name=queue_name)
+    
+    def log_exception_data(self, exception, exc_type, exc_value, tb, queue_name='default'):
         key = self._make_key(exc_type, str(exception))
         exc_log_entry = None
         
@@ -234,7 +232,8 @@ class WorkerExceptionLogManager(DelegateManager):
         try:
             yield
         except exc_type, exc:
-            self.log_exception(exc, queue_name)
+            exc_type, exc_value, tb = sys.exc_info()
+            self.log_exception_data(exc, exc_type, exc_value, tb, queue_name=queue_name)
     
     def nonexistant_id(self):
         import random
