@@ -153,7 +153,7 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
             response = self.wait()
             self.assertTrue(queue_name in response.body)
             self.assertTrue("enqueued" in response.body)
-        
+            
             phrase = "%s enqueued signals" % queues[queue_name].count()
             self.assertTrue(phrase in response.body)
     
@@ -204,27 +204,12 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
         import signalqueue
         signalqueue.autodiscover()
         
+        from django.core.management import call_command
+        call_command('runqueueserver', '9920',
+            queue_name='db', halt_when_exhausted=True, exit=False)
+        
         from signalqueue.models import WorkerExceptionLog
-        from datetime import datetime
-        print "Waiting for the queue worker to log an exception..."
-        then = datetime.now()
-        while (datetime.now() - then).seconds < 10:
-            try:
-                wait_out = self.wait(
-                    timeout=1,
-                    condition=lambda: WorkerExceptionLog.objects.totalcount() > 0,
-                )
-            
-            except AssertionError:
-                pass
-            
-            finally:
-                self.stop()
-            
-            if WorkerExceptionLog.objects.totalcount() > 0:
-                print "Exception logged!"
-                break
-                
+        self.assertTrue(WorkerExceptionLog.objects.totalcount() == 16)
     
     def test_worker_application(self):
         self.http_client.fetch(self.get_url('/'), self.stop)

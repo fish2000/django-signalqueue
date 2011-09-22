@@ -20,11 +20,16 @@ class Command(BaseCommand):
             default=False,
             help="Halt the queue worker once the queue has been exhausted",
         ),
+        make_option('--no-exit', '-N', action='store_false', dest='exit',
+            default=True,
+            help="Don't call sys.exit() when halting",
+        ),
     )
     
     help = ('Runs the Tornado-based queue worker.')
     args = '[optional port number, or ipaddr:port]'
     can_import_settings = True
+    exit_when_halting = True
     
     def echo(self, *args, **kwargs):
         """
@@ -40,6 +45,11 @@ class Command(BaseCommand):
         else:
             print text
     
+    def exit(self, status=2):
+        self.echo("\n+++ Exiting ...\n\n", color=16)
+        if self.exit_when_halting:
+            sys.exit(status)
+
     def run_worker(self, args, options):
         """
         Runs the Tornado-based queue worker.
@@ -59,14 +69,12 @@ class Command(BaseCommand):
         except:
             self.echo("\n--- Can't ping the backend for %s named '%s'" % (queue.__class__.__name__, queue_name), color=16)
             self.echo("\n--- Is the server running?", color=16)
-            self.echo("\n+++ Exiting ...\n\n", color=16)
-            sys.exit(2)
+            self.exit(2)
         
         if not queue_available:
             self.echo("\n--- Can't ping the backend for %s named '%s'" % (queue.__class__.__name__, queue_name), color=16)
             self.echo("\n--- Is the server running?", color=16)
-            self.echo("\n+++ Exiting ...\n\n", color=16)
-            sys.exit(2)
+            self.exit(2)
         
         http_server = HTTPServer(Application(queue_name=queue_name,
             halt_when_exhausted=options.get('halt_when_exhausted', False)))
@@ -77,17 +85,14 @@ class Command(BaseCommand):
         
         except KeyboardInterrupt:
             self.echo("\nShutting down signal queue worker ...\n", color=31)
-        
-        finally:
-            self.echo("+++ Exiting ...\n", color=16)
-            sys.exit(0)
-        
     
     def handle(self, addrport='', *args, **options):
         echo_banner()
         
         if args:
             raise CommandError('Usage: %s %s' % (__file__, self.args))
+        
+        self.exit_when_halting = options.get('exit', True)
         
         if not addrport:
             addr = ''
@@ -132,3 +137,6 @@ class Command(BaseCommand):
         except ImproperlyConfigured, err:
             self.echo("*** ERROR in configuration: %s" % err, color=31)
             self.echo("*** Check the signalqueue options in your settings.py.", color=31)
+        
+        finally:
+            self.exit(0)

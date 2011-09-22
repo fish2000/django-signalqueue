@@ -34,7 +34,7 @@ class Application(tornado.web.Application):
         from django.core.management import setup_environ
         import settings
         setup_environ(settings)
-        #from django.conf import settings
+        from django.conf import settings as django_settings
         
         nm = kwargs.get('queue_name', "default")
         self.queue_name = nm
@@ -46,10 +46,10 @@ class Application(tornado.web.Application):
         ]
         
         settings = dict(
-            template_path=settings.TEMPLATE_DIRS[0],
-            static_path=settings.MEDIA_ROOT,
+            template_path=django_settings.TEMPLATE_DIRS[0],
+            static_path=django_settings.MEDIA_ROOT,
             xsrf_cookies=True,
-            cookie_secret=hashlib.sha1(settings.SECRET_KEY).hexdigest(),
+            cookie_secret=hashlib.sha1(django_settings.SECRET_KEY).hexdigest(),
             logging='info',
             queue_name=nm,
         )
