@@ -235,6 +235,17 @@ class WorkerExceptionLogManager(DelegateManager):
             yield
         except exc_type, exc:
             self.log_exception(exc, queue_name)
+    
+    def nonexistant_id(self):
+        import random
+        random.seed()
+        while True:
+            putative_nonexistant_id = random.randint(1, 99999999)
+            try:
+                self.get(pk=putative_nonexistant_id)
+            except self.model.DoesNotExist:
+                return putative_nonexistant_id
+
 
 class WorkerExceptionLog(models.Model):
     class Meta:

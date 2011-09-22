@@ -262,8 +262,13 @@ class ExceptionLogViewTests(TestCase):
             raise ValueError("Yo dogg: I hear you like logged exception messages")
         except ValueError, err:
             log_entry = WorkerExceptionLog.objects.log_exception(err, queue_name="db")
-        log_entry_view_out = self.client.get('/signalqueue/exception-log-entry/%s/' % log_entry.pk)
-        nonexistant_log_entry_view_out = self.client.get('/signalqueue/exception-log-entry/999999/') # still valid
+        
+        log_entry_view_out = self.client.get(log_entry.get_absolute_url())
+        
+        from django.core.urlresolvers import reverse
+        nonexistant_log_entry_view_out = self.client.get(reverse('signalqueue:exception-log-entry',
+            kwargs=dict(pk=WorkerExceptionLog.objects.nonexistant_id())))
+        self.client.get('/admin/logout/')
         
         self.assertEquals(log_entry_view_out.status_code, 302)
         self.assertEquals(nonexistant_log_entry_view_out.status_code, 302)
@@ -278,8 +283,11 @@ class ExceptionLogViewTests(TestCase):
         
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
-        log_entry_view_out = self.client.get('/signalqueue/exception-log-entry/%s/' % log_entry.pk)
-        nonexistant_log_entry_view_out = self.client.get('/signalqueue/exception-log-entry/999999/') # still valid
+        log_entry_view_out = self.client.get(log_entry.get_absolute_url())
+        
+        from django.core.urlresolvers import reverse
+        nonexistant_log_entry_view_out = self.client.get(reverse('signalqueue:exception-log-entry',
+            kwargs=dict(pk=WorkerExceptionLog.objects.nonexistant_id())))
         self.client.get('/admin/logout/')
         
         self.assertEquals(log_entry_view_out.status_code, 200)

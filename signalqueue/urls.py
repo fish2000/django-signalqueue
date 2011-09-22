@@ -7,7 +7,7 @@ app_patterns = patterns('',
         name="exception-log-entry"),
 )
 
-urlpatterns = patterns(''
+urlpatterns = patterns('',
     url(r'^exception-log-entry/', include(app_patterns,
         namespace='signalqueue', app_name='signalqueue')),
 )
