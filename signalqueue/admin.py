@@ -1,4 +1,4 @@
-import os
+import os, socket
 from django.contrib import admin
 from signalqueue.utils import SQ_ROOT
 
@@ -28,8 +28,8 @@ class WorkerExceptionLogAdmin(admin.ModelAdmin):
                 </h3>
                 <div class="exception-html-details">
                     <iframe name="exception-html-iframe-%s" id="exception-html-iframe-%s"
-                        src="about:blank"
-                        width="700" height="400" scrolling="auto">
+                        src="%s"
+                        width="100%%" height="400" scrolling="auto">
                     </iframe>
                 </div>
             </div>
@@ -52,8 +52,11 @@ class WorkerExceptionLogAdmin(admin.ModelAdmin):
             obj.pk,
             obj.pk,
             obj.pk,
+            #"http://%s%s" % (socket.gethostname().lower(), obj.get_absolute_url()),
+            obj.get_absolute_url(),
             obj.pk,
             obj.pk,
+            #"http://%s%s" % (socket.gethostname().lower(), obj.get_absolute_url()),
             obj.get_absolute_url(),
             obj.pk,
         )
@@ -61,12 +64,11 @@ class WorkerExceptionLogAdmin(admin.ModelAdmin):
         return out or u'<i style="color: lightgray;">No Info</i>'
     with_html.short_description = "Exception Traceback"
     with_html.allow_tags = True
-        
-    
+
 
 admin.site.index_template = os.path.join(SQ_ROOT, 'templates/admin/index_with_queues.html')
 admin.site.app_index_template = os.path.join(SQ_ROOT, 'templates/admin/app_index.html')
 
 import signalqueue.models
 admin.site.register(signalqueue.models.EnqueuedSignal)
-admin.site.register(signalqueue.models.WorkerExceptionLog)
+admin.site.register(signalqueue.models.WorkerExceptionLog, WorkerExceptionLogAdmin)
