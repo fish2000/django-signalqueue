@@ -12,8 +12,13 @@ from . import echo_banner
 class Command(BaseCommand):
     
     option_list = BaseCommand.option_list + (
-        make_option('--queuename', '-n', dest='queue_name', default='default',
+        make_option('--queuename', '-n', dest='queue_name',
+            default='default',
             help="Name of the queue as defined in settings.py (defaults to 'default')",
+        ),
+        make_option('--halt-when-exhausted', '-H', action='store_true', dest='halt_when_exhausted',
+            default=False,
+            help="Halt the queue worker once the queue has been exhausted",
         ),
     )
     
@@ -63,7 +68,8 @@ class Command(BaseCommand):
             self.echo("\n+++ Exiting ...\n\n", color=16)
             sys.exit(2)
         
-        http_server = HTTPServer(Application(queue_name=queue_name))
+        http_server = HTTPServer(Application(queue_name=queue_name,
+            halt_when_exhausted=options.get('halt_when_exhausted', False)))
         http_server.listen(int(options.get('port')), address=options.get('addr'))
         
         try:

@@ -161,7 +161,7 @@ class DatabaseQueueProxy(QueueBase):
                 ModlCls = cache.get_model(app_label=kwargs['queue_options'].get('app_label'), model_name=kwargs['queue_options'].get('modl_name'))
                 mgr_instance = getattr(ModlCls, mgr)
                 mgr_instance.runmode = kwargs.pop('runmode', None)
-                mgr_instance.queue_name = kwargs.pop('queue_name', "default")
+                mgr_instance.queue_name = kwargs.pop('queue_name')
                 mgr_instance.queue_options = {}
                 mgr_instance.queue_options.update(kwargs.pop('queue_options', {}))
                 

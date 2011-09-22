@@ -34,9 +34,10 @@ class Application(tornado.web.Application):
         from django.core.management import setup_environ
         import settings
         setup_environ(settings)
-        from django.conf import settings
+        #from django.conf import settings
         
         nm = kwargs.get('queue_name', "default")
+        self.queue_name = nm
         
         handlers = [
             (r'/', MainHandler),
@@ -57,13 +58,15 @@ class Application(tornado.web.Application):
         self.queues = {}
         if nm is not None:
             self.queues.update({
-                nm: PoolQueue(queue_name=nm, active=True)
+                nm: PoolQueue(queue_name=nm, active=True, halt=kwargs.get('halt_when_exhausted', False))
             })
 
 
 class BaseQueueConnector(object):
     
-    def queue(self, queue_name='default'):
+    def queue(self, queue_name=None):
+        if queue_name is None:
+            queue_name = self.application.queue_name
         if queue_name not in queues.keys():
             raise IndexError("No queue named %s is defined" % queue_name)
         
@@ -116,12 +119,11 @@ class QueueServerStatusHandler(BaseHandler):
         self.template = loader.get_template('queueserver/status.html')
     
     def get(self):
-        nm = self.get_argument('queue', "default")
+        nm = self.get_argument('queue', self.application.queue_name)
         self.write(
             self.template.render(Context({
                 'queue_name': nm,
                 'items': [json.loads(morsel) for morsel in self.queue(nm).signalqueue.values()],
-                # DOUBLE UGGGGGH
             }))
         )
 
