@@ -3,6 +3,13 @@ from django.contrib import admin
 from signalqueue.utils import SQ_ROOT
 
 class WorkerExceptionLogAdmin(admin.ModelAdmin):
+    
+    class Media:
+        js = (
+            'https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js',
+            'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js',
+        )
+    
     save_as = True
     save_on_top = True
     actions_on_top = True
@@ -14,46 +21,44 @@ class WorkerExceptionLogAdmin(admin.ModelAdmin):
     list_per_page = 10
     
     def with_html(self, obj):
-        if obj.icc:
-            out = u"""
-                <div class="exception-html" id="exception-html-%s">
-                    <h3 class="exception-html">
-                        <a href="#">Details for &#8220;%s&#8221;</a>
-                    </h3>
-                    <div class="exception-html-details">
-                        <iframe name="exception-html-iframe-%s" id="exception-html-iframe-%s"
-                            src="about:blank"
-                            width="700" height="400" scrolling="auto">
-                        </iframe>
-                    </div>
+        out = u"""
+            <div class="exception-html" id="exception-html-%s">
+                <h3 class="exception-html">
+                    <a href="#">Details for &#8220;%s&#8221;</a>
+                </h3>
+                <div class="exception-html-details">
+                    <iframe name="exception-html-iframe-%s" id="exception-html-iframe-%s"
+                        src="about:blank"
+                        width="700" height="400" scrolling="auto">
+                    </iframe>
                 </div>
-                <script type="text/javascript">
-                    $(document).ready(function() {
-                        $("#exception-html-%s").accordion({
-                            active: false,
-                            autoHeight: false,
-                            animated: true,
-                            collapsible: true,
-                            changestart: function (e, ui) {
-                                $('#exception-html-iframe-%s').attr('src', '%s');
-                                window.frames['exception-html-iframe-%s'].location.reload();
-                            }
-                        });
+            </div>
+            <script type="text/javascript">
+                $(document).ready(function() {
+                    $("#exception-html-%s").accordion({
+                        active: false,
+                        autoHeight: false,
+                        animated: true,
+                        collapsible: true,
+                        changestart: function (e, ui) {
+                            $('#exception-html-iframe-%s').attr('src', '%s');
+                            window.frames['exception-html-iframe-%s'].location.reload();
+                        }
                     });
-                </script>
-            """ % (
-                obj.pk,
-                obj.pk,
-                obj.pk,
-                obj.pk,
-                obj.pk,
-                obj.pk,
-                obj.get_absolute_url(),
-                obj.pk,
-            )
-            
-            return out or u'<i style="color: lightgray;">No Info</i>'
-        return u'<i style="color: lightgray;">None</i>'
+                });
+            </script>
+        """ % (
+            obj.pk,
+            obj.pk,
+            obj.pk,
+            obj.pk,
+            obj.pk,
+            obj.pk,
+            obj.get_absolute_url(),
+            obj.pk,
+        )
+        
+        return out or u'<i style="color: lightgray;">No Info</i>'
     with_html.short_description = "Exception Traceback"
     with_html.allow_tags = True
         
