@@ -1,5 +1,6 @@
 
 from django.db import models
+from django.core.urlresolvers import reverse
 from datetime import datetime
 from contextlib import contextmanager
 from delegate import DelegateManager, DelegateQuerySet, delegate
@@ -296,6 +297,9 @@ class WorkerExceptionLog(models.Model):
     
     def increment(self):
         self.count = self.count + 1
+    
+    def get_absolute_url(self):
+        return reverse('signalqueue:exception-log-entry', kwargs=dict(pk=self.pk))
     
     def __unicode__(self):
         return "<Log:%s.%s queue:%s cnt:%s ('%s')>" % (

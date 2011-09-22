@@ -5,7 +5,7 @@ from signalqueue.models import WorkerExceptionLog
 
 @user_passes_test(lambda user: user.is_superuser)
 @login_required
-def exception_log_entry(request, pk):
+def exception_log_entry(request, pk=0):
     try:
         log_entry = WorkerExceptionLog.objects.get(pk=pk)
     except WorkerExceptionLog.DoesNotExist:
