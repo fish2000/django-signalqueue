@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-__author__ = 'Alexader Bohn'
+__author__ = 'Alexander Bohn'
 __version__ = (0, 1, 8)
 
 """
