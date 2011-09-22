@@ -1,6 +1,7 @@
 
 import sys
 from django.db import models
+from django.db.models import signals
 from django.core.urlresolvers import reverse
 from datetime import datetime
 from contextlib import contextmanager
@@ -166,7 +167,6 @@ class WorkerExceptionLogQuerySet(models.query.QuerySet):
     def like(self, exception):
         if isinstance(exception, Exception):
             return self.withtype(exception.__class__.__name__).withmodule(exception.__class__.__module__)
-        #elif issubclass(exception, Exception):
         elif type(exception) == type(type):
             return self.withtype(exception.__name__).withmodule(exception.__module__)
         return self.none()
@@ -187,6 +187,19 @@ class WorkerExceptionLogManager(DelegateManager):
             str(key_value),
         ))
     
+    def contribute_to_class(self, cls, name):
+        super(WorkerExceptionLogManager, self).contribute_to_class(cls, name)
+        signals.pre_delete.connect(self.remove_from_exception_cache, sender=cls,
+            dispatch_uid="signalqueue_remove_from_exception_cache")
+    
+    def remove_from_exception_cache(self, **kwargs): # signal, sender, instance
+        instance = kwargs.get('instance')
+        if instance is not None:
+            for key, exc_log_entry in self._exceptions.items():
+                if exc_log_entry.pk == instance.pk:
+                    del self._exceptions[key]
+                    break
+    
     def log_exception(self, exception, queue_name='default'):
         exc_type, exc_value, tb = sys.exc_info()
         return self.log_exception_data(exception, exc_type, exc_value, tb, queue_name=queue_name)
@@ -198,7 +211,7 @@ class WorkerExceptionLogManager(DelegateManager):
         if key not in self._exceptions:
             from django.views.debug import ExceptionReporter
             
-            # first arg  to ExceptionReporter.__init__() is usually a request object
+            # first arg to ExceptionReporter.__init__() is usually a request object
             reporter = ExceptionReporter(None, exc_type, exc_value, tb)
             html = reporter.get_traceback_html()
             

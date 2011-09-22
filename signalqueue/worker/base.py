@@ -43,7 +43,7 @@ class QueueBase(object):
     
     """
     runmode = None
-    queue_name = "default"
+    queue_name = None
     queue_interval = None
     queue_options = {}
     
@@ -77,6 +77,10 @@ class QueueBase(object):
     
     def values(self):
         raise NotImplementedError("WTF: Queue backend needs a Queue.values() implementaton")
+    
+    def exception_count(self):
+        import signalqueue.models
+        return signalqueue.models.WorkerExceptionLog.objects.fromqueue(self.queue_name).totalcount()
     
     def enqueue(self, signal, sender=None, **kwargs):
         if signal.regkey is not None:

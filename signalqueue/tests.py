@@ -309,6 +309,17 @@ class ExceptionLogTests(TestCase):
             from signalqueue.worker import queues
             self.queue = queues['db']
     
+    def tearDown(self):
+        from signalqueue.models import WorkerExceptionLog
+        WorkerExceptionLog.objects.all().delete()
+    
+    def test_backend_total_exception_count(self):
+        from signalqueue.models import log_exceptions
+        
+        with log_exceptions(queue_name="db", exc_type=ValueError):
+            raise ValueError("Yo dogg: I hear you like logged exception messages")
+        self.assertTrue(self.queue.exception_count() == 1)
+    
     def test_exception_log_context_manager(self):
         from signalqueue.models import log_exceptions
         
