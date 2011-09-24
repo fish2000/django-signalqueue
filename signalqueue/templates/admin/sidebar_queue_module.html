@@ -77,14 +77,18 @@
             
             <h3>Default Queue:</h3>
             <ul class="actionlist queuelist" id="default-queuelist">
-                {% if default.count == 0 %}
-                    {% if default.ping %}
-                        <li><span class="queue-status" id="queue-status-default"><b>Currently Idle</b></span>
-                    {% else %}
-                        <li><span class="queue-status" id="queue-status-default"><b>Queue Unavailable</b></span>
-                    {% endif %}
+                {% if default.count == -1 %}
+                    <li><span class="queue-status" id="queue-status-default"><b>Queue Unresponsive</b></span>
                 {% else %}
-                    <li><span class="queue-status" id="queue-status-default"><b>{{ default.count }}</b> Queued Signals</span>
+                    {% if default.count == 0 %}
+                        {% if default.ping %}
+                            <li><span class="queue-status" id="queue-status-default"><b>Currently Idle</b></span>
+                        {% else %}
+                            <li><span class="queue-status" id="queue-status-default"><b>Queue Unavailable</b></span>
+                        {% endif %}
+                    {% else %}
+                        <li><span class="queue-status" id="queue-status-default"><b>{{ default.count }}</b> Queued Signals</span>
+                    {% endif %}
                 {% endif %}
                 <br />
                 <span style="padding-left: 14px;" class="mini quiet">{% queue_classname 'default' %}</span>
@@ -94,14 +98,18 @@
                 {% if queue_name != 'default' %}
                     <h3{% if forloop.counter0 == 0 %} id="first-non-default-queuelist"{% endif %}>{{ queue_name|capfirst }}:</h3>
                     <ul class="actionlist queuelist">
-                        {% if queue.count == 0 %}
-                             {% if queue.ping %}
-                                <li><span class="queue-status" id="queue-status-{{ queue_name }}"><b>Currently Idle</b></span>
-                            {% else %}
-                                <li><span class="queue-status" id="queue-status-{{ queue_name }}"><b>Queue Unavailable</b></span>
-                            {% endif %}
+                        {% if queue.count == -1 %}
+                            <li><span class="queue-status" id="queue-status-default"><b>Queue Unresponsive</b></span>
                         {% else %}
-                            <li><span class="queue-status" id="queue-status-{{ queue_name }}"><b>{{ queue.count }}</b> Queued Signals</span>
+                            {% if queue.count == 0 %}
+                                {% if queue.ping %}
+                                    <li><span class="queue-status" id="queue-status-default"><b>Currently Idle</b></span>
+                                {% else %}
+                                    <li><span class="queue-status" id="queue-status-default"><b>Queue Unavailable</b></span>
+                                {% endif %}
+                            {% else %}
+                                <li><span class="queue-status" id="queue-status-default"><b>{{ queue.count }}</b> Queued Signals</span>
+                            {% endif %}
                         {% endif %}
                         <br />
                         <span style="padding-left: 14px;" class="mini quiet">{% queue_classname queue_name %}</span>

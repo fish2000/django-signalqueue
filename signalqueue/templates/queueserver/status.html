@@ -76,15 +76,9 @@
                 <tr>
                     {% for key, thingy in item.items %}
                         {% if key == 'instance' %}
-                            {% if thingy.thumbelina %}
-                                <td>
-                                    {{ key }}: <img src="{{ thingy.thumbelina.url }}" />
-                                </td>
-                            {% else %}
-                                <td>
-                                    {{ key }}: <span{% if key == 'name' %} class="big"{% endif %}>{{ thingy }}</span>
-                                </td>
-                            {% endif %}
+                            <td>
+                                {{ key }}: <span{% if key == 'name' %} class="big"{% endif %}>{{ thingy }}</span>
+                            </td>
                         {% else %}
                             <td>
                                 {{ key }}: <span{% if key == 'name' %} class="big"{% endif %}>{{ thingy }}</span>

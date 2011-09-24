@@ -12,7 +12,10 @@ static = lambda pth: os.path.join(settings.STATIC_URL, 'signalqueue', pth)
 @register.simple_tag
 def queue_length(queue_name):
     if queue_name in queues:
-        return queues[queue_name].count()
+        try:
+            return queues[queue_name].count()
+        except:
+            return -1
     return -1
 
 @register.simple_tag
