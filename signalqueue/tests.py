@@ -58,6 +58,8 @@ The output should look something like this:
 """
 from django.conf import settings
 
+rp = None
+
 if __name__ == '__main__':
     from signalqueue.settings import test_async as signalqueue_settings
     signalqueue_settings.__dict__.update({
@@ -65,15 +67,21 @@ if __name__ == '__main__':
     })
     
     settings.configure(**signalqueue_settings.__dict__)
+    import subprocess, os
+    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
     
     from django.core.management import call_command
     call_command('test', 'signalqueue',
         interactive=False, traceback=True, verbosity=2)
     
-    import os
     tempdata = settings.tempdata
     print "Deleting test data: %s" % tempdata
     os.rmdir(tempdata)
+    
+    if rp is not None:
+        import signal
+        print "Shutting down test Redis server instance (pid = %s)" % rp.pid
+        os.kill(rp.pid, signal.SIGKILL)
     
     import sys
     sys.exit(0)
@@ -141,6 +149,10 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     def setUp(self):
         TestCase.setUp(self)
         AsyncHTTPTestCase.setUp(self)
+    
+    def tearDown(self):
+        TestCase.tearDown(self)
+        AsyncHTTPTestCase.tearDown(self)
     
     def get_app(self):
         from signalqueue.worker.vortex import Application

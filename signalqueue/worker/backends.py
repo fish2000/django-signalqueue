@@ -47,6 +47,12 @@ class RedisQueue(QueueBase):
                 logg.warn("*** Can't import hiredis -- consider installing the 'hiredis' module for native-speed queue access.")
             
             self.r = redis.Redis(**self.queue_options)
+            
+            try:
+                self.r.ping()
+            except redis.ConnectionError, err:
+                logg.error("*** Redis connection failed: %s" % err)
+                self.r = None
     
     def ping(self):
         return self.r.ping()

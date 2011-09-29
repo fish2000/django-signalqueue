@@ -5,7 +5,7 @@ SQ_QUEUES = {
         'NAME': 'signalqueue_default',                          # optional - defaults to 'imagekit_queue'
         'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',  # required - full path to a QueueBase subclass
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(),
+        'OPTIONS': dict(port=4332),
     },
     'db': {
         'NAME': 'db',

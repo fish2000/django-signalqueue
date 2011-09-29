@@ -2,6 +2,19 @@
 from distutils.core import setup
 import signalqueue
 
+'''
+import os, shutil
+redis_conf = 'redis.conf'
+redis_conf_locations = ('/usr/local/etc', '/etc')
+pkg_settings_dir = os.path.join(os.path.dirname(__file__), 'signalqueue', 'settings')
+for loc in redis_conf_locations:
+    if os.path.exists(os.path.join(loc, redis_conf)):
+        if os.path.exists(os.path.join(pkg_settings_dir, redis_conf)):
+            os.remove(os.path.join(pkg_settings_dir, redis_conf))
+        shutil.copy(os.path.join(loc, redis_conf), pkg_settings_dir)
+        break
+'''
+
 setup(
     name='django-signalqueue',
     version='%s.%s.%s' % signalqueue.__version__,
@@ -30,6 +43,7 @@ setup(
     package_data={
         'signalqueue': [
             'fixtures/*.json',
+            'settings/*.conf',
             'static/signalqueue/js/*.js',
             'templates/admin/*.html',
             'templates/queueserver/*.html',
