@@ -55,7 +55,9 @@ class RedisQueue(QueueBase):
                 self.r = None
     
     def ping(self):
-        return self.r.ping()
+        if self.r is not None:
+            return self.r.ping()
+        return False
     
     def push(self, value):
         self.r.rpush(self.queue_name, value)
