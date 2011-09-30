@@ -6,10 +6,48 @@ After a certain amount of time anyone concerning themselves with the Django fram
 to ask the question: *I love Django's signals, indeed. But if only I could dispatch them asynchronously.
 Like, on some other thread or something, I don't really know.... Is that somehow possible?*
 
-Well, now you can easily do that:
+Well, now you can easily do that! One contrived yet demonstrative example of such is this:
+you want to update an event log in your app when a user saves a form, but the update function you wrote does some gnarly aggregation so you can see each datum reflected in real-time. If you call it in a view it beachballs
+both the running app process and your users' patience.
 
+That's where django-signalqueue comes in. After you set it up, this is all you need to do:
+
+::
+
+    # yourapp/signals.py
+    from signalqueue import dispatch
+    from yourapp.logs import inefficient_log_update_function as log_update
+    
+    form_submit = dispatch.AsyncSignal(
+        providing_args=['instance'])            # define an asynchronous signal
+    
+    form_submit.connect(log_update)             # doesn't have to be right here, as long
+                                                # as it runs when the app starts up
+
+Now you can call the function in a view without blocking everything:
+
+::
+
+    # yourapp/views.py
+    from yourapp import signals, models
+    
+    def process_form(request):
+        pk = save_user_form(request)            # your logic here
+        obj = models.MyModl.objects.get(pk=pk)
+        signals.form_submit.send(instance=obj)  # returns quickly!
+        return an_http_response_object          # eventually return an HttpResponse
+
+
+Django-signalqueue sticks to Django's naming and calling conventions for signals. It gets out of your
+way and feels familiar, while granting you the power of async calls.
+
+
+============================================================================================
 With django-signalqueue, asynchronous dispatch is not even a thing -- that's how easy it is.
 ============================================================================================
+
+Setting It Up
+=============
 
 Watch, I'll show you. First, install django-signalqueue:
 
