@@ -15,6 +15,7 @@ That's where django-signalqueue comes in. After you set it up, this is all you n
 ::
 
     # yourapp/signals.py
+    
     from signalqueue import dispatch
     from yourapp.logs import inefficient_log_update_function as log_update
     
@@ -29,6 +30,7 @@ Now you can call the function in a view without blocking everything:
 ::
 
     # yourapp/views.py
+    
     from yourapp import signals, models
     
     def process_form(request):
