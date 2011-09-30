@@ -1,5 +1,4 @@
 
-import hashlib
 from signalqueue.utils import ADict
 
 class IDMapPin(ADict):
@@ -34,8 +33,36 @@ class IDMap(object):
         ))
     
     def remap(self, pin):
-        return str(pin.obj_id)
+        return str(pin.get('obj_id'))
 
+class PickleMap(IDMap):
+    
+    brine = None
+    
+    def __init__(self, maptype=object, **kwargs):
+        super(PickleMap, self).__init__(maptype=maptype, **kwargs)
+        try:
+            import cPickle as pickle
+        except ImportError:
+            import pickle
+        self.brine = pickle
+    
+    def map(self, obj):
+        proto = getattr(self.brine, 'HIGHEST_PROTOCOL', 0)
+        return dict(IDMapPin(
+            obj_id=self.brine.dumps(obj, protocol=proto),
+            modl_name=proto,
+            app_label="pickle",
+        ))
+    
+    def remap(self, pin):
+        halfsour = pin.get('obj_id')
+        proto = int(pin.get('modl_name'))
+        try:
+            return self.brine.loads(halfsour)
+        except AttributeError:
+            return None
+        return None
 
 class ModelInstanceMap(IDMap):
     
@@ -49,8 +76,8 @@ class ModelInstanceMap(IDMap):
     def map(self, instance):
         return dict(IDMapPin(
             obj_id=instance.pk,
-            app_label=instance._meta.app_label,
             modl_name=instance.__class__.__name__.lower(),
+            app_label=instance._meta.app_label,
         ))
     
     def remap(self, pin):
@@ -65,10 +92,11 @@ class ModelInstanceMap(IDMap):
 class ICCProfileMap(IDMap):
     
     def map(self, iccprofile):
+        import hashlib
         return dict(IDMapPin(
             obj_id=hashlib.sha1(iccprofile.data).hexdigest(),
-            app_label='imagekit',
             modl_name='iccmodel',
+            app_label='imagekit',
         ))
     
     def remap(self, pin):

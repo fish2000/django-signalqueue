@@ -82,6 +82,7 @@ class QueueBase(object):
     
     @property
     def exceptions(self):
+        """ Return any exceptions logged against this queue. """
         import signalqueue.models
         return signalqueue.models.WorkerExceptionLog.objects.fromqueue(self.queue_name)
     
@@ -121,6 +122,11 @@ class QueueBase(object):
                 exc, exc_type, exc_value, tb, queue_name=self.queue_name)
     
     def enqueue(self, signal, sender=None, **kwargs):
+        """
+        Serialize the parameters of a signal call, encode the serialized structure,
+        and push the encoded string onto the queue.
+        
+        """
         if signal.regkey is not None:
             if self.ping():
                 queue_json = {
@@ -138,6 +144,11 @@ class QueueBase(object):
             raise signalqueue.SignalRegistryError("Signal has no regkey value.")
     
     def retrieve(self):
+        """
+        Pop the queue, decode the popped signal without deserializing,
+        returning the serialized data.
+        
+        """
         if self.count() > 0:
             out = self.pop()
             if out is not None:
@@ -203,7 +214,7 @@ class QueueBase(object):
     
     def next(self):
         """
-        Retrieve and return a signal without dequeueing.
+        Retrieve and return a signal from the queue without executing it.
         
         This allows one to iterate through a queue with access to the signal data,
         and control over the dequeue execution -- exceptions can be caught, signals
@@ -268,6 +279,7 @@ class QueueBase(object):
         return self
     
     def __getitem__(self, idx):
+        """ Syntax sugar: myqueue[i] gives you the same value as myqueue.values()[i] """
         return self.values().__getitem__(idx)
     
     def __setitem__(self, idx, val):

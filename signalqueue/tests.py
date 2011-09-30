@@ -233,6 +233,49 @@ def callback_no_exception(sender, **kwargs):
     print msg
 
 
+class IDMapTests(TestCase):
+    
+    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
+    
+    def setUp(self):
+        from signalqueue.worker import queues
+        self.mapper = mappings.IDMap()
+        self.mapees = [str(v) for v in queues['db'].values()]
+    
+    def test_map_remap(self):
+        for test_instance in self.mapees:
+            mapped = self.mapper.map(test_instance)
+            remapped = self.mapper.remap(mapped)
+            self.assertEqual(test_instance, remapped)
+
+class ModelInstanceMapTests(TestCase):
+    
+    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
+    
+    def setUp(self):
+        self.mapper = mappings.ModelInstanceMap()
+    
+    def test_map_remap(self):
+        for test_instance in TestModel.objects.all():
+            mapped = self.mapper.map(test_instance)
+            remapped = self.mapper.remap(mapped)
+            self.assertEqual(test_instance, remapped)
+
+class PickleMapTests(TestCase):
+    
+    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
+    
+    def setUp(self):
+        self.mapper = mappings.PickleMap()
+    
+    def test_map_remap(self):
+        for test_instance in TestModel.objects.all():
+            mapped = self.mapper.map(test_instance)
+            remapped = self.mapper.remap(mapped)
+            self.assertEqual(test_instance, remapped)
+
+
+
 class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     
     fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']

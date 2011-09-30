@@ -239,7 +239,7 @@ class ConnectionHandler(object):
         default_engine = 'signalqueue.worker.backends.RedisSetQueue'
         
         if not conn.get('ENGINE'):
-            logg.warn("*** Connection '%s' has no ENGINE specified -- using the default '%s'" % default_engine)
+            logg.warn("*** Connection '%s' doesn't specify an ENGINE, using the default engine: '%s'" % default_engine)
             conn['ENGINE'] =  default_engine # default to using the Redis set backend
     
     def __getitem__(self, key):
