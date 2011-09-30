@@ -276,11 +276,15 @@ class QueueBase(object):
     def __delitem__(self, idx, val):
         raise NotImplementedError("OMG: Queue backend doesn't define __delitem__() -- items at specific indexes cannot be explicitly removed.")
     
+    def __repr__(self):
+        """ Returns a JSON-stringified array, containing all enqueued signals. """
+        return "[%s]" % ",".join([str(value) for value in self.values()])
+    
     def __str__(self):
         """ Returns a JSON-stringified array, containing all enqueued signals. """
-        return "[%s]" % ",".join([str(value[0]) for value in self.values()])
+        return repr(self)
     
     def __unicode__(self):
         """ Returns a JSON-stringified array, containing all enqueued signals, properly pretty-printed. """
         import json as library_json
-        return library_json.dumps(library_json.loads(repr(self)), indent=4)
+        return u"%s" % library_json.dumps(library_json.loads(repr(self)), indent=4)

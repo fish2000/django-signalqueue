@@ -1,0 +1,19 @@
+Metadata-Version: 1.0
+Name: django-signalqueue
+Version: 0.2.6
+Summary: Asynchronous signals for Django.
+Home-page: http://github.com/fish2000/django-signalqueue/
+Author: Alexander Bohn
+Author-email: fish2000@gmail.com
+License: BSD
+Description: UNKNOWN
+Keywords: django,signals,async,asynchronous,queue
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Topic :: Utilities

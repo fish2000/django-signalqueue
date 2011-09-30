@@ -47,16 +47,21 @@ class RedisQueue(QueueBase):
                 logg.warn("*** Can't import hiredis -- consider installing the 'hiredis' module for native-speed queue access.")
             
             self.r = redis.Redis(**self.queue_options)
+            self.ConnectionError = redis.ConnectionError
             
             try:
                 self.r.ping()
-            except redis.ConnectionError, err:
+            except self.ConnectionError, err:
                 logg.error("*** Redis connection failed: %s" % err)
                 self.r = None
     
     def ping(self):
         if self.r is not None:
-            return self.r.ping()
+            try:
+                return self.r.ping()
+            except (self.ConnectionError, AttributeError), err:
+                logg.error("*** No Redis connection available: %s" % err)
+                return False
         return False
     
     def push(self, value):
@@ -231,11 +236,11 @@ class ConnectionHandler(object):
         except KeyError:
             raise ImproperlyConfigured("The key '%s' isn't an available connection in (%s)." % (alias, ','.join(self.connections_info.keys())))
         
-        default_engine = 'signalqueue.worker.backends.RedisQueue'
+        default_engine = 'signalqueue.worker.backends.RedisSetQueue'
         
         if not conn.get('ENGINE'):
             logg.warn("*** Connection '%s' has no ENGINE specified -- using the default '%s'" % default_engine)
-            conn['ENGINE'] =  default_engine # default to the Redis backend
+            conn['ENGINE'] =  default_engine # default to using the Redis set backend
     
     def __getitem__(self, key):
         if key in self._connections:

@@ -67,9 +67,13 @@ class SignalQuerySet(models.query.QuerySet):
     def __repr__(self):
         return "[%s]" % ",".join([str(value[0]) for value in self.values_list('value')])
     
+    @delegate
+    def __str__(self):
+        return repr(self)
+    
     def __unicode__(self):
         import json as library_json
-        return library_json.dumps(library_json.loads(repr(self)), indent=4)
+        return u"%s" % library_json.dumps(library_json.loads(repr(self)), indent=4)
 
 class SignalManager(DelegateManager, QueueBase):
     __queryset__ = SignalQuerySet
@@ -135,9 +139,13 @@ class EnqueuedSignal(models.Model):
             return str(self.value)
         return "{'instance':null}"
     
+    def __str__(self):
+        return repr(self)
+    
     def __unicode__(self):
         if self.value:
-            return unicode(self.value)
+            import json as library_json
+            return u"%s" % library_json.dumps(library_json.loads(repr(self)), indent=4)
         return u"{'instance':null}"
 
 class WorkerExceptionLogQuerySet(models.query.QuerySet):

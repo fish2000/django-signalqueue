@@ -1,0 +1,3 @@
+django-delegate>=0.1.5
+tornado
+redis
