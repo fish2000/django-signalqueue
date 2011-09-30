@@ -1,5 +1,9 @@
 #/usr/bin/env python
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
 import signalqueue
 
 '''
@@ -50,9 +54,9 @@ setup(
         ],
     },
     install_requires=[
-        'django-delegate', 'tornado', 'redis',
+        'django-delegate>=0.1.5', 'tornado', 'redis',
     ],
-    test_requires=[
+    tests_require=[
         'nose', 'rednose', 'django-nose',
     ],
     classifiers=[
