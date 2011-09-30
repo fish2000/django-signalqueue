@@ -3,9 +3,13 @@
 """
 Run this file to test the signal queue -- you'll want nose and django-nose installed.
 The output should look something like this:
-
+    
+    [66921] 30 Sep 16:22:16 * Server started, Redis version 2.2.13
+    [66921] 30 Sep 16:22:16 * The server is now ready to accept connections on port 4332
+    [66921] 30 Sep 16:22:16 - 0 clients connected (0 slaves), 922144 bytes in use
     nosetests --verbosity 2 signalqueue --rednose --nocapture --nologcapture
-    Creating test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpZW2k7h/signalqueue-test.db')...
+    [66921] 30 Sep 16:22:17 - Accepted 127.0.0.1:59276
+    Creating test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpuvmEcR/signalqueue-test.db')...
     Destroying old test database 'default'...
     Creating tables ...
     Creating table auth_permission
@@ -20,6 +24,7 @@ The output should look something like this:
     Creating table django_admin_log
     Creating table signalqueue_testmodel
     Creating table signalqueue_enqueuedsignal
+    Creating table signalqueue_workerexceptionlog
     Installing custom SQL ...
     Installing indexes ...
     No fixtures found.
@@ -28,31 +33,121 @@ The output should look something like this:
     test_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
     test_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
     test_dequeue (signalqueue.tests.DequeueFromDatabaseTests) ... passed
-    Creating test user -- login: yodogg, password: iheardyoulikeunittests
-    test_admin_root_page (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    Creating test user -- login: yodogg, password: iheardyoulikeunittests
-    test_login (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    Creating test user -- login: yodogg, password: iheardyoulikeunittests
-    test_testuser (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    Creating test user -- login: yodogg, password: iheardyoulikeunittests
-    test_widget_contains_queue_names (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    Creating test user -- login: yodogg, password: iheardyoulikeunittests
-    test_widget_sidebar_queue_module_template (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
+    
+    [66921] 30 Sep 16:22:17 - Accepted 127.0.0.1:59277
+    
+    >>> Flushing signal queue 'db' -- 16 enqueued signals total
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
+    >>> Done flushing signal queue 'db' -- 0 enqueued signals remaining
+    
+    
+    [66921] 30 Sep 16:22:17 - Client closed connection
+    test_dequeue_management_command (signalqueue.tests.DequeueManagementCommandTests) ... passed
+    test_admin_queue_status_widget_contains_queue_names (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    test_admin_widget_sidebar_uses_queue_module_template (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    test_get_admin_root_page (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    test_testuser_admin_login (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    test_testuser_admin_login_via_client (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
+    test_backend_total_exception_count (signalqueue.tests.ExceptionLogTests) ... passed
+    test_exception_log_context_manager (signalqueue.tests.ExceptionLogTests) ... passed
+    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
+    
+    [66921] 30 Sep 16:22:18 - Accepted 127.0.0.1:59278
+    
+    >>> Flushing signal queue 'db' -- 16 enqueued signals total
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
+    >>> Done flushing signal queue 'db' -- 0 enqueued signals remaining
+    
+    
+    test_exception_log_context_manager_dequeue (signalqueue.tests.ExceptionLogTests) ... passed
+    [66921] 30 Sep 16:22:19 - Client closed connection
+    test_exception_log_view_fail_for_regular_user (signalqueue.tests.ExceptionLogViewTests) ... passed
+    test_exception_log_view_superuser (signalqueue.tests.ExceptionLogViewTests) ... passed
     
             signalqueue.tests:
-                                        AsyncSignal: test_sync_method_signal
                                         AsyncSignal: additional_signal
+                                        AsyncSignal: test_sync_method_signal
                                         AsyncSignal: test_sync_function_signal
           signalqueue.signals:
                                         AsyncSignal: test_signal
-
-    Destroying test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpZW2k7h/signalqueue-test.db')...
-    Deleting test data: /var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpZW2k7h
+    
     test_additional_signals (signalqueue.tests.RegistryTests) ... passed
     test_autodiscover (signalqueue.tests.RegistryTests) ... passed
-
+    test_register_function (signalqueue.tests.RegistryTests) ... passed
+    test_worker_application (signalqueue.tests.WorkerTornadoTests) ... passed
+    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
+    
+    Validating models...
+    0 errors found
+    
+    Django version 1.4 pre-alpha SVN-16857, using settings None
+    Tornado worker for queue "db" binding to http://127.0.0.1:9920/
+    Quit the server with CONTROL-C.
+    
+    Queue exhausted, exiting...
+    Shutting down signal queue worker ...
+    +++ Exiting ...
+    
+    test_worker_dequeue_from_tornado_periodic_callback (signalqueue.tests.WorkerTornadoTests) ... passed
+    Sleeping for 0.5 seconds...
+    test_worker_status_timeout (signalqueue.tests.WorkerTornadoTests) ... passed
+    test_worker_status_url_content (signalqueue.tests.WorkerTornadoTests) ... passed
+    [66921] 30 Sep 16:22:20 - Accepted 127.0.0.1:59283
+    test_worker_status_url_with_queue_parameter_content (signalqueue.tests.WorkerTornadoTests) ... passed
+    
+    Destroying test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpuvmEcR/signalqueue-test.db')...
+    Deleting test data: /var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpuvmEcR
+    Shutting down test Redis server instance (pid = 66921)
     -----------------------------------------------------------------------------
-    12 tests run in 0.6 seconds (12 tests passed)
+    24 tests run in 3.1 seconds (24 tests passed)
+
 
 
 """
