@@ -62,6 +62,14 @@ class SignalQuerySet(models.query.QuerySet):
         
         out = self.queued()[floor:ceil]
         return [str(value[0]) for value in out.values_list('value')]
+    
+    @delegate
+    def __repr__(self):
+        return "[%s]" % ",".join([str(value[0]) for value in self.values_list('value')])
+    
+    def __unicode__(self):
+        import json as library_json
+        return library_json.dumps(library_json.loads(repr(self)), indent=4)
 
 class SignalManager(DelegateManager, QueueBase):
     __queryset__ = SignalQuerySet
@@ -114,6 +122,13 @@ class EnqueuedSignal(models.Model):
         unique=True, db_index=True,
         blank=True,
         null=True)
+    
+    @property
+    def struct(self):
+        if self.value:
+            from signalqueue.utils import json
+            return json.loads(self.value)
+        return {}
     
     def __repr__(self):
         if self.value:

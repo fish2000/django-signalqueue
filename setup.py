@@ -53,7 +53,7 @@ setup(
         'django-delegate', 'tornado', 'redis',
     ],
     test_requires=[
-        'nose', 'django-nose',
+        'nose', 'rednose', 'django-nose',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

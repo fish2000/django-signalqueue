@@ -53,17 +53,17 @@ Watch, I'll show you. First, install django-signalqueue:
 
 ::
 
-    $ pip install django-signalqueue            # this will install tornado and django-delegate if necessary
+    $ pip install django-signalqueue                                # pulls in tornado and django-delegate, if need be
 
 ... you may also want some of these optional packages, if you don't have them already:
 
 ::
 
-    $ brew install redis yajl                   # s/brew/apt-get/ to taste
-    $ pip install redis hiredis                 # recommended
-    $ pip install ujson                         # recommended
-    $ pip install czjson yajl simplejson        # these work too
-    $ pip install nose django-nose              # for the tests
+    $ brew install redis                                            # s/brew/apt-get/ to taste
+    $ pip install redis hiredis                                     # recommended
+    $ pip install ujson                                             # recommended
+    $ brew install yajl && pip install czjson yajl simplejson       # these work too
+    $ pip install nose rednose django-nose                          # for the tests
 
 Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, while you're in your `settings.py`:
 
@@ -76,15 +76,14 @@ Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, w
     ]
     
     SQ_QUEUES = {
-        'default': {                                # you need at least one dict named 'default' in SQ_QUEUES
-            'NAME': 'signalqueue_default',          # optional - defaults to 'signalqueue_default'
-            'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',  # required - this is your queue's driver
-            'INTERVAL': 30,                         # 1/3 sec
+        'default': {                                                # a 'default' queue in SQ_QUEUES is required
+            'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',  # also required - the queue's driver
+            'INTERVAL': 30,                                         # required - the polling interval (30 <= ~1/3 sec)
             'OPTIONS': dict(),
         },
     }
-    SQ_RUNMODE = 'SQ_ASYNC_REQUEST'                 # use async dispatch by default
-    SQ_WORKER_PORT = 11231                          # the port your queue worker process will bind to
+    SQ_RUNMODE = 'SQ_ASYNC_REQUEST'                                 # use async dispatch by default
+    SQ_WORKER_PORT = 11231                                          # port to which the worker process binds
 
 Besides all that, you just need a call to `signalqueue.autodiscover()` in your root URLConf:
 
@@ -95,8 +94,8 @@ Besides all that, you just need a call to `signalqueue.autodiscover()` in your r
     import signalqueue
     signalqueue.autodiscover()
 
-You can define async signals!
-=============================
+Now you can define async signals!
+=================================
 
 Asynchronous signals are instances of `signalqueue.dispatch.AsyncSignal` that you've defined in one of the following places:
 
@@ -104,43 +103,84 @@ Asynchronous signals are instances of `signalqueue.dispatch.AsyncSignal` that yo
 * Modules named in a `settings.SQ_ADDITIONAL_SIGNALS` list or tuple
 * *Coming soon:* `signalqueue.register()` *-- so you can put them anywhere else.*
 
-AsyncSignals are defined much like the familiar instances of `django.dispatch.Signal` you know and love:
+AsyncSignals are subclasses of the familiar `django.dispatch.Signal` class. As such, you define AsyncSignals much like the Django signals you know and love:
+
+::
+    
+    # yourapp/your_callbacks.py
+    
+    # the callback definition can go anywhere
+    def callback(sender, **kwargs):
+        print "I, %s, have been hereby dispatched asynchronously by %s, thanks to django-signalqueue." % (
+            str(kwargs['instance']),
+            sender.__name__)
+
 
 ::
 
     # yourapp/signals.py
     
     from signalqueue.dispatch import AsyncSignal
-    from signalqueue.mappings import ModelInstanceMap
+    from yourapp.your_callbacks import callback
     
-    # these two constructors do the same thing
-    my_signal = AsyncSignal(providing_args=['instance'])                            # the yuge
-    my_other_signal = AsyncSignal(providing_args={'instance':ModelInstanceMap})     # with mappings
+    my_signal = AsyncSignal(providing_args=['instance'])                # the yuge. 
     
-    # what follows can go anywhere -- only the instances need to be in yourapp/signals.py:
-    
-    def callback(sender, **kwargs):
-        print "I, %s, have been hereby dispatched asynchronously by %s, thanks to django-signalqueue." % (
-            str(kwargs['instance']),
-            sender.__name__)
+    # while you can put your callbacks anywhere, be sure they're connect()-ed to your signals in
+    # yourapp/signals.py or another module that loads when the app starts (e.g. models.py)
     
     my_signal.connect(callback)
 
-... The main difference is the second definition, which specifies `providing_args` as a dict with *mapping classes*
-instead of a plain list. We'll explain mapping classes later on, but if you are passing Django model instances
-to your signals, you don't have to worry about this.
+At the time of writing, arguments specified the providing_args list are assumed to be Django model instances.
+django-signalqueue serializes model instances by looking at:
 
-Once the worker is running, you can send the signal to the queue like so:
+* the app name - `obj._meta.app_label`,
+* the model's class name - `obj.__class__.__name__.lower()`,
+* and the object's primary key value - `obj.pk`.
+
+You can define mappings for other object types (the curious can have a look in `signalqueue/mappings.py` for
+how that works) -- this part of the API is currently in flux as we're working towards the simplest, 
+programmer-user-friendliest, most-dependency-unshackled method of implementation for the type stuff.
+
+BUT SO ANYWAY. To start up a worker, use the management command `runqueueserver`:
+
+::
+    
+    $ python ./manage.py runqueueserver localhost:2345
+    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
+    
+    Validating models...0 errors found
+    
+    Django version 1.4 pre-alpha SVN-16857, using settings 'settings'
+    Tornado worker for queue "default" binding to http://127.0.0.1:11231/
+    Quit the server with CONTROL-C.
+    2011-09-30 15:25:21,098 [INFO] signalqueue: Dequeueing signal: None
+    2011-09-30 15:25:21,400 [INFO] signalqueue: Dequeueing signal: None
+    2011-09-30 15:25:21,701 [INFO] signalqueue: Dequeueing signal: None
+    [... et cetera, ad nauseum]
+
+
+The `runqueueserver` process will sit in the foreground and blurt its output to stdout every time it polls
+the queue (in ANSI color!) which is handy for debugging your setup.
+
+Once you've got a worker process running, you can fire one of your signal asynchronously like so:
 
 ::
 
+    >>> from yourapp.signals import my_signal
     >>> my_signal.send(sender=AModelClass, instance=a_model_instance)
 
-To fire your signal like a normal Django signal, you can do this:
+send() returns immediately after enqueueing the call, which is pushed onto a stack. The worker process,
+running in its own process, pops any available signals off the stack and executes them in its own instance
+of your Django app.
+
+You can fire async signals synchronously using send_now() -- the call will block until all of the connected
+callback handlers return (just like a call to a standard signals' send() method):
 
 ::
 
     >>> my_signal.send_now(sender=AModelClass, instance=a_model_instance)
+    >>> my_signal.send_now(instance=a_model_instance)
 
+As with `django.dispatch.Signal.send()`, the sender kwarg is optional if your callback handlers don't expect it.
 
 *Tune in tomorrow for the astonishing conclusion of... the django-signalqueue README!!!!!!*

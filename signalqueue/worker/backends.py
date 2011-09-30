@@ -246,7 +246,7 @@ class ConnectionHandler(object):
         ConnectionClass = load_backend(self.connections_info[key]['ENGINE'])
         self._connections[key] = ConnectionClass(
             runmode=self._runmode,
-            queue_name=self.connections_info[key].get('NAME'),
+            queue_name=str(key),
             queue_interval=self.connections_info[key].get('INTERVAL', None),
             queue_options=self.connections_info[key].get('OPTIONS', {}),
         )

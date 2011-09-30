@@ -70,12 +70,12 @@ class QueueBase(object):
         raise NotImplementedError("WTF: Queue backend needs a Queue.pop() implementaton")
     
     def count(self):
-        return -1
+        return NotImplementedError("WTF: Queue backend needs a Queue.count() implementaton")
     
     def clear(self):
         raise NotImplementedError("WTF: Queue backend needs a Queue.flush() implementaton")
     
-    def values(self):
+    def values(self, **kwargs):
         raise NotImplementedError("WTF: Queue backend needs a Queue.values() implementaton")
     
     def exception_count(self):
@@ -107,7 +107,19 @@ class QueueBase(object):
         return None
     
     def dequeue(self, queued_signal=None):
-        if not queued_signal:
+        """
+        Deserialize and execute a signal, either from the queue or as per the contents
+        of the queued_signal kwarg.
+        
+        If queued_signal contains a serialized signal call datastructure,* dequeue()
+        will deserialize and execute that serialized signal without popping the queue.
+        If queued_signal is None, it will call retrieve() to pop the queue for the next
+        signal, which it will execute if one is returned successfully.
+        
+        * See the QueueBase docstring for an example.
+        
+        """
+        if queued_signal is None:
             queued_signal = self.retrieve()
         
         logg.info("Dequeueing signal: %s" % queued_signal)
@@ -116,16 +128,22 @@ class QueueBase(object):
             signal_dict = queued_signal.get('signal')
             sender_dict = queued_signal.get('sender')
             regkey, name = signal_dict.items()[0]
+            sender = None
+            
+            # specifying a sender is optional.
+            if sender_dict is not None:
+                try:
+                    sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
+                except (KeyError, AttributeError), err:
+                    sender = None
             
             enqueue_runmode = queued_signal.get('enqueue_runmode', runmodes['SQ_ASYNC_REQUEST'])
-            sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
             kwargs = {
                 'dequeue_runmode': self.runmode,
                 'enqueue_runmode': enqueue_runmode,
             }
             
             thesignal = None
-            
             if regkey in signalqueue.SQ_DMV:
                 for signal in signalqueue.SQ_DMV[regkey]:
                     if signal.name == name:
@@ -139,13 +157,71 @@ class QueueBase(object):
                     if k in thesignal.mapping:
                         kwargs.update({ k: thesignal.mapping[k]().remap(v), })
                 
-                thesignal.send_now(sender=sender, **kwargs)
-                return queued_signal
+                out = thesignal.send_now(sender=sender, **kwargs)
+                return queued_signal, out
             
             else:
                 raise signalqueue.SignalRegistryError("Couldn't find a registered signal named '%s'." % name)
     
     def next(self):
+        """
+        Retrieve and return a signal without dequeueing.
+        
+        This allows one to iterate through a queue with access to the signal data,
+        and control over the dequeue execution -- exceptions can be caught, signals
+        can be conditionally dealt with, and so on, as per your needs.
+        
+        This example script dequeues and executes all of the signals in one queue.
+        If a signal's execution raises a specific type of error, its call data is requeued
+        into a secondary backup queue (which the backup queue's contents can be used however
+        it may most please you -- e.g. dequeued into an amenable execution environment;
+        inspected as a blacklist by the signal-sending code to prevent known-bad calls;
+        analytically aggregated into pie charts in real-time and displayed distractingly
+        across the phalanx of giant flatscreens festooning the walls of the conference room
+        you stand in when subjecting yourself and your big pitch to both the harsh whim
+        of the venture capitalists whom you manage to coax into your office for meetings
+        and the simultaneously indolent and obsequious Skype interview questions from 
+        B-list TechCrunch blog writers in search of blurbs they can grind into filler
+        for their daily link-baiting top-ten-reasons-why contribution to the ceaseless 
+        maelstrom that is the zeitgeist of online technology news; et cetera ad nauseum):
+        
+        
+            from myapp.logs import logging
+            from myapp.exceptions import MyDequeueError
+            from signalqueue import SignalRegistryError
+            import math, signalqueue.worker
+            myqueue = signalqueue.worker.queues['myqueue']
+            backupqueue = signalqueue.worker.queues['backup']
+            
+            tries = 0
+            wins = 0
+            do_overs = 0
+            perc = lambda num, tot: int(math.floor((float(num)/float(tot))*100))
+            logging.info("Dequeueing %s signals from queue '%s'..." % (tries, myqueue.queue_name))
+            
+            for next_signal in myqueue:
+                tries += 1
+                try:
+                    result, spent_signal = myqueue.dequeue(queued_signal=next_signal)
+                except MyDequeueError, err:
+                    # execution went awry but not catastrophically so -- reassign it to the backup queue
+                    logging.warn("Error %s dequeueing signal: %s" % (repr(err), str(next_signal)))
+                    logging.warn("Requeueing to backup queue: %s" % str(backupqueue.queue_name))
+                    backupqueue.push(next_signal)
+                    do_overs += 1
+                except (SignalRegistryError, AttributeError), err:
+                    # either this signal isn't registered or is somehow otherwise wack -- don't requeue it
+                    logging.error("Fatal error %s dequeueing signal: %s" % (repr(err), str(next_signal)))
+                else:
+                    logging.info("Successful result %s from dequeued signal: %s " % (result, repr(spent_signal)))
+                    wins += 1
+            
+            logging.info("Successfully dequeued %s signals (%s%% of %s total) from queue '%s'" %
+                wins, perc(wins, tries), tries, myqueue.queue_name)
+            logging.info("Requeued %s signals (%s%% of %s total) into queue '%s'" %
+                do_overs, perc(do_overs, tries), tries, backupqueue.queue_name)
+        
+        """
         if not self.count() > 0:
             raise StopIteration
         return self.retrieve()
@@ -153,13 +229,20 @@ class QueueBase(object):
     def __iter__(self):
         return self
     
+    def __getitem__(self, idx):
+        return self.values().__getitem__(idx)
+    
+    def __setitem__(self, idx, val):
+        raise NotImplementedError("OMG: Queue backend doesn't define __setitem__() -- items at specific indexes cannot be explicitly set.")
+    
+    def __delitem__(self, idx, val):
+        raise NotImplementedError("OMG: Queue backend doesn't define __delitem__() -- items at specific indexes cannot be explicitly removed.")
+    
     def __str__(self):
-        return str(self.__class__.__name__)
+        """ Returns a JSON-stringified array, containing all enqueued signals. """
+        return "[%s]" % ",".join([str(value[0]) for value in self.values()])
     
     def __unicode__(self):
-        return u"<%s queue:%s cnt:%s opts:%s>" % (
-            str(self.__class__.__name__),
-            self.queue_name,
-            self.count(),
-            self.queue_options,
-        )
+        """ Returns a JSON-stringified array, containing all enqueued signals, properly pretty-printed. """
+        import json as library_json
+        return library_json.dumps(library_json.loads(repr(self)), indent=4)

@@ -50,7 +50,7 @@ class AsyncSignal(Signal):
         super(AsyncSignal, self).__init__(providing_args=just_the_args)
     
     def send_now(self, sender, **named):
-        super(AsyncSignal, self).send(sender=sender, **named)
+        return super(AsyncSignal, self).send(sender=sender, **named)
     
     def enqueue(self, sender, **named):
         
