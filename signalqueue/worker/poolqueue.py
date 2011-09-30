@@ -15,7 +15,6 @@ Copyright (c) 2011 OST, LLC. All rights reserved.
 #setup_environ(settings)
 
 from tornado.ioloop import PeriodicCallback
-from signalqueue.models import log_exceptions
 from signalqueue.utils import logg
 
 class PoolQueue(object):
@@ -61,12 +60,12 @@ class PoolQueue(object):
     
     def cueball(self):
         #logg.info("Dequeueing signal...")
-        with log_exceptions(queue_name=self.queue_name):
+        with self.signalqueue.log_exceptions():
             self.signalqueue.dequeue()
     
     def cueball_scratch(self):
         #logg.info("Dequeueing signal...")
-        with log_exceptions(queue_name=self.queue_name):
+        with self.signalqueue.log_exceptions():
             self.signalqueue.dequeue()
         
         if self.signalqueue.count() < 1:

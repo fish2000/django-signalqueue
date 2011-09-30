@@ -1,4 +1,6 @@
 
+from contextlib import contextmanager
+
 import signalqueue
 from signalqueue.utils import json, logg
 from signalqueue import SQ_RUNMODES as runmodes
@@ -78,9 +80,45 @@ class QueueBase(object):
     def values(self, **kwargs):
         raise NotImplementedError("WTF: Queue backend needs a Queue.values() implementaton")
     
-    def exception_count(self):
+    @property
+    def exceptions(self):
         import signalqueue.models
-        return signalqueue.models.WorkerExceptionLog.objects.fromqueue(self.queue_name).totalcount()
+        return signalqueue.models.WorkerExceptionLog.objects.fromqueue(self.queue_name)
+    
+    @contextmanager
+    def log_exceptions(self, exc_type=Exception):
+        """
+        Context manager for logging exceptions related to this queue.
+        
+        An example of the syntax:
+        
+            from signalqueue.worker import queues
+            from myapp.exceptions import MyError
+            from myapp.signals import mysignal
+            myqueue = queues['myqueue']
+            
+            def callback(sender, **kwargs):
+                raise MyError("This is my error.")
+            
+            mysignal.connect(callback)
+            
+            for next_signal in myqueue:
+                with myqueue.log_exceptions(MyError):
+                    myqueue.dequeue(next_signal) # no traceback, loop keeps iterating!
+        
+        
+        See also the docstrings for these functions:
+        * WorkerExceptionLogManager.log() in signalqueue/models.py
+        * QueueBase.next() in this file, if you scroll down a bit
+        
+        """
+        try:
+            yield
+        except exc_type, exc:
+            import sys, signalqueue.models
+            exc_type, exc_value, tb = sys.exc_info()
+            signalqueue.models.WorkerExceptionLog.objects.log_exception_data(
+                exc, exc_type, exc_value, tb, queue_name=self.queue_name)
     
     def enqueue(self, signal, sender=None, **kwargs):
         if signal.regkey is not None:

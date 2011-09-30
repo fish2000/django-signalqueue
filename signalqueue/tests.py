@@ -330,7 +330,9 @@ class ExceptionLogTests(TestCase):
         
         with log_exceptions(queue_name="db", exc_type=ValueError):
             raise ValueError("Yo dogg: I hear you like logged exception messages")
-        self.assertTrue(self.queue.exception_count() == 1)
+        with self.queue.log_exceptions(exc_type=ValueError):
+            raise ValueError("Yo dogg: I hear your queue also likes logged exception messages")
+        self.assertTrue(self.queue.exceptions.totalcount() == 2)
     
     def test_exception_log_context_manager(self):
         from signalqueue.models import log_exceptions
@@ -366,6 +368,7 @@ class ExceptionLogTests(TestCase):
             from signalqueue.models import WorkerExceptionLog
             self.assertTrue(WorkerExceptionLog.objects.count() == 1)
             self.assertTrue(WorkerExceptionLog.objects.get().count == 16)
+            self.assertTrue(WorkerExceptionLog.objects.get().count == self.queue.exceptions.totalcount())
 
 
 class DequeueManagementCommandTests(TestCase):
