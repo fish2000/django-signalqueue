@@ -48,15 +48,15 @@ class PickleMap(IDMap):
         self.brine = pickle
     
     def map(self, obj):
-        proto = getattr(self.brine, 'HIGHEST_PROTOCOL', 0)
+        proto = 1 # pickle level 2 involves some fuckedupedly encoded characters
         return dict(IDMapPin(
-            obj_id=self.brine.dumps(obj, protocol=proto),
+            obj_id=str(self.brine.dumps(obj, protocol=proto)),
             modl_name=proto,
             app_label="pickle",
         ))
     
     def remap(self, pin):
-        halfsour = pin.get('obj_id')
+        halfsour = str(pin.get('obj_id'))
         proto = int(pin.get('modl_name'))
         try:
             return self.brine.loads(halfsour)

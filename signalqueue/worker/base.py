@@ -132,8 +132,12 @@ class QueueBase(object):
                 queue_json = {
                     'signal': { signal.regkey: signal.name },
                     'enqueue_runmode': self.runmode,
-                    'sender': dict(app_label=sender._meta.app_label, modl_name=sender._meta.object_name.lower()),
+                    'sender': None,
                 }
+                if sender is not None:
+                    queue_json.update({
+                        'sender': dict(app_label=sender._meta.app_label, modl_name=sender._meta.object_name.lower()),
+                    })
                 
                 for k, v in kwargs.items():
                     if k in signal.mapping:
@@ -206,8 +210,12 @@ class QueueBase(object):
                     if k in thesignal.mapping:
                         kwargs.update({ k: thesignal.mapping[k]().remap(v), })
                 
-                out = thesignal.send_now(sender=sender, **kwargs)
-                return queued_signal, out
+                # result_list is a list of tuples, each containing a reference
+                # to a callback function at [0] and that callback's return at [1]
+                # ... this is per what the Django signal send() implementation returns;
+                # AsyncSignal.send_now() returns whatever it gets from Signal.send().
+                result_list = thesignal.send_now(sender=sender, **kwargs)
+                return (queued_signal, result_list)
             
             else:
                 raise signalqueue.SignalRegistryError("Couldn't find a registered signal named '%s'." % name)

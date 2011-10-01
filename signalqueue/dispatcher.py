@@ -63,7 +63,7 @@ class AsyncSignal(Signal):
     
     def send(self, sender, **named):
         from signalqueue import worker
-        self.runmode = int(worker.queues[self.queue_name].runmode)
+        self.runmode = int(named.pop('runmode', worker.queues[self.queue_name].runmode))
         
         logg.info("--- send() called, runmode = %s" % self.runmode)
         

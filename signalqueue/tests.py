@@ -202,6 +202,13 @@ test_sync_function_signal = dispatcher.AsyncSignal(
     queue_name='db',
 )
 
+signal_with_object_argument = dispatcher.AsyncSignal(
+    providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+)
+
+class TestObject(str):
+    pass
+
 class TestModel(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=False, null=False, unique=False, default="Test Model Instance.")
@@ -225,12 +232,12 @@ class TestException(Exception):
 
 def callback(sender, **kwargs):
     msg = "********** CALLBACK: %s" % kwargs.items()
-    #print msg
     raise TestException(msg)
 
 def callback_no_exception(sender, **kwargs):
-    msg = "********** NOEXEPT: %s" % kwargs.keys()
-    print msg
+    msg = "********** NOEXEPT: %s" % kwargs.items()
+    #print msg
+    return kwargs.get('obj', None)
 
 
 class IDMapTests(TestCase):
@@ -273,8 +280,26 @@ class PickleMapTests(TestCase):
             mapped = self.mapper.map(test_instance)
             remapped = self.mapper.remap(mapped)
             self.assertEqual(test_instance, remapped)
-
-
+    
+    def test_signal_with_pickle_mapped_argument(self):
+        import signalqueue
+        signalqueue.autodiscover()
+        from signalqueue.worker import queues
+        queue = queues['default']
+        signal_with_object_argument.connect(callback_no_exception)
+        
+        instance = TestModel.objects.all()[0]
+        testobject = TestObject('yo dogg')
+        
+        signal_with_object_argument.send(runmode=4,
+            sender=None, instance=instance, obj=testobject)
+        
+        sigstring, result_list = queue.dequeue()
+        
+        # result_list is a list of tuples, each containing a reference
+        # to a callback function at [0] and that callback's return at [1]
+        # ... this is per what the Django signal send() implementation returns.
+        self.assertEqual(dict(result_list)[callback_no_exception], testobject)
 
 class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     
