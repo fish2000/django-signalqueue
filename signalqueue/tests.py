@@ -291,8 +291,7 @@ class PickleMapTests(TestCase):
         instance = TestModel.objects.all()[0]
         testobject = TestObject('yo dogg')
         
-        signal_with_object_argument.send(runmode=4,
-            sender=None, instance=instance, obj=testobject)
+        signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
         
         sigstring, result_list = queue.dequeue()
         
