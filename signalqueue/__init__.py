@@ -84,6 +84,7 @@ def autodiscover():
             
             for name, thing in mod.__dict__.items():
                 if isinstance(thing, AsyncSignal):
+                    logg.info("*** Registering signal to %s: %s" % (modstring, thing))
                     thing.name = name
                     thing.regkey = modstring
                     SQ_DMV[modstring].add(thing)
@@ -91,7 +92,7 @@ def autodiscover():
         if hasattr(settings, "SQ_ADDITIONAL_SIGNALS"):
             if isinstance(settings.SQ_ADDITIONAL_SIGNALS, (list, tuple)):
                 
-                logg.info("*** Registering additional signals: %s" % str(settings.SQ_ADDITIONAL_SIGNALS))
+                logg.info("*** Registering additional signals from module: %s" % str(settings.SQ_ADDITIONAL_SIGNALS))
                 
                 for addendumstring in settings.SQ_ADDITIONAL_SIGNALS:
                     

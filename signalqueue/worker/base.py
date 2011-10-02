@@ -132,7 +132,7 @@ class QueueBase(object):
                 queue_json = {
                     'signal': { signal.regkey: signal.name },
                     'enqueue_runmode': self.runmode,
-                    'sender': None,
+                    #'sender': None,
                 }
                 if sender is not None:
                     queue_json.update({
@@ -177,48 +177,47 @@ class QueueBase(object):
         
         logg.info("Dequeueing signal: %s" % queued_signal)
         
-        if queued_signal is not None:
-            signal_dict = queued_signal.get('signal')
-            sender_dict = queued_signal.get('sender')
-            regkey, name = signal_dict.items()[0]
-            sender = None
+        signal_dict = queued_signal.get('signal')
+        sender_dict = queued_signal.get('sender')
+        regkey, name = signal_dict.items()[0]
+        sender = None
+        
+        # specifying a sender is optional.
+        if sender_dict is not None:
+            try:
+                sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
+            except (KeyError, AttributeError), err:
+                sender = None
+        
+        enqueue_runmode = queued_signal.get('enqueue_runmode', runmodes['SQ_ASYNC_REQUEST'])
+        kwargs = {
+            'dequeue_runmode': self.runmode,
+            'enqueue_runmode': enqueue_runmode,
+        }
+        
+        thesignal = None
+        if regkey in signalqueue.SQ_DMV:
+            for signal in signalqueue.SQ_DMV[regkey]:
+                if signal.name == name:
+                    thesignal = signal
+                    break
+        else:
+            raise signalqueue.SignalRegistryError("Couldn't find any signals registered to '%s'." % regkey)
+        
+        if thesignal is not None:
+            for k, v in queued_signal.items():
+                if k in thesignal.mapping:
+                    kwargs.update({ k: thesignal.mapping[k]().remap(v), })
             
-            # specifying a sender is optional.
-            if sender_dict is not None:
-                try:
-                    sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
-                except (KeyError, AttributeError), err:
-                    sender = None
-            
-            enqueue_runmode = queued_signal.get('enqueue_runmode', runmodes['SQ_ASYNC_REQUEST'])
-            kwargs = {
-                'dequeue_runmode': self.runmode,
-                'enqueue_runmode': enqueue_runmode,
-            }
-            
-            thesignal = None
-            if regkey in signalqueue.SQ_DMV:
-                for signal in signalqueue.SQ_DMV[regkey]:
-                    if signal.name == name:
-                        thesignal = signal
-                        break
-            else:
-                raise signalqueue.SignalRegistryError("Couldn't find any signals registered to '%s'." % regkey)
-            
-            if thesignal is not None:
-                for k, v in queued_signal.items():
-                    if k in thesignal.mapping:
-                        kwargs.update({ k: thesignal.mapping[k]().remap(v), })
-                
-                # result_list is a list of tuples, each containing a reference
-                # to a callback function at [0] and that callback's return at [1]
-                # ... this is per what the Django signal send() implementation returns;
-                # AsyncSignal.send_now() returns whatever it gets from Signal.send().
-                result_list = thesignal.send_now(sender=sender, **kwargs)
-                return (queued_signal, result_list)
-            
-            else:
-                raise signalqueue.SignalRegistryError("Couldn't find a registered signal named '%s'." % name)
+            # result_list is a list of tuples, each containing a reference
+            # to a callback function at [0] and that callback's return at [1]
+            # ... this is per what the Django signal send() implementation returns;
+            # AsyncSignal.send_now() returns whatever it gets from Signal.send().
+            result_list = thesignal.send_now(sender=sender, **kwargs)
+            return (queued_signal, result_list)
+        
+        else:
+            raise signalqueue.SignalRegistryError("Couldn't find a registered signal named '%s'." % name)
     
     def next(self):
         """

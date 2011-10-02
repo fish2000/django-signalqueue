@@ -109,13 +109,21 @@ SQ_QUEUES = {
         'INTERVAL': 30, # 1/3 sec
         'OPTIONS': dict(port=4332),
     },
+    'listqueue': {
+        'ENGINE': 'signalqueue.worker.backends.RedisQueue',
+        'INTERVAL': 30, # 1/3 sec
+        'OPTIONS': dict(port=4332),
+    },
     'db': {
         'ENGINE': 'signalqueue.worker.backends.DatabaseQueueProxy',
         'INTERVAL': 30, # 1/3 sec
         'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
     },
 }
+
+SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
+SQ_RUNMODE = 'SQ_ASYNC_REQUEST'
 
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

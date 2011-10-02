@@ -11,10 +11,6 @@ Copyright (c) 2011 OST, LLC. All rights reserved.
 
 import sys, hashlib, curses, logging
 
-from django.core.management import setup_environ
-import settings
-setup_environ(settings)
-
 from django.conf import settings
 from django.template import Context, loader
 import tornado.options
@@ -31,9 +27,6 @@ define('port', default=settings.SQ_WORKER_PORT, help='Queue server HTTP port', t
 
 class Application(tornado.web.Application):
     def __init__(self, **kwargs):
-        from django.core.management import setup_environ
-        import settings
-        setup_environ(settings)
         from django.conf import settings as django_settings
         
         nm = kwargs.get('queue_name', "default")
@@ -146,6 +139,7 @@ def main():
     logg.addHandler(channel)
     
     logg.info("YO DOGG.")
+    from django.conf import settings
     
     try:
         tornado.options.parse_command_line()

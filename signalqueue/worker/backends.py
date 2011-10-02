@@ -65,7 +65,7 @@ class RedisQueue(QueueBase):
         return False
     
     def push(self, value):
-        self.r.rpush(self.queue_name, value)
+        self.r.lpush(self.queue_name, value)
     
     def pop(self):
         return self.r.lpop(self.queue_name)

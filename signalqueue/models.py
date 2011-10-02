@@ -34,8 +34,8 @@ class SignalQuerySet(models.query.QuerySet):
     
     @delegate
     def push(self, value):
-        logg.info("*** push() value: %s" % value)
-        return self.get_or_create(queue_name=self.queue_name, value=value, enqueued=True)
+        print "*** push() value: %s" % value
+        self.get_or_create(queue_name=self.queue_name, value=value, enqueued=True)
     
     @delegate
     def pop(self):

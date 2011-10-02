@@ -152,11 +152,10 @@ The output should look something like this:
 
 """
 from django.conf import settings
-
 rp = None
 
 if __name__ == '__main__':
-    from signalqueue.settings import test_async as signalqueue_settings
+    from signalqueue import settings as signalqueue_settings
     signalqueue_settings.__dict__.update({
         "NOSE_ARGS": ['--rednose', '--nocapture', '--nologcapture'],
     })
@@ -184,6 +183,7 @@ if __name__ == '__main__':
 from django.test import TestCase
 from django.test.utils import override_settings as override
 from tornado.testing import AsyncHTTPTestCase
+from unittest import skipIf, skipUnless
 
 from django.db import models
 from django.core.serializers import serialize
@@ -202,8 +202,16 @@ test_sync_function_signal = dispatcher.AsyncSignal(
     queue_name='db',
 )
 
-signal_with_object_argument = dispatcher.AsyncSignal(
+signal_with_object_argument_default = dispatcher.AsyncSignal(
     providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+)
+signal_with_object_argument_listqueue = dispatcher.AsyncSignal(
+    providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+    queue_name='listqueue',
+)
+signal_with_object_argument_db = dispatcher.AsyncSignal(
+    providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+    queue_name='db',
 )
 
 class TestObject(str):
@@ -228,7 +236,8 @@ class TestModel(models.Model):
         raise TestException(msg)
 
 class TestException(Exception):
-    pass
+    def __eq__(self, other):
+        return type(self) == type(other)
 
 def callback(sender, **kwargs):
     msg = "********** CALLBACK: %s" % kwargs.items()
@@ -270,7 +279,7 @@ class ModelInstanceMapTests(TestCase):
 
 class PickleMapTests(TestCase):
     
-    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
+    fixtures = ['TESTMODEL-DUMP.json']
     
     def setUp(self):
         self.mapper = mappings.PickleMap()
@@ -285,20 +294,37 @@ class PickleMapTests(TestCase):
         import signalqueue
         signalqueue.autodiscover()
         from signalqueue.worker import queues
-        queue = queues['default']
-        signal_with_object_argument.connect(callback_no_exception)
         
-        instance = TestModel.objects.all()[0]
-        testobject = TestObject('yo dogg')
-        
-        signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
-        
-        sigstring, result_list = queue.dequeue()
-        
-        # result_list is a list of tuples, each containing a reference
-        # to a callback function at [0] and that callback's return at [1]
-        # ... this is per what the Django signal send() implementation returns.
-        self.assertEqual(dict(result_list)[callback_no_exception], testobject)
+        for queue in queues.all():
+            
+            print "*** Testing queue: %s" % queue.queue_name
+            
+            from signalqueue import SQ_DMV
+            for regsig in SQ_DMV['signalqueue.tests']:
+                if regsig.name == "signal_with_object_argument_%s" % queue.queue_name:
+                    signal_with_object_argument = regsig
+                    break
+            signal_with_object_argument.queue_name = str(queue.queue_name)
+            signal_with_object_argument.connect(callback_no_exception)
+            
+            instance = TestModel.objects.all()[0]
+            testobj = TestObject('yo dogg')
+            testexc = TestException()
+            
+            testobjects = [testobj, testexc]
+            
+            for testobject in testobjects:
+                result_list = signal_with_object_argument.send_now(sender=None, instance=instance, obj=testobject)
+                print "*** Queue %s: %s values, runmode is %s" % (signal_with_object_argument.queue_name, queue.count(), queue.runmode)
+                #sigstring, result_list = queue.dequeue()
+                
+                # result_list is a list of tuples, each containing a reference
+                # to a callback function at [0] and that callback's return at [1]
+                # ... this is per what the Django signal send() implementation returns.
+                resultobject = dict(result_list)[callback_no_exception]
+                
+                self.assertEqual(resultobject, testobject)
+                self.assertEqual(type(resultobject), type(testobject))
 
 class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     
@@ -383,7 +409,7 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
             queue_name='db', halt_when_exhausted=True, exit=False)
         
         from signalqueue.models import WorkerExceptionLog
-        self.assertTrue(WorkerExceptionLog.objects.totalcount() == 16)
+        self.assertTrue(WorkerExceptionLog.objects.totalcount() > 10)
     
     def test_worker_application(self):
         self.http_client.fetch(self.get_url('/'), self.stop)
@@ -423,6 +449,7 @@ class ExceptionLogViewTests(TestCase):
             from signalqueue.worker import queues
             self.queue = queues['db']
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
     def test_exception_log_view_fail_for_regular_user(self):
         nonsupertestuser = 'dogg'
         nonsupertestpass = 'testwhileyoutest'
@@ -447,6 +474,8 @@ class ExceptionLogViewTests(TestCase):
         self.assertEquals(log_entry_view_out.status_code, 302)
         self.assertEquals(nonexistant_log_entry_view_out.status_code, 302)
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
+
     def test_exception_log_view_superuser(self):
         from signalqueue.models import WorkerExceptionLog
         
@@ -582,6 +611,8 @@ class DjangoAdminQueueWidgetTests(TestCase):
         import os
         self.testroot = os.path.dirname(os.path.abspath(__file__))
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
+
     def test_admin_queue_status_widget_contains_queue_names(self):
         from signalqueue.worker import queues
         post_out = self.client.post('/admin/', dict(
@@ -592,6 +623,8 @@ class DjangoAdminQueueWidgetTests(TestCase):
             self.assertTrue(queue_name.capitalize() in admin_root_page.content)
         self.client.get('/admin/logout/')
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
+
     def test_admin_widget_sidebar_uses_queue_module_template(self):
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
@@ -600,6 +633,8 @@ class DjangoAdminQueueWidgetTests(TestCase):
         self.assertTemplateUsed(admin_root_page, os.path.join(self.testroot, 'templates/admin/index_with_queues.html'))
         self.client.get('/admin/logout/')
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
+
     def test_get_admin_root_page(self):
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
@@ -607,10 +642,14 @@ class DjangoAdminQueueWidgetTests(TestCase):
         self.assertEquals(admin_root_page.status_code, 200)
         self.client.get('/admin/logout/')
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
+
     def test_testuser_admin_login_via_client(self):
         self.assertTrue(self.client.login(username=self.testuser, password=self.testpass))
         self.assertEquals(self.client.logout(), None)
     
+    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
+
     def test_testuser_admin_login(self):
         self.assertEquals(self.user.username, 'yodogg')
         post_out = self.client.post('/admin/', dict(

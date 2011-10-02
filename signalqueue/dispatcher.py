@@ -58,12 +58,12 @@ class AsyncSignal(Signal):
             from signalqueue import SignalDispatchError
             raise SignalDispatchError("WTF: enqueue() called in SQ_SYNC mode")
         
-        from signalqueue import worker
-        worker.queues[self.queue_name].enqueue(self, sender=sender, **named)
+        from signalqueue.worker import queues
+        queues[self.queue_name].enqueue(self, sender=sender, **named)
     
     def send(self, sender, **named):
-        from signalqueue import worker
-        self.runmode = int(named.pop('runmode', worker.queues[self.queue_name].runmode))
+        from signalqueue.worker import queues
+        self.runmode = int(named.pop('runmode', queues[self.queue_name].runmode))
         
         logg.info("--- send() called, runmode = %s" % self.runmode)
         
