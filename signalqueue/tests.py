@@ -321,7 +321,8 @@ class PickleMapTests(TestCase):
             
             for testobject in testobjects:
                 signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
-                print "*** Queue %s: %s values, runmode is %s" % (signal_with_object_argument.queue_name, queue.count(), queue.runmode)
+                print "*** Queue %s: %s values, runmode is %s" % (
+                    signal_with_object_argument.queue_name, queue.count(), queue.runmode)
                 sigstring, result_list = queue.dequeue()
                 
                 # result_list is a list of tuples, each containing a reference
@@ -332,7 +333,7 @@ class PickleMapTests(TestCase):
                     self.assertEqual(resultobject, testobject)
                     self.assertEqual(type(resultobject), type(testobject))
                 else:
-                    print "*** queue.dequeue() return None"
+                    print "*** queue.dequeue() returned None"
 
 class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     
