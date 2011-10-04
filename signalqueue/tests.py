@@ -165,11 +165,7 @@ if __name__ == '__main__':
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
     
     from django.core.management import call_command
-    '''
-    call_command('test', 'signalqueue',
-        interactive=False, traceback=True, verbosity=2)
-    '''
-    call_command('test', 'tests.py',
+    call_command('test', 'signalqueue.tests',
         interactive=False, traceback=True, verbosity=2)
     
     tempdata = settings.tempdata
@@ -708,7 +704,7 @@ class DatabaseQueuedVersusSyncSignalTests(TestCase):
         t = TestModel(name=self.name)
         test_sync_method_signal.connect(t.callback)
         
-        if not settings.SQ_RUNMODE == "SQ_SYNC":
+        if getattr(settings, 'SQ_ASYNC', True):
             t.save(test_sync_method_signal)
             with self.assertRaises(TestException):
                 enqueued_signal = self.queue.dequeue()
@@ -721,7 +717,7 @@ class DatabaseQueuedVersusSyncSignalTests(TestCase):
         t = TestModel(name=self.name)
         test_sync_function_signal.connect(callback)
         
-        if not settings.SQ_RUNMODE == "SQ_SYNC":
+        if getattr(settings, 'SQ_ASYNC', True):
             t.save(test_sync_function_signal)
             with self.assertRaises(TestException):
                 enqueued_signal = self.queue.dequeue()

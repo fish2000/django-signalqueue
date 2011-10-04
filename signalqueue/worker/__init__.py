@@ -6,9 +6,6 @@ from django.conf import settings
 from signalqueue import SQ_RUNMODES as runmodes
 from signalqueue.worker import backends
 
-if not hasattr(settings, 'SQ_RUNMODE'):
-    raise ImproperlyConfigured('The SQ_RUNMODE setting is required.')
-
 if not hasattr(settings, 'SQ_QUEUES'):
     raise ImproperlyConfigured('The SQ_QUEUES setting is required.')
 
