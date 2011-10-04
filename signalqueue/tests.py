@@ -165,7 +165,11 @@ if __name__ == '__main__':
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
     
     from django.core.management import call_command
+    '''
     call_command('test', 'signalqueue',
+        interactive=False, traceback=True, verbosity=2)
+    '''
+    call_command('test', 'tests.py',
         interactive=False, traceback=True, verbosity=2)
     
     tempdata = settings.tempdata

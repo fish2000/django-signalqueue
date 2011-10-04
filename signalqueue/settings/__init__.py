@@ -123,7 +123,8 @@ SQ_QUEUES = {
 
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
-SQ_RUNMODE = 'SQ_ASYNC_REQUEST'
+#SQ_RUNMODE = 'SQ_ASYNC_REQUEST'
+#SQ_ASYNC = True # default
 
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

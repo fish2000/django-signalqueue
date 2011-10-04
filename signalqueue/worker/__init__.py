@@ -1,4 +1,5 @@
 
+import os
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
@@ -14,13 +15,30 @@ if not hasattr(settings, 'SQ_QUEUES'):
 if 'default' not in settings.SQ_QUEUES:
     raise ImproperlyConfigured("You need to define at least one queue (for your default) in settings.SQ_QUEUES.")
 
-if settings.SQ_RUNMODE not in runmodes:
-    try:
-        runmode = int(settings.SQ_RUNMODE)
-    except ValueError:
-        raise ImproperlyConfigured('You specified an invalid runmode "%s" in your settings.')
+runmode_setting = None
+
+if 'SIGNALQUEUE_RUNMODE' in os.environ:
+    runmode_setting = str(os.environ['SIGNALQUEUE_RUNMODE'])
+elif hasattr(settings, 'SQ_RUNMODE'):
+    runmode_setting = str(settings.SQ_RUNMODE)
+
+if runmode_setting is not None:
+    if runmode_setting not in runmodes:
+        try:
+            runmode = int(runmode_setting)
+        except ValueError:
+            raise ImproperlyConfigured('You specified an invalid runmode "%s" in your settings.' % runmode_setting)
+    else:
+        runmode = runmodes.get(runmode_setting)
 else:
-    runmode = runmodes.get(settings.SQ_RUNMODE)
+    if hasattr(settings, 'SQ_ASYNC'):
+        if not bool(settings.SQ_ASYNC):
+            runmode = runmodes['SQ_SYNC']
+        else:
+            runmode = runmodes['SQ_ASYNC_REQUEST'] # the default if neither settings.SQ_ASYNC or settings.SQ_RUNMODE are set
+    else:
+        runmode = runmodes['SQ_ASYNC_REQUEST'] # the default if neither settings.SQ_ASYNC or settings.SQ_RUNMODE are set
+
 
 queues = backends.ConnectionHandler(settings.SQ_QUEUES, runmode)
 queue = queues['default']

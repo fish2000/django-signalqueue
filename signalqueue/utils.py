@@ -49,12 +49,12 @@ try:
 except ImportError:
     try:
         import logging
-        logg = logging.getLogger("signalqueue")
     except ImportError:
         print "WTF: You have no logging facilities available whatsoever -- initializing a fake logger class. Love, django-signalqueue."
         # set up fake logger
         logg = FakeLogger()
-
+    else:
+        logg = logging.getLogger("signalqueue")
 
 class ADict(dict):
     """
@@ -75,8 +75,6 @@ class ADict(dict):
     
     def __setattr__(self, name, value):
         self[name] = value
-
-
 
 
 # To consistently use the fastest serializer possible, use:
