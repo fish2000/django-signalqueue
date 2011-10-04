@@ -139,5 +139,17 @@ def register(signal, name, regkey=None):
     finally:
         autodiscover.lock.release()
 
+def clear():
+    """ Clear the signal registry. """
+    
+    autodiscover.lock.acquire()
+    
+    try:
+        SQ_DMV = defaultdict(set)
+    
+    finally:
+        autodiscover.lock.release()
 
-
+def rediscover():
+    clear()
+    autodiscover()
