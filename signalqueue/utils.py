@@ -55,6 +55,7 @@ except ImportError:
         logg = FakeLogger()
     else:
         logg = logging.getLogger("signalqueue")
+        logg.setLevel(logging.INFO)
 
 class ADict(dict):
     """

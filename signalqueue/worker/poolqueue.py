@@ -10,10 +10,6 @@ Created by FI$H 2000 on 2011-07-05.
 Copyright (c) 2011 OST, LLC. All rights reserved.
 
 """
-#from django.core.management import setup_environ
-#import settings
-#setup_environ(settings)
-
 from tornado.ioloop import PeriodicCallback
 from signalqueue.utils import logg
 

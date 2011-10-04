@@ -84,24 +84,20 @@ INSTALLED_APPS = (
     'signalqueue',
 )
 
-# Logging Configuration
 import logging
-GLOBAL_LOG_LEVEL = logging.DEBUG
 LOGGING = dict(
     version=1,
     disable_existing_loggers=False,
     formatters={ 'standard': { 'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s' }, },
     handlers={
-        'default': { 'level':'INFO', 'class':'logging.StreamHandler', 'formatter':'standard' },
-        'nil': { 'level':'INFO', 'class':'django.utils.log.NullHandler', },
+        'default': { 'level':'DEBUG', 'class':'logging.StreamHandler', 'formatter':'standard', },
+        'nil': { 'level':'DEBUG', 'class':'django.utils.log.NullHandler', },
     },
     loggers={
-        'signalqueue': { 'handlers': ['nil'], 'level': logging.INFO, 'propagate': False },
-        # CATCHALL:
-        '': {  'handlers': ['default'], 'level': 'INFO', 'propagate': False },
+        'signalqueue': { 'handlers': ['default'], 'level': 'INFO', 'propagate': False },
     },
+    root={  'handlers': ['nil'], 'level': 'INFO', 'propagate': False },
 )
-
 
 SQ_QUEUES = {
     'default': {                                                # you need at least one dict named 'default' in SQ_QUEUES
@@ -123,6 +119,7 @@ SQ_QUEUES = {
 
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
+
 #SQ_RUNMODE = 'SQ_ASYNC_REQUEST'
 #SQ_ASYNC = True # default
 

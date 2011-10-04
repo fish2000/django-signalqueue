@@ -151,16 +151,22 @@ The output should look something like this:
 
 
 """
+import logging
 from django.conf import settings
+
 rp = None
 
 if __name__ == '__main__':
     from signalqueue import settings as signalqueue_settings
     signalqueue_settings.__dict__.update({
-        "NOSE_ARGS": ['--rednose', '--nocapture', '--nologcapture'],
+        "NOSE_ARGS": ['--rednose', '--nocapture', '--nologcapture', '-v',
+        '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'],
     })
     
     settings.configure(**signalqueue_settings.__dict__)
+    import logging.config
+    logging.config.dictConfig(settings.LOGGING)
+    
     import subprocess, os
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
     
@@ -314,17 +320,19 @@ class PickleMapTests(TestCase):
             testobjects = [testobj, testexc]
             
             for testobject in testobjects:
-                result_list = signal_with_object_argument.send_now(sender=None, instance=instance, obj=testobject)
+                signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
                 print "*** Queue %s: %s values, runmode is %s" % (signal_with_object_argument.queue_name, queue.count(), queue.runmode)
-                #sigstring, result_list = queue.dequeue()
+                sigstring, result_list = queue.dequeue()
                 
                 # result_list is a list of tuples, each containing a reference
                 # to a callback function at [0] and that callback's return at [1]
                 # ... this is per what the Django signal send() implementation returns.
-                resultobject = dict(result_list)[callback_no_exception]
-                
-                self.assertEqual(resultobject, testobject)
-                self.assertEqual(type(resultobject), type(testobject))
+                if result_list is not None:
+                    resultobject = dict(result_list)[callback_no_exception]
+                    self.assertEqual(resultobject, testobject)
+                    self.assertEqual(type(resultobject), type(testobject))
+                else:
+                    print "*** queue.dequeue() return None"
 
 class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     

@@ -18,7 +18,8 @@ class AsyncSignal(Signal):
     
     regkey = None
     name = None
-    runmode = runmodes['SQ_SYNC']
+    #runmode = runmodes['SQ_SYNC']
+    runmode = None
     
     queue_name = None
     mapping = None
@@ -62,8 +63,10 @@ class AsyncSignal(Signal):
         queues[self.queue_name].enqueue(self, sender=sender, **named)
     
     def send(self, sender, **named):
-        from signalqueue.worker import queues
-        self.runmode = int(named.pop('runmode', queues[self.queue_name].runmode))
+        if not self.runmode:
+            from signalqueue.worker import queues
+            #self.runmode = int(named.pop('runmode', queues[self.queue_name].runmode))
+            self.runmode = int(named.pop('runmode', queues._runmode))
         
         logg.info("--- send() called, runmode = %s" % self.runmode)
         

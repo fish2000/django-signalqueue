@@ -64,8 +64,7 @@ def autodiscover():
         
         # Gather signals that any of the installed apps define in
         # their respective signals.py files:
-        logg.info("")
-        logg.info("*** Looking for AsyncSignal instances in %s apps..." % len(settings.INSTALLED_APPS))
+        logg.debug("*** Looking for AsyncSignal instances in %s apps..." % len(settings.INSTALLED_APPS))
         
         for appstring in settings.INSTALLED_APPS:
             
@@ -84,7 +83,7 @@ def autodiscover():
             
             for name, thing in mod.__dict__.items():
                 if isinstance(thing, AsyncSignal):
-                    logg.info("*** Registering signal to %s: %s" % (modstring, thing))
+                    logg.debug("*** Registering signal to %s: %s" % (modstring, thing))
                     thing.name = name
                     thing.regkey = modstring
                     SQ_DMV[modstring].add(thing)
@@ -92,7 +91,7 @@ def autodiscover():
         if hasattr(settings, "SQ_ADDITIONAL_SIGNALS"):
             if isinstance(settings.SQ_ADDITIONAL_SIGNALS, (list, tuple)):
                 
-                logg.info("*** Registering additional signals from module: %s" % str(settings.SQ_ADDITIONAL_SIGNALS))
+                logg.debug("*** Registering additional signals from module: %s" % str(settings.SQ_ADDITIONAL_SIGNALS))
                 
                 for addendumstring in settings.SQ_ADDITIONAL_SIGNALS:
                     
@@ -104,7 +103,7 @@ def autodiscover():
                     
                     for name, thing in addendum.__dict__.items():
                         if isinstance(thing, AsyncSignal):
-                            logg.info("*** Adding additional signal to %s: %s" % (addendumstring, thing))
+                            logg.debug("*** Adding additional signal to %s: %s" % (addendumstring, thing))
                             thing.name = name
                             thing.regkey = addendumstring
                             SQ_DMV[addendumstring].add(thing)
@@ -127,7 +126,7 @@ def register(signal, name, regkey=None):
         raise SignalRegistryError("Cannot register signal: '%s' is not an instance of AsyncSignal." % (
             signal,))
     
-    logg.info("*** Registering signal '%s' %s to '%s'" % (name, signal, regkey))
+    logg.debug("*** Registering signal '%s' %s to '%s'" % (name, signal, regkey))
     autodiscover.lock.acquire()
     
     try:
