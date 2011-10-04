@@ -320,10 +320,12 @@ class PickleMapTests(TestCase):
             testobjects = [testobj, testexc]
             
             for testobject in testobjects:
-                signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
+                sigstruct_send = signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
                 print "*** Queue %s: %s values, runmode is %s" % (
                     signal_with_object_argument.queue_name, queue.count(), queue.runmode)
-                sigstring, result_list = queue.dequeue()
+                sigstruct_dequeue, result_list = queue.dequeue()
+                
+                self.assertEqual(sigstruct_send, sigstruct_dequeue)
                 
                 # result_list is a list of tuples, each containing a reference
                 # to a callback function at [0] and that callback's return at [1]

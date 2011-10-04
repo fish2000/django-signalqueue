@@ -143,7 +143,8 @@ class QueueBase(object):
                     if k in signal.mapping:
                         queue_json.update({ k: signal.mapping[k]().map(v), })
                 
-                return self.push(json.dumps(queue_json))
+                self.push(json.dumps(queue_json))
+                return queue_json
         else:
             raise signalqueue.SignalRegistryError("Signal has no regkey value.")
     
