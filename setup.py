@@ -54,7 +54,7 @@ setup(
         ],
     },
     install_requires=[
-        'django-delegate>=0.1.5', 'tornado', 'redis',
+        'django-delegate>=0.1.8', 'tornado', 'redis',
     ],
     tests_require=[
         'nose', 'rednose', 'django-nose',
