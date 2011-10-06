@@ -309,3 +309,24 @@ class QueueBase(object):
         """ Returns a JSON-stringified array, containing all enqueued signals, properly pretty-printed. """
         import json as library_json
         return u"%s" % library_json.dumps(library_json.loads(repr(self)), indent=4)
+
+class WorkerBase(object):
+    
+    queue = None
+    
+    def run(self, queue, **options):
+        raise NotImplementedError("WTF: Worker backend needs a Worker.run() implementaton")
+    
+    def ping(self):
+        raise NotImplementedError("WTF: Worker backend needs a Worker.ping() implementaton")
+    
+    def pause(self):
+        raise NotImplementedError("WTF: Worker backend needs a Worker.pause() implementaton")
+    
+    def proceed(self):
+        raise NotImplementedError("WTF: Worker backend needs a Worker.proceed() implementaton")
+    
+    
+    
+
+
