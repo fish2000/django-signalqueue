@@ -203,7 +203,8 @@ class QueueBase(object):
                     thesignal = signal
                     break
         else:
-            raise signalqueue.SignalRegistryError("Couldn't find any signals registered to '%s'." % regkey)
+            raise signalqueue.SignalRegistryError("No registered signals in '%s' (registry contains '%s')." % (
+                regkey, ', '.join(signalqueue.SQ_DMV.keys())))
         
         if thesignal is not None:
             for k, v in queued_signal.items():

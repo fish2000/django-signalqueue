@@ -304,6 +304,7 @@ class PickleMapTests(TestCase):
         for queue in queues.all():
             
             print "*** Testing queue: %s" % queue.queue_name
+            queue.clear()
             
             from signalqueue import SQ_DMV
             for regsig in SQ_DMV['signalqueue.tests']:

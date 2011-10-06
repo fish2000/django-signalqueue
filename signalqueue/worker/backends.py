@@ -215,7 +215,7 @@ def load_backend(full_backend_path):
 
 class ConnectionHandler(object):
     def __init__(self, connections_info, runmode):
-        logg.info("*** Initializing a ConnectionHandler with %s queues running in mode %s" % (
+        logg.debug("*** Initializing a ConnectionHandler with %s queues running in mode %s" % (
             len(connections_info), runmode))
         self.connections_info = connections_info
         self._connections = {}
