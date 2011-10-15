@@ -172,7 +172,7 @@ if __name__ == '__main__':
     import subprocess, os
     if not os.path.isdir(redis_dir):
         os.makedirs(redis_dir) # make redis as happy as possible
-    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
+    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis-compatible.conf')])
     
     from django.core.management import call_command
     call_command('test', 'signalqueue.tests',
