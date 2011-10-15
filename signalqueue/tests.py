@@ -170,7 +170,7 @@ if __name__ == '__main__':
     redis_dir = '/usr/local/var/db/redis/'
     
     import subprocess, os
-    if not.os.path.isdir(redisdir):
+    if not os.path.isdir(redisdir):
         os.makedirs(redisdir) # make redis as happy as possible
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
     
