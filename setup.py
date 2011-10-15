@@ -44,13 +44,14 @@ setup(
         'signalqueue.templatetags',
         'signalqueue.worker',
     ],
+    include_package_data=True,
     package_data={
         'signalqueue': [
             'fixtures/*.json',
             'settings/*.conf',
             'static/signalqueue/js/*.js',
+            'templates/*.html',
             'templates/admin/*.html',
-            'templates/queueserver/*.html',
         ],
     },
     install_requires=[

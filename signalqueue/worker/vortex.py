@@ -109,7 +109,7 @@ class MainHandler(BaseHandler):
 class QueueServerStatusHandler(BaseHandler):
     def __init__(self, *args, **kwargs):
         super(QueueServerStatusHandler, self).__init__(*args, **kwargs)
-        self.template = loader.get_template('queueserver/status.html')
+        self.template = loader.get_template('status.html')
     
     def get(self):
         nm = self.get_argument('queue', self.application.queue_name)
