@@ -1,5 +1,6 @@
 include README.rst
 include LICENSE.txt
+include .gitignore
 recursive-include signalqueue/fixtures *
 recursive-include signalqueue/static *
 recursive-include signalqueue/templates *
