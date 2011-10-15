@@ -168,6 +168,7 @@ if __name__ == '__main__':
     logging.config.dictConfig(settings.LOGGING)
     
     import subprocess, os
+    os.makedirs('/usr/local/var/db/redis/') # make redis as happy as possible
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis.conf')])
     
     from django.core.management import call_command
