@@ -49,7 +49,7 @@ class WorkerExceptionLogAdmin(admin.ModelAdmin):
             </script>
         """ % (
             obj.pk,
-            obj.pk,
+            obj.message,
             obj.pk,
             obj.pk,
             #"http://%s%s" % (socket.gethostname().lower(), obj.get_absolute_url()),
