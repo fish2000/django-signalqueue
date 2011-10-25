@@ -152,11 +152,6 @@ def main():
 
 
 if __name__ == '__main__':
-    from django.core.management import setup_environ
-    import settings
-    setup_environ(settings)
-    from django.conf import settings
-    
     main()
     
 
