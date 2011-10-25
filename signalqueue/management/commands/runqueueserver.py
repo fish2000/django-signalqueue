@@ -53,9 +53,11 @@ class Command(BaseCommand):
         from tornado.httpserver import HTTPServer
         from tornado.ioloop import IOLoop
         from signalqueue.worker.vortex import Application
-        from signalqueue.worker import queues
+        from signalqueue.worker import backends
+        import signalqueue
         
         queue_name = options.get('queue_name')
+        queues = backends.ConnectionHandler(settings.SQ_QUEUES, signalqueue.SQ_RUNMODES['SQ_ASYNC_DAEMON'])
         queue = queues[queue_name]
         
         try:
