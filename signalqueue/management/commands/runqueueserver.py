@@ -14,7 +14,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--queuename', '-n', dest='queue_name',
             default='default',
-            help="Name of the queue as defined in settings.py (defaults to 'default')",
+            help="Name of the queue as defined in settings.py",
         ),
         make_option('--halt-when-exhausted', '-H', action='store_true', dest='halt_when_exhausted',
             default=False,
@@ -32,29 +32,23 @@ class Command(BaseCommand):
     exit_when_halting = True
     
     def echo(self, *args, **kwargs):
-        """
-        Print in color to stdout.
-        
-        """
+        """ Print in color to stdout. """
         text = " ".join([str(item) for item in args])
         
         if settings.DEBUG:
-            color = kwargs.get("color",32)
+            color = kwargs.get("color", 32)
             self.stdout.write("\033[0;%dm%s\033[0;m" % (color, text))
-        
         else:
             print text
     
     def exit(self, status=2):
+        """ Exit when complete. """
         self.echo("+++ Exiting ...\n", color=16)
         if self.exit_when_halting:
             sys.exit(status)
 
     def run_worker(self, args, options):
-        """
-        Runs the Tornado-based queue worker.
-        
-        """
+        """ Runs the Tornado-based queue worker. """
         import tornado.options
         from tornado.httpserver import HTTPServer
         from tornado.ioloop import IOLoop
@@ -87,6 +81,7 @@ class Command(BaseCommand):
             self.echo("Shutting down signal queue worker ...", color=31)
     
     def handle(self, addrport='', *args, **options):
+        """ Handle command-line options. """
         echo_banner()
         
         if args:
@@ -110,7 +105,6 @@ class Command(BaseCommand):
             raise CommandError("%r is not a valid port number." % port)
         
         self.quit_command = (sys.platform == 'win32') and 'CTRL-BREAK' or 'CONTROL-C'
-        
         options.update({
             'addr': addr,
             'port': port,
@@ -120,16 +114,15 @@ class Command(BaseCommand):
         self.validate(display_num_errors=True)
         
         self.echo(("\nDjango version %(version)s, using settings %(settings)r\n"
-                   "Tornado worker for queue \"%(queue_name)s\" binding to http://%(addr)s:%(port)s/\n"
-                   "Quit the server with %(quit_command)s.\n" ) % {
-                        "version": self.get_version(),
-                        "settings": settings.SETTINGS_MODULE,
-                        "queue_name": options.get('queue_name'),
-                        "addr": addr,
-                        "port": port,
-                        "quit_command": self.quit_command,
-                    })
-        
+            "Tornado worker for queue \"%(queue_name)s\" binding to http://%(addr)s:%(port)s/\n"
+            "Quit the server with %(quit_command)s.\n" ) % {
+                "version": self.get_version(),
+                "settings": settings.SETTINGS_MODULE,
+                "queue_name": options.get('queue_name'),
+                "addr": addr,
+                "port": port,
+                "quit_command": self.quit_command,
+            })
         
         try:
             self.run_worker(args, options)
