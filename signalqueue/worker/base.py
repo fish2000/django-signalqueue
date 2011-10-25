@@ -177,7 +177,7 @@ class QueueBase(object):
             queued_signal = self.retrieve()
         
         if queued_signal is not None:
-            logg.info("Dequeueing signal: %s" % queued_signal)
+            logg.info("Dequeueing signal: %s" % queued_signal.keys())
         else:
             return (None, None)
         
@@ -191,9 +191,11 @@ class QueueBase(object):
             try:
                 sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
             except (KeyError, AttributeError), err:
+                logg.info("*** Error deserializing sender_dict: %s" % err)
                 sender = None
         
         enqueue_runmode = queued_signal.get('enqueue_runmode', runmodes['SQ_ASYNC_REQUEST'])
+        
         kwargs = {
             'dequeue_runmode': self.runmode,
             'enqueue_runmode': enqueue_runmode,

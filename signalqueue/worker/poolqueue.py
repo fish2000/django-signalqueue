@@ -18,16 +18,21 @@ class PoolQueue(object):
     def __init__(self, *args, **kwargs):
         super(PoolQueue, self).__init__()
         
+        import signalqueue
+        signalqueue.autodiscover()
+        
         from django.conf import settings as django_settings
         from signalqueue.worker import backends
         from signalqueue import SQ_RUNMODES as runmodes
         
         self.active = kwargs.get('active', True)
         self.halt = kwargs.get('halt', False)
+        self.log_exceptions = kwargs.get('log_exceptions', True)
+        
         self.interval = 1
         self.queue_name = kwargs.get('queue_name', "default")
         
-        self.runmode = runmodes['SQ_ASYNC_DAEMON']
+        self.runmode = runmodes['SQ_ASYNC_MGMT']
         self.queues = backends.ConnectionHandler(django_settings.SQ_QUEUES, self.runmode)
         self.signalqueue = self.queues[self.queue_name]
         self.signalqueue.runmode = self.runmode
@@ -38,10 +43,18 @@ class PoolQueue(object):
             self.interval = interval
         
         if self.interval > 0:
-            if self.halt:
-                self.shark = PeriodicCallback(self.cueball_scratch, self.interval*10)
+            
+            if self.log_exceptions:
+                if self.halt:
+                    self.shark = PeriodicCallback(self.eightball_scratch, self.interval*10)
+                else:
+                    self.shark = PeriodicCallback(self.eightball, self.interval*10)
+            
             else:
-                self.shark = PeriodicCallback(self.cueball, self.interval*10)
+                if self.halt:
+                    self.shark = PeriodicCallback(self.cueball_scratch, self.interval*10)
+                else:
+                    self.shark = PeriodicCallback(self.cueball, self.interval*10)
         
         if self.active:
             self.shark.start()
@@ -54,14 +67,32 @@ class PoolQueue(object):
         self.active = True
         self.shark.start()
     
+    """ Non-logging cues """
+    
     def cueball(self):
+        try:
+            self.signalqueue.dequeue()
+        except Exception, err:
+            logg.info("--- Exception during dequeue: %s" % err)
+    
+    def cueball_scratch(self):
+        try:
+            self.signalqueue.dequeue()
+        except Exception, err:
+            logg.info("--- Exception during dequeue: %s" % err)
+        if self.signalqueue.count() < 1:
+            logg.info("Queue exhausted, exiting...")
+            raise KeyboardInterrupt
+    
+    """ Logging cues """
+    
+    def eightball(self):
         with self.signalqueue.log_exceptions():
             self.signalqueue.dequeue()
     
-    def cueball_scratch(self):
+    def eightball_scratch(self):
         with self.signalqueue.log_exceptions():
             self.signalqueue.dequeue()
-        
         if self.signalqueue.count() < 1:
             logg.info("Queue exhausted, exiting...")
             raise KeyboardInterrupt

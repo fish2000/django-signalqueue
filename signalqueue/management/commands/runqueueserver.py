@@ -24,6 +24,10 @@ class Command(BaseCommand):
             default=True,
             help="Don't call sys.exit() when halting",
         ),
+        make_option('--disable-exception-logging', '-x', action='store_false', dest='log_exceptions',
+            default=True,
+            help="Don't call sys.exit() when halting",
+        ),
     )
     
     help = ('Runs the Tornado-based queue worker.')
@@ -57,7 +61,7 @@ class Command(BaseCommand):
         import signalqueue
         
         queue_name = options.get('queue_name')
-        queues = backends.ConnectionHandler(settings.SQ_QUEUES, signalqueue.SQ_RUNMODES['SQ_ASYNC_DAEMON'])
+        queues = backends.ConnectionHandler(settings.SQ_QUEUES, signalqueue.SQ_RUNMODES['SQ_ASYNC_MGMT'])
         queue = queues[queue_name]
         
         try:
@@ -73,7 +77,9 @@ class Command(BaseCommand):
             self.exit(2)
         
         http_server = HTTPServer(Application(queue_name=queue_name,
-            halt_when_exhausted=options.get('halt_when_exhausted', False)))
+            halt_when_exhausted=options.get('halt_when_exhausted', False),
+            log_exceptions=options.get('log_exceptions', True),
+        ))
         
         http_server.listen(int(options.get('port')), address=options.get('addr'))
         

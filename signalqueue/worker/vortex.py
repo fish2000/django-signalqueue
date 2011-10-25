@@ -51,7 +51,10 @@ class Application(tornado.web.Application):
         self.queues = {}
         if nm is not None:
             self.queues.update({
-                nm: PoolQueue(queue_name=nm, active=True, halt=kwargs.get('halt_when_exhausted', False))
+                nm: PoolQueue(queue_name=nm, active=True,
+                    halt=kwargs.get('halt_when_exhausted', False),
+                    log_exceptions=kwargs.get('log_exceptions', True),
+                ),
             })
 
 
