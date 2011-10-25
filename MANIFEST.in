@@ -5,4 +5,4 @@ recursive-include signalqueue/fixtures *
 recursive-include signalqueue/static *
 recursive-include signalqueue/templates *
 recursive-include signalqueue/templates/admin *
-include signalqueue/settings/redis.conf
+recursive-include signalqueue/settings *
