@@ -55,16 +55,14 @@ class PoolQueue(object):
         self.shark.start()
     
     def cueball(self):
-        #logg.info("Dequeueing signal...")
         with self.signalqueue.log_exceptions():
             self.signalqueue.dequeue()
     
     def cueball_scratch(self):
-        #logg.info("Dequeueing signal...")
         with self.signalqueue.log_exceptions():
             self.signalqueue.dequeue()
         
         if self.signalqueue.count() < 1:
-            print "Queue exhausted, exiting..."
+            logg.info("Queue exhausted, exiting...")
             raise KeyboardInterrupt
     

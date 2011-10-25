@@ -176,7 +176,10 @@ class QueueBase(object):
         if queued_signal is None:
             queued_signal = self.retrieve()
         
-        logg.info("Dequeueing signal: %s" % queued_signal)
+        if queued_signal is not None:
+            logg.info("Dequeueing signal: %s" % queued_signal)
+        else:
+            return (None, None)
         
         signal_dict = queued_signal.get('signal')
         sender_dict = queued_signal.get('sender')
