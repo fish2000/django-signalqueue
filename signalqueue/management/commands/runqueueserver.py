@@ -74,6 +74,7 @@ class Command(BaseCommand):
         
         http_server = HTTPServer(Application(queue_name=queue_name,
             halt_when_exhausted=options.get('halt_when_exhausted', False)))
+        
         http_server.listen(int(options.get('port')), address=options.get('addr'))
         
         try:
