@@ -1,4 +1,4 @@
-{% load i18n adminmedia signalqueue_status %}
+{% load i18n signalqueue_status %}
     
     <style type="text/css">
     
@@ -26,11 +26,9 @@
         }
         
         .content-related .module h2 {
-            background: #eee url({% admin_media_prefix %}img/admin/nav-bg.gif) bottom left repeat-x;
+            background: #eee url(data:image/gif;base64,R0lGODlhAQAfAMQAAPf39+3t7efn5+rq6v39/fr6+vDw8PPz8/Pz8uTk5PHx8eHh4e7u7vv7+/j4+Ojo6PX19eLi4vz8/Ozs7Pn5+fb29ubm5v7+/v///wAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAABAB8AAAUXICaO2HURUlNQDlBBiGIwwTQ8gpVESwgAOw==); bottom left repeat-x;
             color: #666;
         }
-        
-        #default-queuelist {}
         
         #first-non-default-queuelist {
             border-top: #ccc dotted 1px;

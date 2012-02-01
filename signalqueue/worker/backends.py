@@ -181,10 +181,10 @@ class DatabaseQueueProxy(QueueBase):
                 return mgr_instance
             
             else:
-                raise ImproperlyConfigured("DatabaseQueueProxy's queue configuration requires the name of the model class to use to be specified in in 'modl_name'.")
+                raise ImproperlyConfigured("DatabaseQueueProxy's queue configuration requires the name of a model class to be specified in in 'modl_name'.")
         
         else:
-            raise ImproperlyConfigured("DatabaseQueueProxy's queue configuration requires you to specify 'app_label', an app in which your 'modl_name' is defined in models.py.")
+            raise ImproperlyConfigured("DatabaseQueueProxy's queue configuration requires an app specified in 'app_label', in which the definition for a model named 'modl_name' can be found.")
 
 """
 Class-loading functions.
