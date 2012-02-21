@@ -91,8 +91,8 @@ except ImportError:
         logg.info("--- Loading yajl in leu of czjson")
         try:
             import yajl as json
-            assert hasattr(yajl, 'loads')
-            assert hasattr(yajl, 'dumps')
+            assert hasattr(json, 'loads')
+            assert hasattr(json, 'dumps')
         except (ImportError, AssertionError):
             logg.info("--- Loading simplejson in leu of yajl")
             try:
