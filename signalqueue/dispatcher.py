@@ -94,6 +94,5 @@ class AsyncSignal(Signal):
             # fire normally
             logg.info("*** send() called and no runmode configured -- firing sync signal.")
             return self.send_now(sender, **named)
-        
-        
+
     

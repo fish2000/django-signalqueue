@@ -52,7 +52,6 @@ class Command(BaseCommand):
         from django.conf import settings
         from signalqueue import SQ_RUNMODES as runmodes
         from signalqueue.worker import backends
-        from signalqueue.models import log_exceptions
         
         queue_name = options.get('queue_name')
         queues = backends.ConnectionHandler(settings.SQ_QUEUES, runmodes['SQ_ASYNC_MGMT'])
@@ -95,8 +94,7 @@ class Command(BaseCommand):
                 self.echo(">>> Processing signal sent by %s.%s: %s.%s" % (
                     sender._meta.app_label, sender.__name__, signal.keys()[0], signal.values()[0]), color=31)
                 
-                with log_exceptions(queue_name=queue_name):
-                    queue.dequeue(queued_signal=signalblip)
+                queue.dequeue(queued_signal=signalblip)
         
         self.echo(">>> Done flushing signal queue '%s' -- %s enqueued signals remaining" % (
             queue.queue_name, queue.count()), color=31)

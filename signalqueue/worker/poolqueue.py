@@ -46,9 +46,9 @@ class PoolQueue(object):
             
             if self.log_exceptions:
                 if self.halt:
-                    self.shark = PeriodicCallback(self.eightball_scratch, self.interval*10)
+                    self.shark = PeriodicCallback(self.cueball_scratch, self.interval*10)
                 else:
-                    self.shark = PeriodicCallback(self.eightball, self.interval*10)
+                    self.shark = PeriodicCallback(self.cueball, self.interval*10)
             
             else:
                 if self.halt:
@@ -87,12 +87,13 @@ class PoolQueue(object):
     """ Logging cues """
     
     def eightball(self):
-        with self.signalqueue.log_exceptions():
-            self.signalqueue.dequeue()
+        
+        self.signalqueue.dequeue()
     
     def eightball_scratch(self):
-        with self.signalqueue.log_exceptions():
-            self.signalqueue.dequeue()
+        
+        self.signalqueue.dequeue()
+        
         if self.signalqueue.count() < 1:
             logg.info("Queue exhausted, exiting...")
             raise KeyboardInterrupt

@@ -81,7 +81,6 @@ The output should look something like this:
     test_testuser_admin_login (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
     test_testuser_admin_login_via_client (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
     test_backend_total_exception_count (signalqueue.tests.ExceptionLogTests) ... passed
-    test_exception_log_context_manager (signalqueue.tests.ExceptionLogTests) ... passed
     +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
     
     [66921] 30 Sep 16:22:18 - Accepted 127.0.0.1:59278
@@ -105,11 +104,7 @@ The output should look something like this:
     >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
     >>> Done flushing signal queue 'db' -- 0 enqueued signals remaining
     
-    
-    test_exception_log_context_manager_dequeue (signalqueue.tests.ExceptionLogTests) ... passed
     [66921] 30 Sep 16:22:19 - Client closed connection
-    test_exception_log_view_fail_for_regular_user (signalqueue.tests.ExceptionLogViewTests) ... passed
-    test_exception_log_view_superuser (signalqueue.tests.ExceptionLogViewTests) ... passed
     
             signalqueue.tests:
                                         AsyncSignal: additional_signal
@@ -396,10 +391,9 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
             queue = queues['db']
             
             oldcount = queue.count()
-            from signalqueue.models import log_exceptions
-            with log_exceptions(queue_name='db'):
-                yodogg = queue.retrieve()
-                queue.dequeue(queued_signal=yodogg)
+            
+            yodogg = queue.retrieve()
+            queue.dequeue(queued_signal=yodogg)
             
             print "Sleeping for 0.5 seconds..."
             import time
@@ -413,7 +407,7 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
             newcount = queue.count()
             self.assertTrue(int(oldcount) > int(newcount))
     
-    def test_worker_dequeue_from_tornado_periodic_callback(self):
+    def _test_worker_dequeue_from_tornado_periodic_callback(self):
         from signalqueue import signals
         signals.test_signal.connect(callback)
         
@@ -431,151 +425,6 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
         self.http_client.fetch(self.get_url('/'), self.stop)
         response = self.wait()
         self.assertTrue("YO DOGG" in response.body)
-
-class ExceptionLogViewTests(TestCase):
-    
-    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
-    
-    def setUp(self):
-        from django.contrib.auth import models as auth_models
-        self.testuser = 'yodogg'
-        self.testpass = 'iheardyoulikeunittests'
-        
-        try:
-            self.user = auth_models.User.objects.get(username=self.testuser)
-        except auth_models.User.DoesNotExist:
-            assert auth_models.User.objects.create_superuser(self.testuser, '%s@%s.com' % (self.testuser, self.testuser), self.testpass)
-            self.user = auth_models.User.objects.get(username=self.testuser)
-        else:
-            print 'Test user %s already exists.' % self.testuser
-        
-        from django.test.client import Client
-        self.client = Client()
-        
-        import os
-        self.testroot = os.path.dirname(os.path.abspath(__file__))
-        
-        self.dqsettings = dict(
-            SQ_ADDITIONAL_SIGNALS=['signalqueue.tests'],
-            SQ_RUNMODE='SQ_ASYNC_REQUEST')
-        
-        with self.settings(**self.dqsettings):
-            import signalqueue
-            signalqueue.autodiscover()
-            from signalqueue.worker import queues
-            self.queue = queues['db']
-    
-    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
-    def test_exception_log_view_fail_for_regular_user(self):
-        nonsupertestuser = 'dogg'
-        nonsupertestpass = 'testwhileyoutest'
-        from django.contrib.auth import models as auth_models
-        nonsuper = auth_models.User.objects.create_user(nonsupertestuser, '%s@%s.com' % (nonsupertestuser, nonsupertestuser), nonsupertestpass)
-        self.assertTrue(self.client.login(username=nonsupertestuser, password=nonsupertestpass))
-        
-        from signalqueue.models import WorkerExceptionLog
-        
-        try:
-            raise ValueError("Yo dogg: I hear you like logged exception messages")
-        except ValueError, err:
-            log_entry = WorkerExceptionLog.objects.log_exception(err, queue_name="db")
-        
-        log_entry_view_out = self.client.get(log_entry.get_absolute_url())
-        
-        from django.core.urlresolvers import reverse
-        nonexistant_log_entry_view_out = self.client.get(reverse('signalqueue:exception-log-entry',
-            kwargs=dict(pk=WorkerExceptionLog.objects.nonexistant_id())))
-        self.client.get('/admin/logout/')
-        
-        self.assertEquals(log_entry_view_out.status_code, 302)
-        self.assertEquals(nonexistant_log_entry_view_out.status_code, 302)
-    
-    @skipUnless(hasattr(settings, 'ROOT_URLCONF'), "needs specific ROOT_URLCONF from django-signalqueue testing")
-
-    def test_exception_log_view_superuser(self):
-        from signalqueue.models import WorkerExceptionLog
-        
-        try:
-            raise ValueError("Yo dogg: I hear you like logged exception messages")
-        except ValueError, err:
-            log_entry = WorkerExceptionLog.objects.log_exception(err, queue_name="db")
-        
-        post_out = self.client.post('/admin/', dict(
-            username=self.user.username, password=self.testpass, this_is_the_login_form='1', next='/admin/'))
-        log_entry_view_out = self.client.get(log_entry.get_absolute_url())
-        
-        from django.core.urlresolvers import reverse
-        nonexistant_log_entry_view_out = self.client.get(reverse('signalqueue:exception-log-entry',
-            kwargs=dict(pk=WorkerExceptionLog.objects.nonexistant_id())))
-        self.client.get('/admin/logout/')
-        
-        self.assertEquals(log_entry_view_out.status_code, 200)
-        self.assertContains(log_entry_view_out, log_entry.html)
-        self.assertEquals(nonexistant_log_entry_view_out.status_code, 404)
-
-
-class ExceptionLogTests(TestCase):
-    
-    fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
-    
-    def setUp(self):
-        self.dqsettings = dict(
-            SQ_ADDITIONAL_SIGNALS=['signalqueue.tests'],
-            SQ_RUNMODE='SQ_ASYNC_REQUEST')
-        with self.settings(**self.dqsettings):
-            import signalqueue
-            signalqueue.autodiscover()
-            from signalqueue.worker import queues
-            self.queue = queues['db']
-    
-    def tearDown(self):
-        from signalqueue.models import WorkerExceptionLog
-        WorkerExceptionLog.objects.all().delete()
-    
-    def test_backend_total_exception_count(self):
-        from signalqueue.models import log_exceptions
-        
-        with log_exceptions(queue_name="db", exc_type=ValueError):
-            raise ValueError("Yo dogg: I hear you like logged exception messages")
-        with self.queue.log_exceptions(exc_type=ValueError):
-            raise ValueError("Yo dogg: I hear your queue also likes logged exception messages")
-        self.assertTrue(self.queue.exceptions.totalcount() == 2)
-    
-    def test_exception_log_context_manager(self):
-        from signalqueue.models import log_exceptions
-        
-        with log_exceptions(queue_name="db", exc_type=ValueError):
-            raise ValueError("Yo dogg: I hear you like logged exception messages")
-        
-        with self.assertRaises(TestException):
-            with log_exceptions(queue_name="db", exc_type=ValueError):
-                raise TestException("Yo dogg: I hear you like logged exception messages") 
-        
-        exc_message = "Yo dogg: I hear you like logged exception messages"
-        for exc in (ValueError, TestException):
-            with log_exceptions(queue_name="db", exc_type=(ValueError, TestException)):
-                raise exc(exc_message)
-        
-        from signalqueue.models import WorkerExceptionLog
-        self.assertEqual(WorkerExceptionLog.objects.totalcount(), 3)
-        self.assertEqual(WorkerExceptionLog.objects.withtype('ValueError').totalcount(), 2)
-        self.assertEqual(WorkerExceptionLog.objects.like(ValueError).totalcount(), 2)
-        self.assertEqual(WorkerExceptionLog.objects.withtype('TestException').totalcount(), 1)
-        self.assertEqual(WorkerExceptionLog.objects.like(TestException).totalcount(), 1)
-    
-    def test_exception_log_context_manager_dequeue(self):
-        with self.settings(**self.dqsettings):
-            test_sync_function_signal.disconnect(callback_no_exception)
-            test_sync_function_signal.connect(callback)
-            
-            from django.core.management import call_command
-            call_command('dequeue',
-                queue_name='db', verbosity=2)
-            
-            from signalqueue.models import WorkerExceptionLog
-            self.assertTrue(WorkerExceptionLog.objects.count() == 1)
-            self.assertTrue(WorkerExceptionLog.objects.get().count == 16)
-            self.assertTrue(WorkerExceptionLog.objects.get().count == self.queue.exceptions.totalcount())
 
 
 class DequeueManagementCommandTests(TestCase):
