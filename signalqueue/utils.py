@@ -95,11 +95,12 @@ else:
     raven_client = raven_django_get_client()
 
 if raven_client is None:
-    from raven import Client as RavenClient
-except (ImportError, urllib2.URLError), err:
-    logg.info("--- Couldn't import Raven via environment")
-else:
-    raven_client = RavenClient()
+    try:
+        from raven import Client as RavenClient
+    except (ImportError, urllib2.URLError), err:
+        logg.info("--- Couldn't import Raven via environment")
+    else:
+        raven_client = RavenClient()
 
 if raven_client is not None:
     try:
