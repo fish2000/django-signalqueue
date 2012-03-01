@@ -26,7 +26,7 @@ class Command(BaseCommand):
         ),
         make_option('--disable-exception-logging', '-x', action='store_false', dest='log_exceptions',
             default=True,
-            help="Don't call sys.exit() when halting",
+            help="Disable the Sentry exception log.",
         ),
     )
     

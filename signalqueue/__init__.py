@@ -17,7 +17,6 @@ Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 """
 import os, threading
 from collections import defaultdict
-from signalqueue.utils import import_module, logg
 
 SQ_RUNMODES = {
     'SQ_SYNC':                      1, # synchronous operation -- fire signals concurrently with save() and cache pragma
@@ -58,9 +57,13 @@ def autodiscover():
         from django.conf import settings
         from signalqueue.dispatcher import AsyncSignal
         
+        from signalqueue.utils import logg
+        
         # Gather signals that any of the installed apps define in
         # their respective signals.py files:
         logg.debug("*** Looking for AsyncSignal instances in %s apps..." % len(settings.INSTALLED_APPS))
+        
+        from signalqueue.utils import import_module
         
         for appstring in settings.INSTALLED_APPS:
             
@@ -121,6 +124,8 @@ def register(signal, name, regkey=None):
     if not isinstance(signal, AsyncSignal):
         raise SignalRegistryError("Cannot register signal: '%s' is not an instance of AsyncSignal." % (
             signal,))
+    
+    from signalqueue.utils import logg
     
     logg.debug("*** Registering signal '%s' %s to '%s'" % (name, signal, regkey))
     autodiscover.lock.acquire()

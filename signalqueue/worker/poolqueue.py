@@ -11,7 +11,6 @@ Copyright (c) 2011 OST, LLC. All rights reserved.
 
 """
 from tornado.ioloop import PeriodicCallback
-from signalqueue.utils import logg, log_exceptions
 
 class PoolQueue(object):
     
@@ -22,12 +21,13 @@ class PoolQueue(object):
         signalqueue.autodiscover()
         
         from django.conf import settings as django_settings
+        from signalqueue.utils import logg, log_exceptions
         from signalqueue.worker import backends
         from signalqueue import SQ_RUNMODES as runmodes
         
         self.active = kwargs.get('active', True)
         self.halt = kwargs.get('halt', False)
-        self.log_exceptions = kwargs.get('log_exceptions', True)
+        self.logx = kwargs.get('log_exceptions', True)
         
         self.interval = 1
         self.queue_name = kwargs.get('queue_name', "default")
@@ -44,7 +44,7 @@ class PoolQueue(object):
         
         if self.interval > 0:
             
-            if self.log_exceptions:
+            if self.logx:
                 if self.halt:
                     self.shark = PeriodicCallback(self.joe_flacco, self.interval*10)
                 else:

@@ -151,7 +151,7 @@ from django.conf import settings
 
 rp = None
 
-sentry_setup_tmpl = """#!/bin/sh
+sentry_setup_tmpl = """#!/bin/sh -x
 
 export venv="sentry-test-virtualenv"
 
@@ -163,22 +163,33 @@ if [ -x "$(which virtualenv)" ]; then
         source "./${venv}/bin/activate"
         cd "./${venv}"
         export PYTHONPATH=".:${VIRTUAL_ENV}/lib"
+        export PATH=".:${PATH}"
         #rm -rf "./${venv}"
     else
-        virtualenv --no-site-packages --distribute "./${venv}"
+        virtualenv --distribute "./${venv}"
         source "./${venv}/bin/activate"
         cd "./${venv}"
         export PYTHONPATH=".:${VIRTUAL_ENV}/lib"
+        export PATH=".:${PATH}"
         mkdir -p etc
         mkdir -p var/data
-        bin/pip install gevent sentry
+        bin/pip install greenlet
+        bin/pip install gevent
+        bin/pip install gunicorn
+        bin/pip install simplejson
+        bin/pip install anyjson
+        bin/pip install kombu
+        bin/pip install amqplib
+        bin/pip install celery
+        bin/pip install BeautifulSoup
+        bin/pip install sentry
         cp -f %(conf)s etc
-        bin/sentry upgrade
+        bin/sentry --conf=etc/sentry.conf.py upgrade
     fi
     
     if [ -r "%(conf)s" ]; then
-        bin/sentry start http
-        bin/sentry start udp
+        bin/sentry --conf=etc/sentry.conf.py start http
+        bin/sentry --conf=etc/sentry.conf.py start udp
     fi
     
 fi
@@ -204,15 +215,24 @@ if __name__ == '__main__':
     sentry_setup = sentry_setup_tmpl % {
         'conf': os.path.join(signalqueue_settings.approot, 'settings', 'sentry.conf.py'),
     }
-    with tempfile.NamedTemporaryFile(
-        delete=False, mode="w+b",
-        suffix='sentry-config-',
-        dir=signalqueue_settings.tempdata
-    ) as sentrify:
+    sentrifile = os.path.join(
+        #signalqueue_settings.tempdata,
+        '/tmp',
+        'sentry-config.sh',
+    )
+    with open(sentrifile, mode="w+b") as sentrify:
+        
         sentrify.write(sentry_setup)
         sentrify.seek(0)
-        sentrifier = subprocess.Popensentrify.
-        
+        sentrify.flush()
+        os.chmod(sentrifile, 0x755)
+        sentrifier = subprocess.Popen(
+            [sentrify.name],
+            stdout=subprocess.PIPE,
+            shell=True)
+        while sentrifier.poll() is None:
+            sentrout = sentrifier.stdout.readline()
+            print sentrout
     
     
     redis_dir = '/usr/local/var/db/redis/'
@@ -226,6 +246,7 @@ if __name__ == '__main__':
     
     tempdata = settings.tempdata
     print "Deleting test data: %s" % tempdata
+    os.unlink(sentrifile)
     os.rmdir(tempdata)
     
     if rp is not None:
