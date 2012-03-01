@@ -1,5 +1,5 @@
 
-import os
+import os, sys, traceback
 
 # Root directory of this package
 SQ_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -25,9 +25,7 @@ except:
     except:
         import_module = simple_import_module
 
-# Try to use the jogging app, falling back to the python standard logging module.
-# With Django 1.3, you should eschew jogging in favor of the standard, as Django 1.3
-# goes out of its way to make the standard module do what jogging does and moreso.
+
 class FakeLogger(object):
     """
     Completely unacceptable fake-logger class, for last-resort use.
@@ -65,6 +63,67 @@ except ImportError:
     else:
         logg = logging.getLogger(logger_name)
         logg.setLevel(logging.INFO)
+
+''' Try to use Raven, if we can find it. '''
+class FlaccoHasNoPassingGame(object):
+    def captureMessage(self, message, **kwargs):
+        logg.info("{raven} \t %s" % message)
+    def captureException(self, exc_info=None, **kwargs):
+        if exc_info:
+            if ex_info == True:
+                try:
+                    yo_dogg_exc_info = sys.exc_info()
+                    self.captureException(yo_dogg_exc_info)
+                finally:
+                    del yo_dogg_exc_info
+            else:
+                (exc_type, exc_value, exc_tb) = tuple(exc_info)
+                
+                self.captureMessage("%s Captured:\n" % str(exc_type.__name__))
+                for exc_line in traceback.format_tb(exc_tb):
+                    self.captureMessage(str(exc_line))
+                self.captureMessage("%s: %s" % (str(exc_type.__name__), str(exc_value)))
+
+raven_client = None
+import urllib2
+
+try:
+    from raven.contrib.django.models import get_client as raven_django_get_client
+except (ImportError, urllib2.URLError), err:
+    logg.info("--- Couldn't import Raven Django get_client utility")
+else:
+    raven_client = raven_django_get_client()
+
+if raven_client is None:
+    from raven import Client as RavenClient
+except (ImportError, urllib2.URLError), err:
+    logg.info("--- Couldn't import Raven via environment")
+else:
+    raven_client = RavenClient()
+
+if raven_client is not None:
+    try:
+        raven_client.captureMessage(
+            '''{django-signalqueue} >>> Raven client initialized'''
+        )
+    except (ImportError, urllib2.URLError), err:
+        logg.warning("*** Couldn't send message via initialized Raven client")
+        logg.warning("*** Shutting down Sentry interface (falling back to configured logger).")
+        raven_client = FlaccoHasNoPassingGame()
+else:
+    logg.info("--- Couldn't configure Raven. Workers won't be able to log exceptions to Sentry.")
+    logg.info("--- Shutting down Sentry interface (falling back to configured logger).")
+    raven_client = FlaccoHasNoPassingGame()
+
+from contextlib import contextmanager
+
+@contextmanager
+def log_exceptions(exc_type=Exception, **kwargs):
+    try:
+        yield
+    except exc_type, exc:
+        raven_client.captureException(sys.exc_info())
+
 
 class ADict(dict):
     """
