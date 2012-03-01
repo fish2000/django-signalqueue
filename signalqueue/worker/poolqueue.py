@@ -11,7 +11,7 @@ Copyright (c) 2011 OST, LLC. All rights reserved.
 
 """
 from tornado.ioloop import PeriodicCallback
-from signalqueue.utils import logg
+from signalqueue.utils import logg, log_exceptions
 
 class PoolQueue(object):
     
@@ -46,9 +46,9 @@ class PoolQueue(object):
             
             if self.log_exceptions:
                 if self.halt:
-                    self.shark = PeriodicCallback(self.cueball_scratch, self.interval*10)
+                    self.shark = PeriodicCallback(self.joe_flacco, self.interval*10)
                 else:
-                    self.shark = PeriodicCallback(self.cueball, self.interval*10)
+                    self.shark = PeriodicCallback(self.ray_rice, self.interval*10)
             
             else:
                 if self.halt:
@@ -84,15 +84,16 @@ class PoolQueue(object):
             logg.info("Queue exhausted, exiting...")
             raise KeyboardInterrupt
     
-    """ Logging cues """
+    """ Logging cues (using the Raven client for Sentry) """
     
-    def eightball(self):
-        
-        self.signalqueue.dequeue()
+    def ray_rice(self):
+        with log_exceptions():
+            self.signalqueue.dequeue()
     
-    def eightball_scratch(self):
+    def joe_flacco(self):
         
-        self.signalqueue.dequeue()
+        with log_exceptions():
+            self.signalqueue.dequeue()
         
         if self.signalqueue.count() < 1:
             logg.info("Queue exhausted, exiting...")

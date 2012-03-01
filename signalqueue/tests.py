@@ -151,6 +151,43 @@ from django.conf import settings
 
 rp = None
 
+sentry_setup_tmpl = """#!/bin/sh
+
+export venv="sentry-test-virtualenv"
+
+if [ -x "$(which virtualenv)" ]; then
+
+    cd /tmp
+    if [ -d "./${venv}" ]; then
+        echo "Existing virtualenv: $(pwd)/${venv}"
+        source "./${venv}/bin/activate"
+        cd "./${venv}"
+        export PYTHONPATH=".:${VIRTUAL_ENV}/lib"
+        #rm -rf "./${venv}"
+    else
+        virtualenv --no-site-packages --distribute "./${venv}"
+        source "./${venv}/bin/activate"
+        cd "./${venv}"
+        export PYTHONPATH=".:${VIRTUAL_ENV}/lib"
+        mkdir -p etc
+        mkdir -p var/data
+        bin/pip install gevent sentry
+        cp -f %(conf)s etc
+        bin/sentry upgrade
+    fi
+    
+    if [ -r "%(conf)s" ]; then
+        bin/sentry start http
+        bin/sentry start udp
+    fi
+    
+fi
+
+
+"""
+
+
+
 if __name__ == '__main__':
     from signalqueue import settings as signalqueue_settings
     signalqueue_settings.__dict__.update({
@@ -162,9 +199,23 @@ if __name__ == '__main__':
     import logging.config
     logging.config.dictConfig(settings.LOGGING)
     
-    redis_dir = '/usr/local/var/db/redis/'
+    import subprocess, os, tempfile
     
-    import subprocess, os
+    sentry_setup = sentry_setup_tmpl % {
+        'conf': os.path.join(signalqueue_settings.approot, 'settings', 'sentry.conf.py'),
+    }
+    with tempfile.NamedTemporaryFile(
+        delete=False, mode="w+b",
+        suffix='sentry-config-',
+        dir=signalqueue_settings.tempdata
+    ) as sentrify:
+        sentrify.write(sentry_setup)
+        sentrify.seek(0)
+        sentrifier = subprocess.Popensentrify.
+        
+    
+    
+    redis_dir = '/usr/local/var/db/redis/'
     if not os.path.isdir(redis_dir):
         os.makedirs(redis_dir) # make redis as happy as possible
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis-compatible.conf')])
