@@ -1,4 +1,5 @@
-==================
+
+
 django-signalqueue
 ==================
 
@@ -12,7 +13,6 @@ both the running app process and your users' patience.
 
 That's where django-signalqueue comes in. After you set it up, this is all you need to do:
 
-::
 
     # yourapp/signals.py
     
@@ -26,8 +26,6 @@ That's where django-signalqueue comes in. After you set it up, this is all you n
                                                 # as it runs when the app starts up
 
 Now you can call the function in a view without blocking everything:
-
-::
 
     # yourapp/views.py
     
@@ -44,22 +42,17 @@ Django-signalqueue sticks to Django's naming and calling conventions for signals
 way and feels familiar, while granting you the power of async calls.
 
 
-============================================================================================
 With django-signalqueue, asynchronous dispatch is not even a thing -- that's how easy it is.
 ============================================================================================
 
 Setting It Up
-=============
+-------------
 
 Watch, I'll show you. First, install django-signalqueue:
-
-::
 
     $ pip install django-signalqueue                                # pulls in tornado and django-delegate, if need be
 
 ... you may also want some of these optional packages, if you don't have them already:
-
-::
 
     $ brew install redis                                            # s/brew/apt-get/ to taste
     $ pip install redis hiredis                                     # recommended
@@ -68,8 +61,6 @@ Watch, I'll show you. First, install django-signalqueue:
     $ pip install nose rednose django-nose                          # for the tests
 
 Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, while you're in your `settings.py`:
-
-::
 
     # settings.py
     
@@ -89,15 +80,13 @@ Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, w
 
 Besides all that, you just need a call to `signalqueue.autodiscover()` in your root URLConf:
 
-::
-
     # urls.py
     
     import signalqueue
     signalqueue.autodiscover()
 
 Now you can define async signals!
-=================================
+---------------------------------
 
 Asynchronous signals are instances of `signalqueue.dispatch.AsyncSignal` that you've defined in one of the following places:
 
@@ -106,8 +95,6 @@ Asynchronous signals are instances of `signalqueue.dispatch.AsyncSignal` that yo
 * *Coming soon:* `signalqueue.register()` *-- so you can put them anywhere else.*
 
 AsyncSignals are subclasses of the familiar `django.dispatch.Signal` class. As such, you define AsyncSignals much like the Django signals you know and love:
-
-::
     
     # yourapp/your_callbacks.py
     
@@ -117,8 +104,6 @@ AsyncSignals are subclasses of the familiar `django.dispatch.Signal` class. As s
             str(kwargs['instance']),
             sender.__name__)
 
-
-::
 
     # yourapp/signals.py
     
@@ -144,8 +129,6 @@ how that works) -- this part of the API is currently in flux as we're working to
 programmer-user-friendliest, most-dependency-unshackled method of implementation for the type stuff.
 
 BUT SO ANYWAY. To start up a worker, use the management command `runqueueserver`:
-
-::
     
     $ python ./manage.py runqueueserver localhost:2345
     +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
@@ -166,8 +149,6 @@ the queue (in ANSI color!) which is handy for debugging your setup.
 
 Once you've got a worker process running, you can fire one of your signal asynchronously like so:
 
-::
-
     >>> from yourapp.signals import my_signal
     >>> my_signal.send(sender=AModelClass, instance=a_model_instance)
 
@@ -177,8 +158,6 @@ of your Django app.
 
 You can fire async signals synchronously using send_now() -- the call will block until all of the connected
 callback handlers return (just like a call to a standard signals' send() method):
-
-::
 
     >>> my_signal.send_now(sender=AModelClass, instance=a_model_instance)
     >>> my_signal.send_now(instance=a_model_instance)
