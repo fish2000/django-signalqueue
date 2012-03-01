@@ -6,7 +6,7 @@ if you're not; [post any issues](https://github.com/fish2000/django-signalqueue/
 
 _If your apps were dependant any of the exception logger apparatus (models, views, the URL namespace, or the admin
 panel), refrain from updating for the moment -- the next push will contain support for logging exceptions thrown by
-queued signals with [Sentry](github.com/dcramer/sentry) as well as standard logging, I'll include a script for migrating
+queued signals with [Sentry](http://github.com/dcramer/sentry) as well as standard logging, I'll include a script for migrating
 exception log data to a Sentry project. If you are concerned about this change, [post your issues now](https://github.com/fish2000/django-signalqueue/issues)
 and I'll assuage your perdicament._
 
