@@ -1,4 +1,3 @@
-
 **New in 0.3.5: LESS IS MORE.** _The exception logger has been removed completely. It was fun to write, sure, but it was a lot of
 code that wasn't ultimately related to django-signalqueue's core idea -- a remora on the streamlined body of the app;
 a maintenance headache waiting to erupt; an awkwardly unedited metaphoric run-on slapped onto a technical summary; &c.
@@ -6,9 +5,9 @@ The new code will work fine if you're using a reasonably contemporary logging sc
 if you're not; [post any issues](https://github.com/fish2000/django-signalqueue/issues) either way._
 
 _If your apps were dependant any of the exception logger apparatus (models, views, the URL namespace, or the admin
-panel), refrain from updating for the moment -- the next version will support [Sentry](github.com/dcramer/sentry) as well
-as standard logging and will include a script to migrate your exception log data into a Sentry project instance. 
-If you are concerned about this change, [post your issues now](https://github.com/fish2000/django-signalqueue/issues)
+panel), refrain from updating for the moment -- the next push will contain support for logging exceptions thrown by
+queued signals with [Sentry](github.com/dcramer/sentry) as well as standard logging, I'll include a script for migrating
+exception log data to a Sentry project. If you are concerned about this change, [post your issues now](https://github.com/fish2000/django-signalqueue/issues)
 and I'll assuage your perdicament._
 
 django-signalqueue
