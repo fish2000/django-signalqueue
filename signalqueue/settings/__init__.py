@@ -103,12 +103,12 @@ SQ_QUEUES = {
     'default': {                                                # you need at least one dict named 'default' in SQ_QUEUES
         'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',  # required - full path to a QueueBase subclass
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(port=4332),
+        'OPTIONS': dict(port=8356),
     },
     'listqueue': {
         'ENGINE': 'signalqueue.worker.backends.RedisQueue',
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(port=4332),
+        'OPTIONS': dict(port=8356),
     },
     'db': {
         'ENGINE': 'signalqueue.worker.backends.DatabaseQueueProxy',
