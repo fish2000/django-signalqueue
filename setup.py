@@ -10,7 +10,7 @@ __version__ = (0, 3, 5)
 setup(
     name='django-signalqueue',
     version='%s.%s.%s' % __version__,
-    description='Asynchronous signals for Django.',
+    description='Truly asynchronous signal dispatch for Django!',
     author=__author__,
     author_email='fish2000@gmail.com',
     maintainer=__author__,
