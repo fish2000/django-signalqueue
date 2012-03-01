@@ -43,6 +43,15 @@ class FakeLogger(object):
         for fname in ('critical', 'debug', 'error', 'exception', 'info', 'warning'):
             setattr(self, fname, self.logg)
 
+logger_name = "signalqueue > MODULE"
+try:
+    import setproctitle
+except ImportError:
+    pass
+else:
+    # HAAAAAX
+    if 'runqueueserver' in setproctitle.getproctitle():
+        logger_name = "signalqueue > WORKER"
 
 try:
     from jogging import logging as logg
@@ -54,7 +63,7 @@ except ImportError:
         # set up fake logger
         logg = FakeLogger()
     else:
-        logg = logging.getLogger("signalqueue")
+        logg = logging.getLogger(logger_name)
         logg.setLevel(logging.INFO)
 
 class ADict(dict):
