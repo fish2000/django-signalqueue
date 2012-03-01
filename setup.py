@@ -4,15 +4,16 @@ try:
 except ImportError:
     from distutils.core import setup
 
-import signalqueue
+__author__ = 'Alexander Bohn'
+__version__ = (0, 3, 5)
 
 setup(
     name='django-signalqueue',
-    version='%s.%s.%s' % signalqueue.__version__,
+    version='%s.%s.%s' % __version__,
     description='Asynchronous signals for Django.',
-    author=signalqueue.__author__,
+    author=__author__,
     author_email='fish2000@gmail.com',
-    maintainer=signalqueue.__author__,
+    maintainer=__author__,
     maintainer_email='fish2000@gmail.com',
     license='BSD',
     url='http://github.com/fish2000/django-signalqueue/',
