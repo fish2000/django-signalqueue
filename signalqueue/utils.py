@@ -62,7 +62,7 @@ except ImportError:
         logg = FakeLogger()
     else:
         logg = logging.getLogger(logger_name)
-        logg.setLevel(logging.DEBUG)
+        logg.setLevel(logging.INFO)
 
 ''' Try to use Raven, if we can find it. '''
 class FlaccoHasNoPassingGame(object):

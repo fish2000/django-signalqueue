@@ -34,10 +34,6 @@ STATIC_URL = '/staticfiles/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
 ROOT_URLCONF = 'settings.urlconf'
 
-from django.core.files.storage import FileSystemStorage
-#STATICFILES_STORAGE = FileSystemStorage(location=STATIC_ROOT, base_url=STATIC_URL)
-#STATICFILES_STORAGE = FileSystemStorage
-
 TEMPLATE_DIRS = (
     os.path.join(approot, 'templates'),
     os.path.join(adminroot, 'templates'),
@@ -94,9 +90,9 @@ LOGGING = dict(
         'nil': { 'level':'DEBUG', 'class':'django.utils.log.NullHandler', },
     },
     loggers={
-        'signalqueue': { 'handlers': ['default'], 'level': 'DEBUG', 'propagate': False },
+        'signalqueue': { 'handlers': ['default'], 'level': 'INFO', 'propagate': False },
     },
-    root={  'handlers': ['default'], 'level': 'DEBUG', 'propagate': False },
+    root={ 'handlers': ['default'], 'level': 'INFO', 'propagate': False },
 )
 
 SQ_QUEUES = {
@@ -119,9 +115,5 @@ SQ_QUEUES = {
 
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
-
-#SQ_RUNMODE = 'SQ_ASYNC_REQUEST'
-#SQ_ASYNC = True # default
-
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
