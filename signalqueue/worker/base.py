@@ -136,8 +136,10 @@ class QueueBase(object):
                 }
                 if sender is not None:
                     queue_json.update({
-                        'sender': dict(app_label=sender._meta.app_label, modl_name=sender._meta.object_name.lower()),
-                    })
+                        'sender': dict(
+                            app_label=sender._meta.app_label, 
+                            modl_name=sender._meta.object_name.lower()),
+                        })
                 
                 for k, v in kwargs.items():
                     if k in signal.mapping:
@@ -189,7 +191,9 @@ class QueueBase(object):
         # specifying a sender is optional.
         if sender_dict is not None:
             try:
-                sender = cache.get_model(str(sender_dict['app_label']), str(sender_dict['modl_name']))
+                sender = cache.get_model(
+                    str(sender_dict['app_label']),
+                    str(sender_dict['modl_name']))
             except (KeyError, AttributeError), err:
                 logg.info("*** Error deserializing sender_dict: %s" % err)
                 sender = None
@@ -208,7 +212,7 @@ class QueueBase(object):
                     thesignal = signal
                     break
         else:
-            raise signalqueue.SignalRegistryError("No registered signals in '%s' (registry contains '%s')." % (
+            raise signalqueue.SignalRegistryError("Signal '%s' not amongst the registered: %s)." % (
                 regkey, ', '.join(signalqueue.SQ_DMV.keys())))
         
         if thesignal is not None:

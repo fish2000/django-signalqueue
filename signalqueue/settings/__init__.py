@@ -94,9 +94,9 @@ LOGGING = dict(
         'nil': { 'level':'DEBUG', 'class':'django.utils.log.NullHandler', },
     },
     loggers={
-        'signalqueue': { 'handlers': ['default'], 'level': 'INFO', 'propagate': False },
+        'signalqueue': { 'handlers': ['default'], 'level': 'DEBUG', 'propagate': False },
     },
-    root={  'handlers': ['nil'], 'level': 'INFO', 'propagate': False },
+    root={  'handlers': ['default'], 'level': 'DEBUG', 'propagate': False },
 )
 
 SQ_QUEUES = {
