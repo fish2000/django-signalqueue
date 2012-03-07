@@ -80,53 +80,10 @@ class QueueBase(object):
     def values(self, **kwargs):
         raise NotImplementedError("WTF: Queue backend needs a Queue.values() implementaton")
     
-    @property
-    def exceptions(self):
-        """ Return any exceptions logged against this queue. """
-        import signalqueue.models
-        return signalqueue.models.WorkerExceptionLog.objects.fromqueue(self.queue_name)
-    
-    @contextmanager
-    def log_exceptions(self, exc_type=Exception):
-        """
-        Context manager for logging exceptions related to this queue.
-        
-        An example of the syntax:
-        
-            from signalqueue.worker import queues
-            from myapp.exceptions import MyError
-            from myapp.signals import mysignal
-            myqueue = queues['myqueue']
-            
-            def callback(sender, **kwargs):
-                raise MyError("This is my error.")
-            
-            mysignal.connect(callback)
-            
-            for next_signal in myqueue:
-                with myqueue.log_exceptions(MyError):
-                    myqueue.dequeue(next_signal) # no traceback, loop keeps iterating!
-        
-        
-        See also the docstrings for these functions:
-        * WorkerExceptionLogManager.log() in signalqueue/models.py
-        * QueueBase.next() in this file, if you scroll down a bit
-        
-        """
-        try:
-            yield
-        except exc_type, exc:
-            import sys, signalqueue.models
-            exc_type, exc_value, tb = sys.exc_info()
-            signalqueue.models.WorkerExceptionLog.objects.log_exception_data(
-                exc, exc_type, exc_value, tb, queue_name=self.queue_name)
-    
     def enqueue(self, signal, sender=None, **kwargs):
-        """
-        Serialize the parameters of a signal call, encode the serialized structure,
-        and push the encoded string onto the queue.
-        
-        """
+        """ Serialize the parameters of a signal call, encode
+        the serialized structure, and push the encoded
+        string onto the queue. """
         if signal.regkey is not None:
             if self.ping():
                 queue_json = {
@@ -143,7 +100,9 @@ class QueueBase(object):
                 
                 for k, v in kwargs.items():
                     if k in signal.mapping:
-                        queue_json.update({ k: signal.mapping[k]().map(v), })
+                        queue_json.update({ k: signal.mapping.get(k)().map(v), })
+                
+                print queue_json
                 
                 self.push(json.dumps(queue_json))
                 return queue_json
@@ -151,11 +110,8 @@ class QueueBase(object):
             raise signalqueue.SignalRegistryError("Signal has no regkey value.")
     
     def retrieve(self):
-        """
-        Pop the queue, decode the popped signal without deserializing,
-        returning the serialized data.
-        
-        """
+        """ Pop the queue, decode the popped signal without deserializing,
+        returning the serialized data. """
         if self.count() > 0:
             out = self.pop()
             if out is not None:
@@ -175,6 +131,8 @@ class QueueBase(object):
         * See the QueueBase docstring for an example.
         
         """
+        from signalqueue import mappings
+        
         if queued_signal is None:
             queued_signal = self.retrieve()
         

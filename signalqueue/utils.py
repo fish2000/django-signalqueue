@@ -62,7 +62,7 @@ except ImportError:
         logg = FakeLogger()
     else:
         logg = logging.getLogger(logger_name)
-        logg.setLevel(logging.INFO)
+        logg.setLevel(logging.DEBUG)
 
 from contextlib import contextmanager
 

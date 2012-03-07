@@ -10,9 +10,20 @@ Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 import hashlib
 from collections import defaultdict
 from django.dispatch import Signal
-from signalqueue.mappings import ModelInstanceMapper
+from signalqueue import mappings
 from signalqueue.utils import logg
 from signalqueue import SQ_RUNMODES as runmodes
+
+class DefaultArityMap(defaultdict):
+    ''' signal.mapping[k]().map(v) '''
+    def __missing__(self, key):
+        return self
+    def __call__(self):
+        return self
+    def map(self, value):
+        return value
+    def remap(self, value):
+        return self[value.__class__]
 
 class AsyncSignal(Signal):
     
@@ -22,30 +33,28 @@ class AsyncSignal(Signal):
     
     queue_name = None
     mapping = None
-    defaultmapper = ModelInstanceMapper
+    #defaultmapper = mappings.arity_map.default_factory()
+    defaultmapper = mappings.ModelInstanceMapper
     
     def __init__(self, providing_args=None, defaultmapper=None, queue_name='default'):
         
         self.queue_name = queue_name
-        
         if defaultmapper is None:
             # this iffy here may strike you as backwards
             defaultmapper = self.defaultmapper
-        
+            
+        #self.mapping = DefaultArityMap(lambda: defaultmapper)
         self.mapping = defaultdict(lambda: defaultmapper)
         just_the_args = []
         
         if isinstance(providing_args, dict):
-            self.mapping.update(providing_args)
             for providing_arg, MappingCls in providing_args.items():
                 just_the_args.append(providing_arg)
+            self.mapping.update(providing_args)
         
         else:
             just_the_args.extend(providing_args)
-            for providing_arg in providing_args:
-                self.mapping.update({
-                    providing_arg: defaultmapper
-                })
+            self.mapping.update(dict(mappings.arity_map))
         
         super(AsyncSignal, self).__init__(providing_args=just_the_args)
     

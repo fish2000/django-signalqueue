@@ -1,7 +1,9 @@
 
 from signalqueue.utils import ADict
+from collections import defaultdict
 import django.db.models
 
+arity_map = defaultdict(lambda: Mapper)
 
 class MappingError(Exception):
     pass
@@ -31,9 +33,23 @@ class MappedAttr(object):
             return self.default
         return map_func(mapper, obj)
 
+class ArityMapper(type):
+    
+    def __new__(cls, name, bases, attrs):
+        outcls = super(ArityMapper, cls).__new__(cls, name, bases, attrs)
+        #signature = '%s.%s' % (outcls.__module__, name)
+        maptype = attrs.get('__maptype__', str)
+        if '__maptype__' not in attrs:
+            attrs['__maptype__'] = maptype
+            
+        arity_map[maptype] = outcls
+        return outcls
+
+
 class Mapper(object):
     
-    __maptype__ = None
+    __maptype__ = str
+    __metaclass__ = ArityMapper
     
     pystr = MappedAttr(
         lambda mapper, obj: str(obj),
@@ -62,6 +78,8 @@ class Mapper(object):
 
 
 class PickleMapper(Mapper):
+    
+    __maptype__ = object
     
     pickled = MappedAttr(
         lambda mapper, obj: mapper.brine.dumps(obj, mapper.protocol(mapper)),
