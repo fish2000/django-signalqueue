@@ -14,17 +14,6 @@ from signalqueue import mappings
 from signalqueue.utils import logg
 from signalqueue import SQ_RUNMODES as runmodes
 
-class DefaultArityMap(defaultdict):
-    ''' signal.mapping[k]().map(v) '''
-    def __missing__(self, key):
-        return self
-    def __call__(self):
-        return self
-    def map(self, value):
-        return value
-    def remap(self, value):
-        return self[value.__class__]
-
 class AsyncSignal(Signal):
     
     regkey = None
@@ -33,7 +22,6 @@ class AsyncSignal(Signal):
     
     queue_name = None
     mapping = None
-    #defaultmapper = mappings.arity_map.default_factory()
     defaultmapper = mappings.ModelInstanceMapper
     
     def __init__(self, providing_args=None, defaultmapper=None, queue_name='default'):
@@ -43,7 +31,6 @@ class AsyncSignal(Signal):
             # this iffy here may strike you as backwards
             defaultmapper = self.defaultmapper
             
-        #self.mapping = DefaultArityMap(lambda: defaultmapper)
         self.mapping = defaultdict(lambda: defaultmapper)
         just_the_args = []
         

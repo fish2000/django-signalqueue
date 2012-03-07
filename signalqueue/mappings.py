@@ -37,8 +37,8 @@ class ArityMapper(type):
     
     def __new__(cls, name, bases, attrs):
         outcls = super(ArityMapper, cls).__new__(cls, name, bases, attrs)
-        #signature = '%s.%s' % (outcls.__module__, name)
         maptype = attrs.get('__maptype__', str)
+        
         if '__maptype__' not in attrs:
             attrs['__maptype__'] = maptype
             
