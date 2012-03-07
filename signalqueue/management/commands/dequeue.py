@@ -29,13 +29,9 @@ class Command(BaseCommand):
             self.echo("*** Check the signalqueue-related options in your settings.py.")
     
     def echo(self, *args, **kwargs):
-        """
-        Print in color to stdout.
-        
-        """
+        """ Print in color to stdout. """
         text = " ".join([str(item) for item in args])
         DEBUG = False
-        
         
         if DEBUG:
             color = kwargs.get("color",32)

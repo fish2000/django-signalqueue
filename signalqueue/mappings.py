@@ -88,22 +88,3 @@ class ModelInstanceMap(IDMap):
                 return ModlCls.objects.get(pk=pk)
         return None
 
-
-class ICCProfileMap(IDMap):
-    
-    def map(self, iccprofile):
-        import hashlib
-        return dict(IDMapPin(
-            obj_id=hashlib.sha1(iccprofile.data).hexdigest(),
-            modl_name='iccmodel',
-            app_label='imagekit',
-        ))
-    
-    def remap(self, pin):
-        import imagekit.models
-        profilehsh = pin.get('obj_id')
-        try:
-            icmod = imagekit.models.ICCModel.objects.profile_match(hsh=profilehsh)
-        except imagekit.models.ICCModel.DoesNotExist:
-            return None
-        return icmod.icc
