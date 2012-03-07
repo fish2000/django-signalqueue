@@ -2,203 +2,12 @@
 # encoding: utf-8
 """
 Run this file to test the signal queue -- you'll want nose and django-nose installed.
-The output should look something like this:
-    
-    [66921] 30 Sep 16:22:16 * Server started, Redis version 2.2.13
-    [66921] 30 Sep 16:22:16 * The server is now ready to accept connections on port 4332
-    [66921] 30 Sep 16:22:16 - 0 clients connected (0 slaves), 922144 bytes in use
-    nosetests --verbosity 2 signalqueue --rednose --nocapture --nologcapture
-    [66921] 30 Sep 16:22:17 - Accepted 127.0.0.1:59276
-    Creating test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpuvmEcR/signalqueue-test.db')...
-    Destroying old test database 'default'...
-    Creating tables ...
-    Creating table auth_permission
-    Creating table auth_group_permissions
-    Creating table auth_group
-    Creating table auth_user_user_permissions
-    Creating table auth_user_groups
-    Creating table auth_user
-    Creating table django_content_type
-    Creating table django_session
-    Creating table django_site
-    Creating table django_admin_log
-    Creating table signalqueue_testmodel
-    Creating table signalqueue_enqueuedsignal
-    Creating table signalqueue_workerexceptionlog
-    Installing custom SQL ...
-    Installing indexes ...
-    No fixtures found.
-    test_NOW_sync_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-    test_NOW_sync_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-    test_function_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-    test_method_callback (signalqueue.tests.DatabaseQueuedVersusSyncSignalTests) ... passed
-    test_dequeue (signalqueue.tests.DequeueFromDatabaseTests) ... passed
-    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
-    
-    [66921] 30 Sep 16:22:17 - Accepted 127.0.0.1:59277
-    
-    >>> Flushing signal queue 'db' -- 16 enqueued signals total
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    ********** NOEXEPT: [u'instance', 'signal', 'enqueue_runmode', 'dequeue_runmode']
-    >>> Done flushing signal queue 'db' -- 0 enqueued signals remaining
-    
-    
-    [66921] 30 Sep 16:22:17 - Client closed connection
-    test_dequeue_management_command (signalqueue.tests.DequeueManagementCommandTests) ... passed
-    test_admin_queue_status_widget_contains_queue_names (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    test_admin_widget_sidebar_uses_queue_module_template (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    test_get_admin_root_page (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    test_testuser_admin_login (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    test_testuser_admin_login_via_client (signalqueue.tests.DjangoAdminQueueWidgetTests) ... passed
-    test_backend_total_exception_count (signalqueue.tests.ExceptionLogTests) ... passed
-    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
-    
-    [66921] 30 Sep 16:22:18 - Accepted 127.0.0.1:59278
-    
-    >>> Flushing signal queue 'db' -- 16 enqueued signals total
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Processing signal sent by signalqueue.TestModel: signalqueue.tests.test_sync_function_signal
-    >>> Done flushing signal queue 'db' -- 0 enqueued signals remaining
-    
-    [66921] 30 Sep 16:22:19 - Client closed connection
-    
-            signalqueue.tests:
-                                        AsyncSignal: additional_signal
-                                        AsyncSignal: test_sync_method_signal
-                                        AsyncSignal: test_sync_function_signal
-          signalqueue.signals:
-                                        AsyncSignal: test_signal
-    
-    test_additional_signals (signalqueue.tests.RegistryTests) ... passed
-    test_autodiscover (signalqueue.tests.RegistryTests) ... passed
-    test_register_function (signalqueue.tests.RegistryTests) ... passed
-    test_worker_application (signalqueue.tests.WorkerTornadoTests) ... passed
-    +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
-    
-    Validating models...
-    0 errors found
-    
-    Django version 1.4 pre-alpha SVN-16857, using settings None
-    Tornado worker for queue "db" binding to http://127.0.0.1:9920/
-    Quit the server with CONTROL-C.
-    
-    Queue exhausted, exiting...
-    Shutting down signal queue worker ...
-    +++ Exiting ...
-    
-    test_worker_dequeue_from_tornado_periodic_callback (signalqueue.tests.WorkerTornadoTests) ... passed
-    Sleeping for 0.5 seconds...
-    test_worker_status_timeout (signalqueue.tests.WorkerTornadoTests) ... passed
-    test_worker_status_url_content (signalqueue.tests.WorkerTornadoTests) ... passed
-    [66921] 30 Sep 16:22:20 - Accepted 127.0.0.1:59283
-    test_worker_status_url_with_queue_parameter_content (signalqueue.tests.WorkerTornadoTests) ... passed
-    
-    Destroying test database for alias 'default' ('/var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpuvmEcR/signalqueue-test.db')...
-    Deleting test data: /var/folders/5h/k46wfdmx35s3dx5rb83490540000gn/T/tmpuvmEcR
-    Shutting down test Redis server instance (pid = 66921)
-    -----------------------------------------------------------------------------
-    24 tests run in 3.1 seconds (24 tests passed)
-
-
 
 """
 import logging
 from django.conf import settings
 
 rp = None
-
-sentry_setup_tmpl = """#!/bin/sh -x
-
-export venv="sentry-test-virtualenv"
-
-if [ -x "$(which virtualenv)" ]; then
-
-    cd /tmp
-    if [ -d "./${venv}" ]; then
-        echo "Existing virtualenv: $(pwd)/${venv}"
-        source "./${venv}/bin/activate"
-        cd "./${venv}"
-        export PYTHONPATH=".:${VIRTUAL_ENV}/lib"
-        export PATH=".:${PATH}"
-        #rm -rf "./${venv}"
-    else
-        virtualenv --distribute "./${venv}"
-        source "./${venv}/bin/activate"
-        cd "./${venv}"
-        export PYTHONPATH=".:${VIRTUAL_ENV}/lib"
-        export PATH=".:${PATH}"
-        mkdir -p etc
-        mkdir -p var/data
-        bin/pip install greenlet
-        bin/pip install gevent
-        bin/pip install gunicorn
-        bin/pip install simplejson
-        bin/pip install anyjson
-        bin/pip install amqplib
-        bin/pip install kombu
-        bin/pip install celery
-        bin/pip install cssutils
-        bin/pip install BeautifulSoup
-        bin/pip install sentry
-        cp -f %(conf)s etc
-    fi
-    
-    if [ -r "%(conf)s" ]; then
-        bin/sentry --conf=etc/sentry.conf.py upgrade
-        bin/sentry --conf=etc/sentry.conf.py start http
-        bin/sentry --conf=etc/sentry.conf.py start udp
-    fi
-    
-fi
-
-
-"""
-
-
 
 if __name__ == '__main__':
     from signalqueue import settings as signalqueue_settings
@@ -211,36 +20,13 @@ if __name__ == '__main__':
     import logging.config
     logging.config.dictConfig(settings.LOGGING)
     
-    import subprocess, os, tempfile
-    
-    sentry_setup = sentry_setup_tmpl % {
-        'conf': os.path.join(signalqueue_settings.approot, 'settings', 'sentry.conf.py'),
-    }
-    sentrifile = os.path.join(
-        #signalqueue_settings.tempdata,
-        '/tmp',
-        'sentry-config.sh',
-    )
-    if os.path.exists(sentrifile):
-        os.unlink(sentrifile)
-    with open(sentrifile, mode="w+b") as sentrify:
-        sentrify.write(sentry_setup)
-        sentrify.seek(0)
-        sentrify.flush()
-        os.chmod(sentrifile, 0x755)
-        sentrifier = subprocess.Popen(
-            [sentrify.name],
-            stdout=subprocess.PIPE,
-            shell=True)
-        while sentrifier.poll() is None:
-            sentrout = sentrifier.stdout.readline()
-            print sentrout
-    
+    import subprocess, os
     
     redis_dir = '/usr/local/var/db/redis/'
     if not os.path.isdir(redis_dir):
         os.makedirs(redis_dir) # make redis as happy as possible
-    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(signalqueue_settings.approot, 'settings', 'redis-compatible.conf')])
+    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(
+        signalqueue_settings.approot, 'settings', 'redis-compatible.conf')])
     
     from django.core.management import call_command
     call_command('test', 'signalqueue.tests',
@@ -248,7 +34,6 @@ if __name__ == '__main__':
     
     tempdata = settings.tempdata
     print "Deleting test data: %s" % tempdata
-    os.unlink(sentrifile)
     os.rmdir(tempdata)
     
     if rp is not None:
