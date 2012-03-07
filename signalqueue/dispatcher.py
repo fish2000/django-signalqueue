@@ -10,7 +10,7 @@ Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 import hashlib
 from collections import defaultdict
 from django.dispatch import Signal
-from signalqueue.mappings import ModelInstanceMap
+from signalqueue.mappings import ModelInstanceMapper
 from signalqueue.utils import logg
 from signalqueue import SQ_RUNMODES as runmodes
 
@@ -18,12 +18,11 @@ class AsyncSignal(Signal):
     
     regkey = None
     name = None
-    #runmode = runmodes['SQ_SYNC']
     runmode = None
     
     queue_name = None
     mapping = None
-    defaultmapper = ModelInstanceMap
+    defaultmapper = ModelInstanceMapper
     
     def __init__(self, providing_args=None, defaultmapper=None, queue_name='default'):
         

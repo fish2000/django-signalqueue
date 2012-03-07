@@ -54,27 +54,27 @@ from django.core.serializers import serialize
 from signalqueue import dispatcher, mappings
 
 additional_signal = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMap),
+    providing_args=dict(instance=mappings.ModelInstanceMapper),
     queue_name='db',
 )
 test_sync_method_signal = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMap),
+    providing_args=dict(instance=mappings.ModelInstanceMapper),
     queue_name='db',
 )
 test_sync_function_signal = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMap),
+    providing_args=dict(instance=mappings.ModelInstanceMapper),
     queue_name='db',
 )
 
 signal_with_object_argument_default = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+    providing_args=dict(instance=mappings.ModelInstanceMapper, obj=mappings.PickleMapper),
 )
 signal_with_object_argument_listqueue = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+    providing_args=dict(instance=mappings.ModelInstanceMapper, obj=mappings.PickleMapper),
     queue_name='listqueue',
 )
 signal_with_object_argument_db = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMap, obj=mappings.PickleMap),
+    providing_args=dict(instance=mappings.ModelInstanceMapper, obj=mappings.PickleMapper),
     queue_name='db',
 )
 
@@ -113,13 +113,13 @@ def callback_no_exception(sender, **kwargs):
     return kwargs.get('obj', None)
 
 
-class IDMapTests(TestCase):
+class MapperTests(TestCase):
     
     fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
     
     def setUp(self):
         from signalqueue.worker import queues
-        self.mapper = mappings.IDMap()
+        self.mapper = mappings.Mapper()
         self.mapees = [str(v) for v in queues['db'].values()]
     
     def test_map_remap(self):
@@ -128,12 +128,12 @@ class IDMapTests(TestCase):
             remapped = self.mapper.remap(mapped)
             self.assertEqual(test_instance, remapped)
 
-class ModelInstanceMapTests(TestCase):
+class ModelInstanceMapperTests(TestCase):
     
     fixtures = ['TESTMODEL-DUMP.json', 'TESTMODEL-ENQUEUED-SIGNALS.json']
     
     def setUp(self):
-        self.mapper = mappings.ModelInstanceMap()
+        self.mapper = mappings.ModelInstanceMapper()
     
     def test_map_remap(self):
         for test_instance in TestModel.objects.all():
@@ -141,60 +141,67 @@ class ModelInstanceMapTests(TestCase):
             remapped = self.mapper.remap(mapped)
             self.assertEqual(test_instance, remapped)
 
-class PickleMapTests(TestCase):
+class PickleMapperTests(TestCase):
     
     fixtures = ['TESTMODEL-DUMP.json']
     
     def setUp(self):
-        self.mapper = mappings.PickleMap()
-    
+        self.dqsettings = dict(
+            SQ_ADDITIONAL_SIGNALS=['signalqueue.tests'],
+            SQ_RUNMODE='SQ_ASYNC_REQUEST')
+        self.mapper = mappings.PickleMapper()
+        
     def test_map_remap(self):
         for test_instance in TestModel.objects.all():
             mapped = self.mapper.map(test_instance)
             remapped = self.mapper.remap(mapped)
             self.assertEqual(test_instance, remapped)
-    
-    def test_signal_with_pickle_mapped_argument(self):
-        import signalqueue
-        signalqueue.autodiscover()
-        from signalqueue.worker import queues
         
-        for queue in queues.all():
+    def test_signal_with_pickle_mapped_argument(self):
+        with self.settings(**self.dqsettings):
+            import signalqueue
+            signalqueue.autodiscover()
+            from signalqueue.worker import queues
             
-            print "*** Testing queue: %s" % queue.queue_name
-            queue.clear()
-            
-            from signalqueue import SQ_DMV
-            for regsig in SQ_DMV['signalqueue.tests']:
-                if regsig.name == "signal_with_object_argument_%s" % queue.queue_name:
-                    signal_with_object_argument = regsig
-                    break
-            signal_with_object_argument.queue_name = str(queue.queue_name)
-            signal_with_object_argument.connect(callback_no_exception)
-            
-            instance = TestModel.objects.all()[0]
-            testobj = TestObject('yo dogg')
-            testexc = TestException()
-            
-            testobjects = [testobj, testexc]
-            
-            for testobject in testobjects:
-                sigstruct_send = signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
-                print "*** Queue %s: %s values, runmode is %s" % (
-                    signal_with_object_argument.queue_name, queue.count(), queue.runmode)
-                sigstruct_dequeue, result_list = queue.dequeue()
+            for queue in queues.all():
                 
-                self.assertEqual(sigstruct_send, sigstruct_dequeue)
+                print "*** Testing queue: %s" % queue.queue_name
+                #queue.clear()
                 
-                # result_list is a list of tuples, each containing a reference
-                # to a callback function at [0] and that callback's return at [1]
-                # ... this is per what the Django signal send() implementation returns.
-                if result_list is not None:
-                    resultobject = dict(result_list)[callback_no_exception]
-                    self.assertEqual(resultobject, testobject)
-                    self.assertEqual(type(resultobject), type(testobject))
-                else:
-                    print "*** queue.dequeue() returned None"
+                from signalqueue import SQ_DMV
+                for regsig in SQ_DMV['signalqueue.tests']:
+                    if regsig.name == "signal_with_object_argument_%s" % queue.queue_name:
+                        signal_with_object_argument = regsig
+                        break
+                signal_with_object_argument.queue_name = str(queue.queue_name)
+                signal_with_object_argument.connect(callback_no_exception)
+                
+                instance = TestModel.objects.all()[3]
+                testobj = TestObject('yo dogg')
+                testexc = TestException()
+                
+                testobjects = [testobj, testexc]
+                
+                for testobject in testobjects:
+                    sigstruct_send = signal_with_object_argument.send(sender=None, instance=instance, obj=testobject)
+                    print "*** Queue %s: %s values, runmode is %s" % (
+                        signal_with_object_argument.queue_name, queue.count(), queue.runmode)
+                    sigstruct_dequeue, result_list = queue.dequeue()
+                    
+                    #from pprint import pformat
+                    #print pformat(sigstruct_send, indent=4)
+                    #print pformat(sigstruct_dequeue, indent=4)
+                    self.assertEqual(sigstruct_send, sigstruct_dequeue)
+                    
+                    # result_list is a list of tuples, each containing a reference
+                    # to a callback function at [0] and that callback's return at [1]
+                    # ... this is per what the Django signal send() implementation returns.
+                    if result_list is not None:
+                        resultobject = dict(result_list)[callback_no_exception]
+                        self.assertEqual(resultobject, testobject)
+                        self.assertEqual(type(resultobject), type(testobject))
+                    else:
+                        print "*** queue.dequeue() returned None"
 
 class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     

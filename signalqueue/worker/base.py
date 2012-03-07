@@ -228,7 +228,7 @@ class QueueBase(object):
             return (queued_signal, result_list)
         
         else:
-            raise signalqueue.SignalRegistryError("Couldn't find a registered signal named '%s'." % name)
+            raise signalqueue.SignalRegistryError("No registered signals named '%s'." % name)
     
     def next(self):
         """

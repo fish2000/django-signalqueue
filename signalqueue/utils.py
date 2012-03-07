@@ -64,58 +64,6 @@ except ImportError:
         logg = logging.getLogger(logger_name)
         logg.setLevel(logging.INFO)
 
-''' Try to use Raven, if we can find it. '''
-class FlaccoHasNoPassingGame(object):
-    def captureMessage(self, message, **kwargs):
-        logg.info("{raven} \t %s" % message)
-    def captureException(self, exc_info=None, **kwargs):
-        if exc_info:
-            if ex_info == True:
-                try:
-                    yo_dogg_exc_info = sys.exc_info()
-                    self.captureException(yo_dogg_exc_info)
-                finally:
-                    del yo_dogg_exc_info
-            else:
-                (exc_type, exc_value, exc_tb) = tuple(exc_info)
-                
-                self.captureMessage("%s Captured:\n" % str(exc_type.__name__))
-                for exc_line in traceback.format_tb(exc_tb):
-                    self.captureMessage(str(exc_line))
-                self.captureMessage("%s: %s" % (str(exc_type.__name__), str(exc_value)))
-
-raven_client = None
-import urllib2
-
-try:
-    from raven.contrib.django.models import get_client as raven_django_get_client
-except (ImportError, urllib2.URLError), err:
-    logg.info("--- Couldn't import Raven Django get_client utility")
-else:
-    raven_client = raven_django_get_client()
-
-if raven_client is None:
-    try:
-        from raven import Client as RavenClient
-    except (ImportError, urllib2.URLError), err:
-        logg.info("--- Couldn't import Raven via environment")
-    else:
-        raven_client = RavenClient()
-
-if raven_client is not None:
-    try:
-        raven_client.captureMessage(
-            '''{django-signalqueue} >>> Raven client initialized'''
-        )
-    except (ImportError, urllib2.URLError), err:
-        logg.warning("*** Couldn't send message via initialized Raven client")
-        logg.warning("*** Shutting down Sentry interface (falling back to configured logger).")
-        raven_client = FlaccoHasNoPassingGame()
-else:
-    logg.info("--- Couldn't configure Raven. Workers won't be able to log exceptions to Sentry.")
-    logg.info("--- Shutting down Sentry interface (falling back to configured logger).")
-    raven_client = FlaccoHasNoPassingGame()
-
 from contextlib import contextmanager
 
 @contextmanager

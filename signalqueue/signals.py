@@ -4,7 +4,7 @@ from signalqueue.dispatcher import AsyncSignal
 
 test_signal = AsyncSignal(providing_args={
 
-    'instance':             mappings.ModelInstanceMap,
-    'signal_label':         mappings.IDMap,
+    'instance':             mappings.ModelInstanceMapper,
+    'signal_label':         mappings.Mapper,
 
 })
