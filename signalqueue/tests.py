@@ -178,16 +178,17 @@ if [ -x "$(which virtualenv)" ]; then
         bin/pip install gunicorn
         bin/pip install simplejson
         bin/pip install anyjson
-        bin/pip install kombu
         bin/pip install amqplib
+        bin/pip install kombu
         bin/pip install celery
+        bin/pip install cssutils
         bin/pip install BeautifulSoup
         bin/pip install sentry
         cp -f %(conf)s etc
-        bin/sentry --conf=etc/sentry.conf.py upgrade
     fi
     
     if [ -r "%(conf)s" ]; then
+        bin/sentry --conf=etc/sentry.conf.py upgrade
         bin/sentry --conf=etc/sentry.conf.py start http
         bin/sentry --conf=etc/sentry.conf.py start udp
     fi
@@ -220,8 +221,9 @@ if __name__ == '__main__':
         '/tmp',
         'sentry-config.sh',
     )
+    if os.path.exists(sentrifile):
+        os.unlink(sentrifile)
     with open(sentrifile, mode="w+b") as sentrify:
-        
         sentrify.write(sentry_setup)
         sentrify.seek(0)
         sentrify.flush()
