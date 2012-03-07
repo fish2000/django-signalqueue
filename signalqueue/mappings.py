@@ -8,8 +8,10 @@ class MappingError(Exception):
 
 class MappedAttr(object):
     def __init__(self, map_func, remap_func, **kwargs):
-        #if not callable(map_func) or not callable(remap_func):
-        #    raise MappingError("MappedAttr requires a callable mapping function.")
+        if not callable(map_func) and map_func is not None:
+            raise MappingError("MappedAttr requires a callable mapping function.")
+        if not callable(remap_func) and remap_func is not None:
+            raise MappingError("MappedAttr requires a callable re-mapping function.")
         self.map_func = (map_func, remap_func)
         self.default = kwargs.pop('default', -1)
     
@@ -113,12 +115,9 @@ class ModelInstanceMapper(Mapper):
     
     def remap(self, map_dict):
         pk = map_dict.get('obj_id')
-        #ModlCls = self.modlcls(
-        #    str(remainder['app_label']),
-        #    str(remainder['modl_name']))
         ModlCls = self.unmap(map_dict)['modl_name']
         if ModlCls:
-            if pk is not -1:
+            if pk is not "-1":
                 return ModlCls.objects.get(pk=pk)
         return None
 
