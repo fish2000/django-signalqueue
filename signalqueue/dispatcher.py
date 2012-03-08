@@ -14,6 +14,13 @@ from signalqueue import mappings
 from signalqueue.utils import logg
 from signalqueue import SQ_RUNMODES as runmodes
 
+class ClassNameDict(defaultdict):
+    def __missing__(self, key):
+        for k in self.keys:
+            if key in k:
+                return self.get(k, None)
+        return super(ClassDict, self).__missing__(key)
+
 class AsyncSignal(Signal):
     
     regkey = None
@@ -22,7 +29,7 @@ class AsyncSignal(Signal):
     
     queue_name = None
     mapping = None
-    defaultmapper = mappings.ModelInstanceMapper
+    defaultmapper = mappings.Cartograph # type-map delegate.
     
     def __init__(self, providing_args=None, defaultmapper=None, queue_name='default'):
         
@@ -31,7 +38,7 @@ class AsyncSignal(Signal):
             # this iffy here may strike you as backwards
             defaultmapper = self.defaultmapper
             
-        self.mapping = defaultdict(lambda: defaultmapper)
+        self.mapping = ClassNameDict(lambda: defaultmapper)
         just_the_args = []
         
         if isinstance(providing_args, dict):
@@ -39,9 +46,10 @@ class AsyncSignal(Signal):
                 just_the_args.append(providing_arg)
             self.mapping.update(providing_args)
         
-        else:
+        else: # list, iterable, whatev.
             just_the_args.extend(providing_args)
-            self.mapping.update(dict(mappings.arity_map))
+            for providing_arg in providing_args:
+                self.mapping.update({ providing_arg: mappings.Terroir(providing_arg), })
         
         super(AsyncSignal, self).__init__(providing_args=just_the_args)
     

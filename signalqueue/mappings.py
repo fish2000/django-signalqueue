@@ -4,6 +4,7 @@ from collections import defaultdict
 import django.db.models
 
 arity_map = defaultdict(lambda: Mapper)
+attribute_remap = defaultdict(lambda: Mapper)
 
 class MappingError(Exception):
     pass
@@ -37,18 +38,27 @@ class ArityMapper(type):
     
     def __new__(cls, name, bases, attrs):
         outcls = super(ArityMapper, cls).__new__(cls, name, bases, attrs)
-        maptype = attrs.get('__maptype__', str)
+        maptypes = (attrs.get('__maptype__', 'NoneType'),) + attrs.get('__maptypes__', ('NoneType',))
+        
+        mapped_attr_names = map(lambda kv: kv[0],
+            filter(lambda kv: isinstance(kv[1], MappedAttr),
+                attrs.items()))
         
         if '__maptype__' not in attrs:
-            attrs['__maptype__'] = maptype
-            
-        arity_map[maptype] = outcls
+            attrs['__maptype__'] = maptypes[0]
+        
+        for mt in maptypes:
+            arity_map[mt] = outcls
+        
+        for mapped_attr_name in mapped_attr_names:
+            attribute_remap[mapped_attr_name] = outcls
+        
         return outcls
 
 
 class Mapper(object):
     
-    __maptype__ = str
+    __maptypes__ = ('str','int')
     __metaclass__ = ArityMapper
     
     pystr = MappedAttr(
@@ -57,7 +67,7 @@ class Mapper(object):
         default="-1")
     
     def __init__(self, maptype=str, **kwargs):
-        if maptype and not self.__maptype__:
+        if maptype and not hasattr(self, '__maptype__'):
             self.__maptype__ = maptype
         super(Mapper, self).__init__(**kwargs)
     
@@ -77,9 +87,58 @@ class Mapper(object):
         return self.unmap(map_dict).values()[0]
 
 
+class Cartograph(object):
+    
+    ''' Dumb delegate class that hands off
+    the mapping functions based on arity_map's'
+    defaultdict-edness. '''
+    
+    def __init__(self, **kwargs):
+        maptype = kwargs.pop('maptype', str)
+        if maptype and not hasattr(self, '__maptype__'):
+            self.__maptype__ = maptype
+        super(Cartograph, self).__init__(**kwargs)
+    
+    def map(self, obj):
+        for k, v in arity_map.items():
+            if 
+        
+        
+        return arity_map[type(obj).__name__]().map(obj)
+        #return arity_map[self.__maptype__]().map(obj)
+    
+    def remap(self, map_dict):
+        return attribute_remap[self.__maptype__]().remap(map_dict)
+
+
+class Terroir(object):
+    
+    def __init__(self, providing_arg):
+        self.providing_arg = providing_arg
+    
+    def __get__(self, instance=None, owner=None):
+        if instance is None:
+            raise AttributeError(
+                "Untyped providing_arg '%s' can't be accessed via its class (%s)."
+                % (self.providing_arg, owner.__name__))
+        
+        # instance is the signals' mapping dict --
+        # the default it returns is then instantiated
+        # and one of its map() or remap() methods
+        # is immediately called.
+        return self(instance.__class__)
+    
+    def __set__(self, instance, value):
+        instance[self.providing_arg] = value
+    
+    def __call__(self, maptype):
+        print "YO DOGG I'M CALLIN: %s" % maptype
+        return Cartograph(maptype=maptype)
+    
+
 class PickleMapper(Mapper):
     
-    __maptype__ = object
+    __maptype__ = 'object'
     
     pickled = MappedAttr(
         lambda mapper, obj: mapper.brine.dumps(obj, mapper.protocol(mapper)),
@@ -105,7 +164,10 @@ class PickleMapper(Mapper):
 
 class ModelInstanceMapper(Mapper):
     
-    __maptype__ = django.db.models.Model
+    __maptypes__ = (
+        'Model', 'ModelBase',
+        'django.db.models.Model',
+        'django.db.models.base.ModelBase')
     
     modl_name = MappedAttr(
         lambda mapper, instance: instance.__class__.__name__.lower(),
@@ -139,3 +201,6 @@ class ModelInstanceMapper(Mapper):
                 return ModlCls.objects.get(pk=pk)
         return None
 
+from pprint import pformat
+print "PUTTING ON ARITY"
+print pformat(arity_map, indent=8)

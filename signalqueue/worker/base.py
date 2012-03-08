@@ -100,7 +100,7 @@ class QueueBase(object):
                 
                 for k, v in kwargs.items():
                     if k in signal.mapping:
-                        queue_json.update({ k: signal.mapping.get(k)().map(v), })
+                        queue_json.update({ k: signal.mapping[k](maptype=v.__class__).map(v), })
                 
                 print queue_json
                 
@@ -176,7 +176,7 @@ class QueueBase(object):
         if thesignal is not None:
             for k, v in queued_signal.items():
                 if k in thesignal.mapping:
-                    kwargs.update({ k: thesignal.mapping[k]().remap(v), })
+                    kwargs.update({ k: thesignal.mapping[k](maptype=k).remap(v), })
             
             # result_list is a list of tuples, each containing a reference
             # to a callback function at [0] and that callback's return at [1]

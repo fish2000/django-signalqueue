@@ -58,11 +58,11 @@ additional_signal = dispatcher.AsyncSignal(
     queue_name='db',
 )
 test_sync_method_signal = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMapper),
+    providing_args=['instance',],
     queue_name='db',
 )
 test_sync_function_signal = dispatcher.AsyncSignal(
-    providing_args=dict(instance=mappings.ModelInstanceMapper),
+    providing_args=['instance',],
     queue_name='db',
 )
 
