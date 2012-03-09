@@ -101,7 +101,7 @@ class Cartograph(object):
     
     def map(self, obj):
         for k, v in arity_map.items():
-            if 
+            pass
         
         
         return arity_map[type(obj).__name__]().map(obj)
