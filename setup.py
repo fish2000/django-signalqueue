@@ -5,7 +5,7 @@ except ImportError:
     from distutils.core import setup
 
 __author__ = 'Alexander Bohn'
-__version__ = (0, 3, 5)
+__version__ = (0, 3, 9)
 
 setup(
     name='django-signalqueue',
@@ -39,6 +39,7 @@ setup(
             'settings/*.conf',
             'static/signalqueue/js/*.js',
             'static/signalqueue/coffee/*.coffee',
+            'static/socket.io-client/*',
             'templates/*.html',
             'templates/admin/*.html',
         ],
