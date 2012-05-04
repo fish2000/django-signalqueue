@@ -38,9 +38,8 @@ def main():
         compilecmd = compiler % (csoutdir, os.path.join(csdir, coffee))
         print "+ Compiling: %s" % compilecmd
         print commands.getstatusoutput(compilecmd)[1]
-    
-    
 
 if __name__ == '__main__':
+    os.chdir(os.path.dirname(__file__))
     main()
 

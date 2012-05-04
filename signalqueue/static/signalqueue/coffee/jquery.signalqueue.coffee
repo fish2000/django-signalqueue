@@ -1,8 +1,9 @@
 
 $ = jQuery
-ß = io.connect('http://localhost/sq')
+ß = io.connect('http://queueserver.asio-otus.local/')
 
 class @SQStatus
+    
     defaults =
         interval: 500
         queuename: 'default'
@@ -32,11 +33,12 @@ class @SQStatus
             window.clearInterval @interval_id
 
 $.fn.extend
-    sqstatus: (options, args...) ->
-        command = "#{options.toLowerCase()}"
+    
+    sqstatus: (cmd, args...) ->
+        command = "#{ cmd }".toLowerCase()
         return @each () ->
             instance = $.data this, 'sqstatus'
             if not instance
-                $.data this, 'sqstatus', new SQStatus this, options
+                $.data this, 'sqstatus', new SQStatus this, args
             else if typeof options is "string"
                 instance[command] args...

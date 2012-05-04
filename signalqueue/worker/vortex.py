@@ -33,6 +33,7 @@ class Application(tornado.web.Application):
         self.queue_name = nm
         
         handlers = [
+            (r'/socket.io/1/', MainHandler),
             (r'/', MainHandler),
             (r'/status', QueueServerStatusHandler),
             (r'/sock/status', QueueStatusSock),

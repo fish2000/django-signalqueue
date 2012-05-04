@@ -32,8 +32,11 @@ def sock_status_url():
 def sidebar_queue_module(context):
     qs = dict(queues.items())
     default = qs.pop('default')
-    qjs = static('js/jquery.queuestatus.js')
-    return dict(default=default, queues=qs, queue_javascript=qjs)
+    return dict(
+        default=default, queues=qs,
+        queue_javascript=static('js/jquery.signalqueue.js'),
+        socketio_javascript=sockio('socket.io.js'),
+        socketio_swf=sockio('WebSocketMain.swf'))
 
 
 

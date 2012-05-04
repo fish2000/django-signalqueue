@@ -37,25 +37,25 @@
     
     </style>
     
-    <script type="text/javascript" src="{{ queue_javascript }}"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script> 
+    <script type="text/javascript" src="{{ socketio_javascript }}"></script>
+    <script>WEB_SOCKET_SWF_LOCATION = '{{ socketio_swf }}';</script>
+    
+    <script type="text/javascript" src="{{ queue_javascript }}"></script> 
     
     <script type="text/javascript">
         
         $(document).ready(function () {
             
-            $("#queue-status-default").queuestatus({
-                endpoint: "{% sock_status_url %}"
-            });
+            $("#queue-status-default").sqstatus();
             
             {% for queue_name, queue in queues.items %}
-            $("#queue-status-{{ queue_name }}").queuestatus({
-                queuename: "{{ queue_name }}",
-                endpoint: "{% sock_status_url %}" 
+            $("#queue-status-{{ queue_name }}").sqstatus('init', {
+                queuename: "{{ queue_name }}"
             });
+            $("#queue-status-{{ queue_name }}").sqstatus('start');
             {% endfor %}
             
-            /// start all status monitors
-            $(".queue-status").queuestatus('start');
             
         });
         
