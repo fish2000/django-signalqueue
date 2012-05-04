@@ -16,7 +16,6 @@ def simple_import_module(name, package=None):
     __import__(name)
     return sys.modules[name]
 
-
 try:
     from importlib import import_module
 except:

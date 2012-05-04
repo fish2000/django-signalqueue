@@ -8,6 +8,7 @@ register = template.Library()
 
 # get the URL for a static asset (css, js, et cetera.)
 static = lambda pth: os.path.join(settings.STATIC_URL, 'signalqueue', pth)
+socket = lambda pth: os.path.join(settings.STATIC_URL, 'socket.io-client', pth)
 
 @register.simple_tag
 def queue_length(queue_name):
