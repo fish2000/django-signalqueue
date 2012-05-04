@@ -38,12 +38,13 @@ setup(
             'fixtures/*.json',
             'settings/*.conf',
             'static/signalqueue/js/*.js',
+            'static/signalqueue/coffee/*.coffee',
             'templates/*.html',
             'templates/admin/*.html',
         ],
     },
     install_requires=[
-        'django-delegate>=0.2.2', 'tornado', 'redis',
+        'django-delegate>=0.2.2', 'tornado', 'tornadio2', 'redis',
     ],
     tests_require=[
         'nose', 'rednose', 'django-nose',

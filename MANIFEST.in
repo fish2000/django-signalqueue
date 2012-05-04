@@ -6,3 +6,4 @@ recursive-include signalqueue/static *
 recursive-include signalqueue/templates *
 recursive-include signalqueue/templates/admin *
 recursive-include signalqueue/settings *
+include coffee-filter.py
