@@ -12,8 +12,9 @@ rp = None
 if __name__ == '__main__':
     from signalqueue import settings as signalqueue_settings
     signalqueue_settings.__dict__.update({
-        "NOSE_ARGS": ['--rednose', '--nocapture', '--nologcapture', '-v',
-        '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'],
+        "NOSE_ARGS": [
+            '--rednose', '--nocapture', '--nologcapture', '-v',
+            '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'],
     })
     
     settings.configure(**signalqueue_settings.__dict__)
