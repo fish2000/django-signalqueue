@@ -3,17 +3,17 @@ $ = jQuery
 ß = io.connect('http://queueserver.asio-otus.local/')
 
 class @SQStatus
-    
+
     defaults =
         interval: 500
         queuename: 'default'
-    
+
     constructor: (element, options) ->
         @elem = $(element)
         @options = $.extend {}, defaults, options
         @recently = [0,0,0,0,0,0,0,0,0]
         @interval_id = null
-    
+
     start: () ->
         if not @interval_id
             @interval_id = window.setInterval =>
@@ -27,13 +27,13 @@ class @SQStatus
                     else
                         @elem.html("<b>#{ qlen }</b> Queued Signals")
             , @options.interval
-    
+
     stop: () ->
         if @interval_id
             window.clearInterval @interval_id
 
-$.fn.extend
-    
+#$.fn.extend
+
     sqstatus: (cmd, args...) ->
         command = "#{ cmd }".toLowerCase()
         return @each () ->
