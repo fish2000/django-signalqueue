@@ -141,7 +141,9 @@ class uglify(Command):
     outdir = None
     user_options = [
         ('uglifyjs=', 'U',
-            'use uglifyjs command (default: {0})'.format(uglification_cmd()))]
+            'use uglifyjs command (default: {0})'.format(uglification_cmd())),
+        ('verbish', 'VVVV',
+            'funny... she doesn\'t LOOK verbish...')]
     description = 'Concatenate generated and library JavaScript, and compress the remainder.'
     
     def initialize_options(self):
