@@ -114,15 +114,21 @@ class download_js_libs(Command):
     
     def run(self):
         i = 1
+        
         for js_lib in list(self.js_libs):
+            
             if not self.js_storage.downloaded(js_lib):
+                
                 print("retrieving %s" % js_lib)
-                js_dl = self.js_storage.download(js_lib)
+                js_dl = self.js_storage.download(js_lib,
+                    content_type='application/javascript')
+                
                 self.js_storage.safely_move(
                     js_dl,
                     "%s-%s" % (i, js_dl.name),
                     clobber=True)
                 i += 1
+            
             else:
                 print("already downloaded %s" % js_lib)
                 print("up-to-date copy in %s" % self.js_storage.downloaded(js_lib))

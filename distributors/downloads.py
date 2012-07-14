@@ -113,12 +113,16 @@ class URLRetrievalStorage(FileSystemStorage):
                 file=sys.stderr)
             return None
         
-        ext = self._extension(headstat.headers.get('content-type',
+        ct = headstat.headers.get('content-type',
             kwargs.pop('content_type',
-                URLRequestFile.DEFAULT_TYPE)))
+                URLRequestFile.DEFAULT_TYPE))
+        if ';' in ct:
+            ct = ct.split(';')[0]
+        
+        ext = self._extension(ct)
         fn = "%s%s" % (url.hash, ext)
         ff = URLRequestFile(url, fn, **kwargs)
-        
+        print('ext/ct',ext,ct)
         if self.exists(fn) and not clobber:
             raise IOError("*** Can't overwrite existing file %s (clobber=%s)" % (fn, clobber))
         if ff.size < URLRetrievalStorage.MINIMUM_BYTE_SIZE:
