@@ -44,7 +44,10 @@ class RedisQueue(QueueBase):
             try:
                 import hiredis
             except ImportError:
-                logg.warn("*** Can't import hiredis -- consider installing the 'hiredis' module for native-speed queue access.")
+                logg.warn("can't import the `hiredis` package")
+                logg.warn("consider installing `hiredis` for native-speed access to a Redis queue")
+                logg.warn("you can see the difference even when running the tests --")
+                logg.warn("-- it's a good move, trust me on that")
             
             self.r = redis.Redis(**self.queue_options)
             self.exceptions = (
@@ -55,7 +58,7 @@ class RedisQueue(QueueBase):
             try:
                 self.r.ping()
             except self.exceptions, err:
-                logg.error("*** Redis connection failed: %s" % err)
+                logg.error("connection to Redis server failed: %s" % err)
                 self.r = None
     
     def ping(self):
@@ -63,7 +66,7 @@ class RedisQueue(QueueBase):
             try:
                 return self.r.ping()
             except (self.ConnectionError, AttributeError), err:
-                logg.error("*** No Redis connection available: %s" % err)
+                logg.error("no Redis connection available: %s" % err)
                 return False
         return False
     
@@ -184,10 +187,12 @@ class DatabaseQueueProxy(QueueBase):
                 return mgr_instance
             
             else:
-                raise ImproperlyConfigured("DatabaseQueueProxy's queue configuration requires the name of a model class to be specified in in 'modl_name'.")
+                raise ImproperlyConfigured(
+                    "DatabaseQueueProxy's queue configuration requires the name of a model class to be specified in in 'modl_name'.")
         
         else:
-            raise ImproperlyConfigured("DatabaseQueueProxy's queue configuration requires an app specified in 'app_label', in which the definition for a model named 'modl_name' can be found.")
+            raise ImproperlyConfigured(
+                "DatabaseQueueProxy's queue configuration requires an app specified in 'app_label', in which the definition for a model named 'modl_name' can be found.")
 
 """
 Class-loading functions.
@@ -207,19 +212,22 @@ def import_class(path):
     module_path = '.'.join(path_bits)
     module_itself = import_module(module_path)
     if not hasattr(module_itself, class_name):
-        raise ImportError("The Python module '%s' has no '%s' class." % (module_path, class_name))
+        raise ImportError(
+            "The Python module '%s' has no '%s' class." % (module_path, class_name))
     return getattr(module_itself, class_name)
 
 def load_backend(full_backend_path):
     path_bits = full_backend_path.split('.')
     if len(path_bits) < 2:
-        raise ImproperlyConfigured("The provided backend '%s' is not a complete Python path to a QueueBase subclass." % full_backend_path)
+        raise ImproperlyConfigured(
+            "The provided backend '%s' is not a complete Python path to a QueueBase subclass." % full_backend_path)
     return import_class(full_backend_path)
 
 class ConnectionHandler(object):
     def __init__(self, connections_info, runmode):
-        logg.debug("*** Initializing a ConnectionHandler with %s queues running in mode %s" % (
-            len(connections_info), runmode))
+        logg.debug(
+            "Initializing a ConnectionHandler with %s queues running in mode %s" % (
+                len(connections_info), runmode))
         self.connections_info = connections_info
         self._connections = {}
         self._runmode = runmode
@@ -239,13 +247,17 @@ class ConnectionHandler(object):
         try:
             conn = self.connections_info[alias]
         except KeyError:
-            raise ImproperlyConfigured("The key '%s' isn't an available connection in (%s)." % (alias, ','.join(self.connections_info.keys())))
+            raise ImproperlyConfigured(
+                "The key '%s' isn't an available connection in (%s)." % (alias, ','.join(self.connections_info.keys())))
         
         default_engine = 'signalqueue.worker.backends.RedisSetQueue'
         
         if not conn.get('ENGINE'):
-            logg.warn("*** Connection '%s' doesn't specify an ENGINE, using the default engine: '%s'" % default_engine)
-            conn['ENGINE'] =  default_engine # default to using the Redis set backend
+            logg.warn(
+                "connection '%s' doesn't specify an ENGINE, using the default engine: '%s'" %
+                    default_engine)
+            # default to using the Redis set backend
+            conn['ENGINE'] = default_engine
     
     def __getitem__(self, key):
         if key in self._connections:
@@ -258,8 +270,7 @@ class ConnectionHandler(object):
             runmode=self._runmode,
             queue_name=str(key),
             queue_interval=self.connections_info[key].get('INTERVAL', None),
-            queue_options=self.connections_info[key].get('OPTIONS', {}),
-        )
+            queue_options=self.connections_info[key].get('OPTIONS', {}))
         
         self._connections[key].runmode = self._runmode
         
@@ -267,9 +278,11 @@ class ConnectionHandler(object):
     
     def __setitem__(self, key, val):
         if not isinstance(val, QueueBase):
-            raise ValueError("Can't add instance of non-QueueBase descent '%s' to the ConnectionHandler." % val)
+            raise ValueError(
+                "Can't add instance of non-QueueBase descent '%s' to the ConnectionHandler." % val)
         if not val.runmode == self._runmode:
-            raise AttributeError("Queue backend '%s' was instantiated with runmode %s but the ConnectionHandler is in runmode %s" % (val.runmode, self._runmode))
+            raise AttributeError(
+                "Queue backend '%s' was instantiated with runmode %s but the ConnectionHandler is in runmode %s" % (val.runmode, self._runmode))
         self._connections[key] = val
     
     def all(self):
