@@ -15,7 +15,11 @@ Created by FI$H 2000 on 2011-09-09.
 Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 
 """
-import os, threading
+# package path-extension snippet.
+from pkgutil import extend_path
+__path__ = extend_path(__path__, __name__)
+
+import threading
 from collections import defaultdict
 
 SQ_RUNMODES = {

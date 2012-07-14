@@ -1,4 +1,8 @@
 
+# package path-extension snippet.
+from pkgutil import extend_path
+__path__ = extend_path(__path__, __name__)
+
 import os
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings

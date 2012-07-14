@@ -117,3 +117,7 @@ SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# package path-extension snippet.
+from pkgutil import extend_path
+__path__ = extend_path(__path__, __name__)
