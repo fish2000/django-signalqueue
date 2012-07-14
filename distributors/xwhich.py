@@ -27,7 +27,6 @@ def which(program):
     return xwhich(program)
 
 
-
 if __name__ == '__main__':
     programs_to_try = (
         'python',
@@ -41,6 +40,6 @@ if __name__ == '__main__':
     ali = [join(pth, 'coffee-script', 'bin') for pth in environ['NODE_PATH'].split(':') if bool(len(pth)) and isdir(pth)]
     
     for p in programs_to_try:
-        print "\t %20s --> %s" % (("which('%s')" % p), which(p, also_look=ali))
+        print "\t %20s --> %s" % (("which('%s')" % p), xwhich(p, also_look=ali))
     
             

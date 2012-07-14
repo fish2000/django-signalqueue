@@ -1,6 +1,7 @@
 
 import urlparse
 import hashlib
+import mimetypes
 
 from netloc import Netloc
 from path import URLPath, path_encode, path_decode
@@ -26,6 +27,10 @@ class URLObject(unicode):
     @property
     def hash(self):
         return hashlib.sha1(self).hexdigest()
+    
+    @property
+    def content_type(self):
+        return mimetype.guess_type(self)
 
     @property
     def scheme(self):

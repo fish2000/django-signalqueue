@@ -36,7 +36,7 @@ setup(
     url='http://github.com/fish2000/django-signalqueue/',
     keywords=['django','signals','async','asynchronous','queue'],
     
-    js_files=get_coffeescript_files(),
+    cs_files=get_coffeescript_files(),
     js_libs=[
         'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
         'http://cdn.socket.io/stable/socket.io.js'],
