@@ -113,8 +113,8 @@ class URLRetrievalStorage(FileSystemStorage):
                 file=sys.stderr)
             return None
         
-        ct = headstat.headers.get('content-type',
-            kwargs.pop('content_type',
+        ct = kwargs.pop('content_type',
+            headstat.headers.get('content-type',
                 URLRequestFile.DEFAULT_TYPE))
         if ';' in ct:
             ct = ct.split(';')[0]
