@@ -217,8 +217,8 @@ class uglify(Command):
     def run(self):
         
         print("prepending libraries to generated code")
-        print("\t- %5s post-CoffeeScript JS files" % len(self.pretty_files))
-        print("\t- %5s downloaded JS libraries" % len(self.pretty_libs))
+        print("\t- %2s post-CoffeeScript JS files" % len(self.pretty_files))
+        print("\t- %2s downloaded JS libraries" % len(self.pretty_libs))
         
         print('')
         
@@ -228,8 +228,9 @@ class uglify(Command):
             list(self.pretty_files),
             list(self.catty_files)):
             
-            catastrophe = self.catinate(
-                list(*self.pretty_libs).append(pretty))
+            pretties = list(self.pretty_libs)
+            pretties.append(pretty)
+            catastrophe = self.catinate(pretties)
             
             self.cathole(catastrophe,
                 catty, clobber=True)
