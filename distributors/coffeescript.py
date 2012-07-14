@@ -91,6 +91,7 @@ class build_coffeescript(Command):
             '-c', js_file])
     
     def run(self):
+        print('')
         for js_file in list(self.cs_files):
             self.demitasse(js_file)
 
@@ -113,6 +114,7 @@ class download_js_libs(Command):
         self.js_storage = js_download_storage()
     
     def run(self):
+        print('')
         i = 1
         
         for js_lib in list(self.js_libs):
@@ -215,6 +217,7 @@ class uglify(Command):
         self.uglifier = uglification_cmd()
 
     def run(self):
+        print('')
         
         print("prepending libraries to generated code")
         print("\t- %2s post-CoffeeScript JS files" % len(self.pretty_files))
