@@ -218,9 +218,9 @@ class uglify(Command):
         
         # Concatinate the libraries first while prepending that amalgamated datum
         # onto each post-CoffeeScript block of generated JS.
-        for pretty, catty in dict(
-            zip(list(self.pretty_files),
-                list(self.catty_files))):
+        for pretty, catty in zip(
+            list(self.pretty_files),
+            list(self.catty_files)):
             
             catastrophe = self.catinate(
                 list(*self.pretty_libs).append(pretty))
@@ -233,9 +233,9 @@ class uglify(Command):
         
         print('uglifying concatenated modules...')
         
-        for catter, gross in dict(
-            zip(list(self.catty_files),
-                list(self.ugly_files))):
+        for catter, gross in zip(
+            list(self.catty_files),
+            list(self.ugly_files)):
             self.grossitate(catter, gross)
 
     def cathole(self, do_what, where_exactly, clobber=True):

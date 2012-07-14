@@ -159,6 +159,8 @@ class URLRetrievalStorage(FileSystemStorage):
             allow_overwrite=clobber)
         
         url_request_file.name = new_name
+    
+    safely_move = safely_rename
 
 
 if __name__ == "__main__":

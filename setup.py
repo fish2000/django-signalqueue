@@ -6,7 +6,8 @@ except ImportError:
 
 from distributors.dist import SQDistribution
 from distributors.clean import really_clean
-from distributors.coffeescript import build_coffeescript, download_js_libs
+from distributors.coffeescript import build_coffeescript, download_js_libs, uglify
+from distributors import build_js
 
 __author__ = 'Alexander Bohn'
 __version__ = (0, 3, 9)
@@ -43,9 +44,12 @@ setup(
     
     distclass=SQDistribution,
     cmdclass={
+        'build_js': build_js,
         'clean': really_clean,
+        
         'build_coffeescript': build_coffeescript,
-        'download_js_libs': download_js_libs },
+        'download_js_libs': download_js_libs,
+        'uglify': uglify },
     
     include_package_data=True,
     package_data={

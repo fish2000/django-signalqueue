@@ -8,18 +8,22 @@ from distutils.command.clean import clean
 class really_clean(clean):
     
     def run(self):
+        build_cathostel = join(self.build_base, 'cathostel')
         build_coffeecup = join(self.build_base, 'coffeecup')
-        build_jscache = join(self.build_base, 'jscache')
+        build_starbucks = join(self.build_base, 'starbucks')
         build_uglies = join(self.build_base, 'disgusting')
         
-        print('removing', build_coffeecup)
-        shutil.rmtree(self.build_coffeecup, ignore_errors=True)
+        print('removing', build_cathostel)
+        shutil.rmtree(build_cathostel, ignore_errors=True)
         
-        print('removing', build_jscache)
-        shutil.rmtree(self.build_jscache, ignore_errors=True)
+        print('removing', build_coffeecup)
+        shutil.rmtree(build_coffeecup, ignore_errors=True)
+        
+        print('removing', build_starbucks)
+        shutil.rmtree(build_starbucks, ignore_errors=True)
         
         print('removing', build_uglies)
-        shutil.rmtree(self.build_uglies, ignore_errors=True)
+        shutil.rmtree(build_uglies, ignore_errors=True)
         
         # below this was stuff that was here before.
         
