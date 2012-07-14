@@ -1,7 +1,7 @@
 exclude *.pyc *~ .DS_Store
-include README.md
-include LICENSE.txt
 include .gitignore
+include LICENSE.txt
+include README.md
 recursive-include signalqueue/fixtures *
 recursive-include signalqueue/static *
 recursive-include signalqueue/templates *
