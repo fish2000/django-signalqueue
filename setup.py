@@ -1,4 +1,13 @@
 #/usr/bin/env python
+# encoding: utf-8
+"""
+setup.py
+
+Created by FI$H 2000 on 2012-06-19.
+Copyright (c) 2012 Objects In Space And Time, LLC. All rights reserved.
+
+"""
+
 try:
     from setuptools import setup
 except ImportError:
@@ -6,11 +15,13 @@ except ImportError:
 
 from distributors.dist import SQDistribution
 from distributors.clean import really_clean
-from distributors.coffeescript import build_coffeescript, download_js_libs, uglify
+from distributors.coffeescript import build_coffeescript
+from distributors.coffeescript import download_js_libs
+from distributors.coffeescript import uglify
 from distributors import build_js
 
 __author__ = 'Alexander Bohn'
-__version__ = (0, 3, 9)
+__version__ = (0, 4, 2)
 
 import os
 
@@ -61,6 +72,7 @@ setup(
             'static/socket.io-client/*',
             'templates/*.html',
             'templates/admin/*.html']},
+    
     packages=[
         'distributors',
         'distributors.urlobject',

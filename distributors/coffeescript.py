@@ -3,7 +3,6 @@ from __future__ import print_function, with_statement
 
 from distutils.cmd import Command
 from distutils.spawn import spawn
-
 from os import environ, makedirs
 from os.path import isdir, join, exists, abspath, basename
 
@@ -71,7 +70,8 @@ class build_coffeescript(Command):
     outdir = None
     user_options = [
         ('coffee=', 'C',
-            'use coffeescript command (default: {0})'.format(coffeescript_cmd()))]
+            'use coffeescript command (default: {0})'.format(
+                coffeescript_cmd()))]
     description = 'Compile CoffeScript source to JavaScript'
     
     def initialize_options(self):
@@ -142,9 +142,10 @@ class uglify(Command):
     user_options = [
         ('uglifyjs=', 'U',
             'use uglifyjs command (default: {0})'.format(uglification_cmd())),
-        ('verbish', 'VVVV',
-            'funny... she doesn\'t LOOK verbish...')]
-    description = 'Concatenate generated and library JavaScript, and compress the remainder.'
+        ('pedantic', 'P',
+            'emit uglifyjs debug-level trace messages during the uglification.')]
+    description = 'Uglification: concatenate generated and library JavaScript, '
+    description += 'and compress the remainder'
     
     def initialize_options(self):
         uglify.indir = coffeescript_build_out_dir()
@@ -222,8 +223,8 @@ class uglify(Command):
         print('')
         
         print("prepending libraries to generated code")
-        print("\t- %2s post-CoffeeScript JS files" % len(self.pretty_files))
-        print("\t- %2s downloaded JS libraries" % len(self.pretty_libs))
+        print("\t- %1s post-CoffeeScript JS files" % len(self.pretty_files))
+        print("\t- %1s downloaded JS libraries" % len(self.pretty_libs))
         
         print('')
         
