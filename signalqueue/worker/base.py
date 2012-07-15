@@ -1,6 +1,4 @@
 
-from contextlib import contextmanager
-
 import signalqueue
 from signalqueue.utils import json, logg
 from signalqueue import SQ_RUNMODES as runmodes
@@ -63,22 +61,34 @@ class QueueBase(object):
         super(QueueBase, self).__init__()
     
     def ping(self):
-        raise NotImplementedError("WTF: Queue backend needs a Queue.ping() implementaton")
+        raise NotImplementedError(
+            "WTF: %s needs a Queue.ping() implementaton" %
+                self.__class__.__name__)
     
     def push(self, value):
-        raise NotImplementedError("WTF: Queue backend needs a Queue.push() implementaton")
+        raise NotImplementedError(
+            "WTF: %s backend needs a Queue.push() implementaton" %
+                self.__class__.__name__)
     
     def pop(self):
-        raise NotImplementedError("WTF: Queue backend needs a Queue.pop() implementaton")
+        raise NotImplementedError(
+            "WTF: %s backend needs a Queue.pop() implementaton" %
+                self.__class__.__name__)
     
     def count(self):
-        return NotImplementedError("WTF: Queue backend needs a Queue.count() implementaton")
+        return NotImplementedError(
+            "WTF: %s backend needs a Queue.count() implementaton" %
+                self.__class__.__name__)
     
     def clear(self):
-        raise NotImplementedError("WTF: Queue backend needs a Queue.flush() implementaton")
+        raise NotImplementedError(
+            "WTF: %s backend needs a Queue.flush() implementaton" %
+                self.__class__.__name__)
     
     def values(self, **kwargs):
-        raise NotImplementedError("WTF: Queue backend needs a Queue.values() implementaton")
+        raise NotImplementedError(
+            "WTF: %s backend needs a Queue.values() implementaton" %
+                self.__class__.__name__)
     
     def enqueue(self, signal, sender=None, **kwargs):
         """ Serialize the parameters of a signal call, encode
@@ -88,15 +98,14 @@ class QueueBase(object):
             if self.ping():
                 queue_json = {
                     'signal': { signal.regkey: signal.name },
-                    'enqueue_runmode': self.runmode,
                     #'sender': None,
-                }
+                    'enqueue_runmode': self.runmode }
+                
                 if sender is not None:
                     queue_json.update({
                         'sender': dict(
                             app_label=sender._meta.app_label, 
-                            modl_name=sender._meta.object_name.lower()),
-                        })
+                            modl_name=sender._meta.object_name.lower()) })
                 
                 for k, v in kwargs.items():
                     if k in signal.mapping:
@@ -131,7 +140,7 @@ class QueueBase(object):
         * See the QueueBase docstring for an example.
         
         """
-        from signalqueue import mappings
+        #from signalqueue import mappings
         
         if queued_signal is None:
             queued_signal = self.retrieve()
@@ -170,8 +179,9 @@ class QueueBase(object):
                     thesignal = signal
                     break
         else:
-            raise signalqueue.SignalRegistryError("Signal '%s' not amongst the registered: %s)." % (
-                regkey, ', '.join(signalqueue.SQ_DMV.keys())))
+            raise signalqueue.SignalRegistryError(
+                "Signal '%s' not amongst the registered: %s)." % (
+                    regkey, ', '.join(signalqueue.SQ_DMV.keys())))
         
         if thesignal is not None:
             for k, v in queued_signal.items():
@@ -186,7 +196,8 @@ class QueueBase(object):
             return (queued_signal, result_list)
         
         else:
-            raise signalqueue.SignalRegistryError("No registered signals named '%s'." % name)
+            raise signalqueue.SignalRegistryError(
+                "No registered signals named '%s'." % name)
     
     def next(self):
         """
@@ -259,10 +270,12 @@ class QueueBase(object):
         return self.values().__getitem__(idx)
     
     def __setitem__(self, idx, val):
-        raise NotImplementedError("OMG: Queue backend doesn't define __setitem__() -- items at specific indexes cannot be explicitly set.")
+        raise NotImplementedError(
+            "OMG: Queue backend doesn't define __setitem__() -- items at specific indexes cannot be explicitly set.")
     
     def __delitem__(self, idx, val):
-        raise NotImplementedError("OMG: Queue backend doesn't define __delitem__() -- items at specific indexes cannot be explicitly removed.")
+        raise NotImplementedError(
+            "OMG: Queue backend doesn't define __delitem__() -- items at specific indexes cannot be explicitly removed.")
     
     def __repr__(self):
         """ Returns a JSON-stringified array, containing all enqueued signals. """
