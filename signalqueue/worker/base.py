@@ -92,8 +92,9 @@ class QueueBase(object):
     
     def enqueue(self, signal, sender=None, **kwargs):
         """ Serialize the parameters of a signal call, encode
-        the serialized structure, and push the encoded
-        string onto the queue. """
+            the serialized structure, and push the encoded
+            string onto the queue. """
+        
         if signal.regkey is not None:
             if self.ping():
                 queue_json = {
@@ -104,7 +105,7 @@ class QueueBase(object):
                 if sender is not None:
                     queue_json.update({
                         'sender': dict(
-                            app_label=sender._meta.app_label, 
+                            app_label=sender._meta.app_label,
                             modl_name=sender._meta.object_name.lower()) })
                 
                 for k, v in kwargs.items():
@@ -120,7 +121,8 @@ class QueueBase(object):
     
     def retrieve(self):
         """ Pop the queue, decode the popped signal without deserializing,
-        returning the serialized data. """
+            returning the serialized data. """
+        
         if self.count() > 0:
             out = self.pop()
             if out is not None:
@@ -137,9 +139,7 @@ class QueueBase(object):
         If queued_signal is None, it will call retrieve() to pop the queue for the next
         signal, which it will execute if one is returned successfully.
         
-        * See the QueueBase docstring for an example.
-        
-        """
+        * See the QueueBase docstring for an example. """
         #from signalqueue import mappings
         
         if queued_signal is None:
@@ -286,6 +286,7 @@ class QueueBase(object):
         return repr(self)
     
     def __unicode__(self):
-        """ Returns a JSON-stringified array, containing all enqueued signals, properly pretty-printed. """
+        """ Returns a JSON-stringified array, containing all enqueued signals,
+            properly pretty-printed. """
         import json as library_json
         return u"%s" % library_json.dumps(library_json.loads(repr(self)), indent=4)

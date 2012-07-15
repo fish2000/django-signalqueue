@@ -2,7 +2,8 @@
 from __future__ import print_function
 
 from django.conf import settings
-settings.configure(**dict())
+if not settings.configured:
+    settings.configure(**dict())
 
 import sys
 import requests

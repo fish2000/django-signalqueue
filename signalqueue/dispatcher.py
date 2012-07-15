@@ -7,7 +7,7 @@ Created by FI$H 2000 on 2011-09-09.
 Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 
 """
-import hashlib
+
 from collections import defaultdict
 from django.dispatch import Signal
 from signalqueue import mappings
@@ -19,7 +19,7 @@ class ClassNameDict(defaultdict):
         for k in self.keys:
             if key in k:
                 return self.get(k, None)
-        return super(ClassDict, self).__missing__(key)
+        return super(ClassNameDict, self).__missing__(key)
 
 class AsyncSignal(Signal):
     
@@ -35,7 +35,6 @@ class AsyncSignal(Signal):
         
         self.queue_name = queue_name
         if defaultmapper is None:
-            # this iffy here may strike you as backwards
             defaultmapper = self.defaultmapper
             
         self.mapping = ClassNameDict(lambda: defaultmapper)
@@ -91,7 +90,8 @@ class AsyncSignal(Signal):
             
             else:
                 # unknown runmode value -- fire normally
-                logg.info("*** send() called with an unknown runmode: '%s' -- firing sync signal." % self.runmode)
+                logg.info(
+                    "*** send() called with an unknown runmode: '%s' -- firing sync signal." % self.runmode)
                 return self.send_now(sender, **named)
         else:
             # fire normally

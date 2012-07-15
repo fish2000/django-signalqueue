@@ -1,5 +1,8 @@
 
-import os, sys, traceback
+#import os, sys, traceback
+import setproctitle
+import sys
+import os
 
 # Root directory of this package
 SQ_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -9,10 +12,7 @@ SQ_ROOT = os.path.dirname(os.path.abspath(__file__))
 def simple_import_module(name, package=None):
     """
     Dumb version of import_module.
-    Based on a function from dajaxice.utils of a similar name.
-    
-    """
-    import sys
+    Based on a function from dajaxice.utils of a similar name. """
     __import__(name)
     return sys.modules[name]
 
@@ -26,9 +26,7 @@ except:
 
 
 class FakeLogger(object):
-    """
-    Completely unacceptable fake-logger class, for last-resort use.
-    """
+    """ Completely unacceptable fake-logger class, for last-resort use. """
     def log(self, level, msg):
         print "signalqueue.utils.FakeLogger: %s" % msg
     
@@ -40,15 +38,11 @@ class FakeLogger(object):
         for fname in ('critical', 'debug', 'error', 'exception', 'info', 'warning'):
             setattr(self, fname, self.logg)
 
+
+# HAAAAAX
 logger_name = "signalqueue > MODULE"
-try:
-    import setproctitle
-except ImportError:
-    pass
-else:
-    # HAAAAAX
-    if 'runqueueserver' in setproctitle.getproctitle():
-        logger_name = "signalqueue > WORKER"
+if 'runqueueserver' in setproctitle.getproctitle():
+    logger_name = "signalqueue > WORKER"
 
 try:
     from jogging import logging as logg
@@ -56,7 +50,8 @@ except ImportError:
     try:
         import logging
     except ImportError:
-        print "WTF: You have no logging facilities available whatsoever -- initializing a fake logger class. Love, django-signalqueue."
+        print "WTF: You have no logging facilities available whatsoever."
+        print "I'm initializing a fake logger class. Love, django-signalqueue."
         # set up fake logger
         logg = FakeLogger()
     else:
@@ -78,9 +73,8 @@ class ADict(dict):
     ADict -- Convenience class for dictionary key access via attributes.
     
     The 'A' in 'ADict' is for 'Access' -- you can also use adict.key as well as adict[key]
-    to access hash values.
+    to access hash values. """
     
-    """
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
     
