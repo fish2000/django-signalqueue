@@ -1,11 +1,7 @@
 
-import sys
 from django.db import models
-from django.db.models import signals
-from django.core.urlresolvers import reverse
 from datetime import datetime
-from contextlib import contextmanager
-from delegate import DelegateManager, DelegateQuerySet, delegate
+from delegate import DelegateManager, delegate
 from signalqueue.worker.base import QueueBase
 from signalqueue.utils import logg
 
@@ -34,7 +30,7 @@ class SignalQuerySet(models.query.QuerySet):
     
     @delegate
     def push(self, value):
-        logg.debug("*** push() value: %s" % value)
+        logg.debug("push() value: %s" % value)
         self.get_or_create(queue_name=self.queue_name, value=value, enqueued=True)
     
     @delegate
