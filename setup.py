@@ -86,7 +86,8 @@ setup(
     install_requires=[
         'django-delegate>=0.2.2',
         'tornado', 'tornadio2',
-        'redis', 'requests'],
+        'redis', 'requests',
+        'setproctitle'],
     
     tests_require=[
         'nose', 'rednose', 'django-nose'],
