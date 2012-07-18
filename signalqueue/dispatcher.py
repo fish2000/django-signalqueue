@@ -56,7 +56,6 @@ class AsyncSignal(Signal):
         return super(AsyncSignal, self).send(sender=sender, **named)
     
     def enqueue(self, sender, **named):
-        
         if self.runmode == runmodes['SQ_SYNC']:
             from signalqueue import SignalDispatchError
             raise SignalDispatchError("WTF: enqueue() called in SQ_SYNC mode")

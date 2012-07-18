@@ -112,8 +112,7 @@ class QueueBase(object):
                     if k in signal.mapping:
                         queue_json.update({ k: signal.mapping[k](maptype=v.__class__).map(v), })
                 
-                print queue_json
-                
+                #print queue_json
                 self.push(json.dumps(queue_json))
                 return queue_json
         else:
