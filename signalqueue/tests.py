@@ -335,13 +335,13 @@ class DjangoAdminQueueWidgetTests(TestCase):
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")
     def test_get_admin_root_page(self):
-        post_out = self.client.post('/admin/', dict(
-            username=self.user.username, password=self.testpass,
-            this_is_the_login_form='1', next='/admin/'))
+        #post_out = self.client.post('/admin/', dict(
+        #    username=self.user.username, password=self.testpass,
+        #    this_is_the_login_form='1', next='/admin/'))
         admin_root_page = self.client.get('/admin/')
         self.assertEquals(admin_root_page.status_code, 200)
-        self.client.get('/admin/logout/')
-        print post_out # pyflakes don't crack
+        #self.client.get('/admin/logout/')
+        #print post_out # pyflakes don't crack
     
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")

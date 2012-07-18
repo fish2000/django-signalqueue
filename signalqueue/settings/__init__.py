@@ -32,7 +32,7 @@ MEDIA_URL = '/face/'
 STATIC_ROOT = os.path.join(adminroot, 'static', 'admin')[0]
 STATIC_URL = '/staticfiles/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
-ROOT_URLCONF = 'settings.urlconf'
+ROOT_URLCONF = 'signalqueue.settings.urlconf'
 
 TEMPLATE_DIRS = (
     os.path.join(approot, 'templates'),
