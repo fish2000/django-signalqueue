@@ -76,6 +76,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django_nose',
+    'djcelery',
     'delegate',
     'signalqueue',
 )
@@ -123,6 +124,44 @@ SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
+""" SUCK MY CELERY """
+from kombu import Queue
+
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_DEFAULT_ROUTING_KEY = 'default'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+
+CELERY_QUEUES = (
+    Queue('default',    routing_key='default.#'),
+    Queue('yodogg',     routing_key='yodogg.#'),
+)
+
+CELERY_ALWAYS_EAGER = True
+BROKER_URL = 'redis://localhost:6379/0'
+
+BROKER_HOST = "192.168.1.33"
+BROKER_BACKEND = "redis"
+REDIS_PORT = 6379
+REDIS_HOST = "192.168.1.33"
+BROKER_USER = ""
+BROKER_PASSWORD = ""
+BROKER_VHOST = "0"
+REDIS_DB = 0
+REDIS_CONNECT_RETRY = True
+CELERY_SEND_EVENTS = True
+#CELERY_RESULT_BACKEND = 'redis'
+CELERY_RESULT_BACKEND = "redis://"
+CELERY_TASK_RESULT_EXPIRES = 10
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+import djcelery
+djcelery.setup_loader()
+
+
+
+
 
 # package path-extension snippet.
 from pkgutil import extend_path
