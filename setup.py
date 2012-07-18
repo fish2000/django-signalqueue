@@ -66,7 +66,7 @@ setup(
         'uglify': uglify },
     
     entry_points={
-        'console_scripts': ['signalqueue-test = signalqueue.tests:main'] },
+        'console_scripts': ['signalqueue-test = signalqueue.testrunner:main'] },
     
     include_package_data=True,
     package_data={

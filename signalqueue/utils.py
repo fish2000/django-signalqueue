@@ -69,6 +69,7 @@ def log_exceptions(exc_type=Exception, **kwargs):
         yield
     except exc_type, exc:
         raven_client.captureException(sys.exc_info())
+        print(exc)
 
 
 class ADict(dict):

@@ -1,50 +1,3 @@
-#!/usr/bin/env python
-# encoding: utf-8
-"""
-Run this file to test `signalqueue` -- 
-You'll want to have `nose` and `django-nose` installed.
-
-"""
-def main():
-    from django.conf import settings
-    rp = None
-    from signalqueue import settings as signalqueue_settings
-    logging_format = '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'
-    signalqueue_settings.__dict__.update({
-        "NOSE_ARGS": [
-            '--rednose', '--nocapture', '--nologcapture', '-v',
-            logging_format] })
-    
-    settings.configure(**signalqueue_settings.__dict__)
-    import logging.config
-    logging.config.dictConfig(settings.LOGGING)
-    
-    import subprocess, os
-    redis_dir = '/usr/local/var/db/redis/'
-    if not os.path.isdir(redis_dir):
-        os.makedirs(redis_dir) # make redis as happy as possible
-    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(
-        signalqueue_settings.approot, 'settings', 'redis.conf')])
-    
-    from django.core.management import call_command
-    call_command('test', 'signalqueue.tests',
-        interactive=False, traceback=True, verbosity=2)
-    
-    tempdata = settings.tempdata
-    print "Deleting test data: %s" % tempdata
-    os.rmdir(tempdata)
-    
-    if rp is not None:
-        import signal
-        print "Shutting down test Redis server instance (pid = %s)" % rp.pid
-        os.kill(rp.pid, signal.SIGKILL)
-    
-    import sys
-    sys.exit(0)
-
-if __name__ == '__main__':
-    main()
-
 
 from django.conf import settings
 from django.test import TestCase
@@ -353,7 +306,6 @@ class DjangoAdminQueueWidgetTests(TestCase):
     
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")
-
     def test_admin_queue_status_widget_contains_queue_names(self):
         from signalqueue.worker import queues
         post_out = self.client.post('/admin/', dict(
@@ -368,7 +320,6 @@ class DjangoAdminQueueWidgetTests(TestCase):
     
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")
-
     def test_admin_widget_sidebar_uses_queue_module_template(self):
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass,
@@ -383,7 +334,6 @@ class DjangoAdminQueueWidgetTests(TestCase):
     
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")
-
     def test_get_admin_root_page(self):
         post_out = self.client.post('/admin/', dict(
             username=self.user.username, password=self.testpass,
@@ -395,7 +345,6 @@ class DjangoAdminQueueWidgetTests(TestCase):
     
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")
-
     def test_testuser_admin_login_via_client(self):
         self.assertTrue(self.client.login(username=self.testuser,
         password=self.testpass))
@@ -403,7 +352,6 @@ class DjangoAdminQueueWidgetTests(TestCase):
     
     @skipUnless(hasattr(settings, 'ROOT_URLCONF'),
         "needs specific ROOT_URLCONF from django-signalqueue testing")
-
     def test_testuser_admin_login(self):
         self.assertEquals(self.user.username, 'yodogg')
         post_out = self.client.post('/admin/', dict(
