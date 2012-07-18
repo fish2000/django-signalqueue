@@ -30,9 +30,9 @@ def get_coffeescript_files():
     pattern = '.coffee'
     for root, dirs, files in os.walk(os.path.join(
         'signalqueue', 'static', 'signalqueue', 'coffee')):
-        for file in files:
-            if file.endswith(pattern):
-                out.append(os.path.join(root, file))
+        for f in files:
+            if f.endswith(pattern):
+                out.append(os.path.join(root, f))
     return out
 
 setup(
@@ -48,10 +48,14 @@ setup(
     url='http://github.com/fish2000/django-signalqueue/',
     keywords=['django','signals','async','asynchronous','queue'],
     
+    js_package='signalqueue',
+    
     cs_files=get_coffeescript_files(),
     js_libs=[
         'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
         'http://cdn.socket.io/stable/socket.io.js'],
+    js_outdirs={
+        'signalqueue': os.path.join('static', 'signalqueue', 'js') },
     
     distclass=SQDistribution,
     cmdclass={
