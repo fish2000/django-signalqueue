@@ -48,8 +48,9 @@ setup(
     url='http://github.com/fish2000/django-signalqueue/',
     keywords=['django','signals','async','asynchronous','queue'],
     
-    js_package='signalqueue',
+    distclass=SQDistribution,
     
+    js_package='signalqueue',
     cs_files=get_coffeescript_files(),
     js_libs=[
         'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js',
@@ -57,7 +58,6 @@ setup(
     js_outdirs={
         'signalqueue': os.path.join('static', 'signalqueue', 'js') },
     
-    distclass=SQDistribution,
     cmdclass={
         'build_js': build_js,
         'clean': really_clean,
