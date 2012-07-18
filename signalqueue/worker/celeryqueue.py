@@ -39,7 +39,7 @@ class CeleryQueue(QueueBase):
         super(CeleryQueue, self).__init__(*args, **kwargs)
     
     def ping(self):
-        raise NotImplementedError("WTF: Queue backend needs a Queue.ping() implementaton")
+        return True
     
     def push(self, value):
         pass
@@ -60,7 +60,7 @@ class CeleryQueue(QueueBase):
     
     def enqueue(self, signal, sender=None, **kwargs):
         queue_json = super(CeleryQueue, self).enqueue(signal, sender, **kwargs)
-        return self.deqeue(queued_signal=queue_json)
+        return self.dequeue(queued_signal=queue_json)
     
     def retrieve(self):
         pass

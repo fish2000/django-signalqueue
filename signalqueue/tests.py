@@ -123,7 +123,7 @@ class PickleMapperTests(TestCase):
             signalqueue.autodiscover()
             from signalqueue.worker import queues
             
-            for queue in queues.all():
+            for queue in [q for q in queues.all() if q.queue_name is not 'celery']:
                 
                 #print "*** Testing queue: %s" % queue.queue_name
                 #queue.clear()
@@ -189,13 +189,14 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     def test_worker_status_url_with_queue_parameter_content(self):
         from signalqueue.worker import queues
         for queue_name in queues.keys():
-            self.http_client.fetch(self.get_url('/status?queue=%s' % queue_name), self.stop)
-            response = self.wait()
-            self.assertTrue(queue_name in response.body)
-            self.assertTrue("enqueued" in response.body)
-            
-            phrase = "%s enqueued signals" % queues[queue_name].count()
-            self.assertTrue(phrase in response.body)
+            if queue_name is not 'celery':
+                self.http_client.fetch(self.get_url('/status?queue=%s' % queue_name), self.stop)
+                response = self.wait()
+                self.assertTrue(queue_name in response.body)
+                self.assertTrue("enqueued" in response.body)
+                
+                phrase = "%s enqueued signals" % queues[queue_name].count()
+                self.assertTrue(phrase in response.body)
     
     def test_worker_status_url_content(self):
         self.http_client.fetch(self.get_url('/status'), self.stop)
