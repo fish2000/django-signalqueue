@@ -23,7 +23,7 @@ def taskmaster(sig):
             return None
         
         def run(self, sender=None, **kwargs):
-            return self.signal.send_now(sender=sender, **kwargs)
+            self.signal.send_now(sender=sender, **kwargs)
         
     return CelerySignalTask
 
