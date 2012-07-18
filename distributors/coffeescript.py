@@ -201,14 +201,14 @@ class uglify(Command):
         self.catty_files = map(
             lambda pn: join(uglify.mezzodir, pn),
             map(basename,
-                map(lambda fn: fn.replace('.coffee', 'libs.js'),
+                map(lambda fn: fn.replace('.coffee', '.libs.js'),
                     self.distribution.cs_files)))
         
         # `ugly_files` are the `uglify` command's final output -- since the files do not exist yet,
         # at this point in the build's arc we will populate this list with the output filenames only
         # (versus filesystem-absolute pathnames, which is what is in the others).
         self.ugly_files = map(basename,
-            map(lambda fn: fn.replace('.coffee', 'libs.js'),
+            map(lambda fn: fn.replace('.coffee', '.libs.min.js'),
                 self.distribution.cs_files))
         
         # `uglifier` is a string, containing the command we'll use when invoking UglifyJS,
