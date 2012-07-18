@@ -8,6 +8,7 @@ You'll want to have `nose` and `django-nose` installed.
 def main():
     rp = None
     from signalqueue import settings as signalqueue_settings
+    
     logging_format = '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'
     signalqueue_settings.__dict__.update({
         "NOSE_ARGS": [
@@ -23,6 +24,7 @@ def main():
     redis_dir = '/usr/local/var/db/redis/'
     if not os.path.isdir(redis_dir):
         os.makedirs(redis_dir) # make redis as happy as possible
+    
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(
         signalqueue_settings.approot, 'settings', 'redis.conf')])
     
