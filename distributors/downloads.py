@@ -22,13 +22,10 @@ class URLRequestFile(SimpleUploadedFile):
     
     def __init__(self, url, filename, **kwargs):
         """ A URLRequestFile is created with a URL and a filename.
-        
         The data from the URL is immediately fetched when one constructs
         a new URLRequestFile object -- exceptions are thrown in
-        the event of failure
+        the event of failure. """
         
-        
-        """
         self._source_url = url
         
         try:
@@ -50,6 +47,7 @@ class URLRequestFile(SimpleUploadedFile):
             request.headers.get('content-type') or \
             kwargs.pop('content_type',
                 URLRequestFile.DEFAULT_TYPE)
+        
         self._source_content_type = content_type
         self._source_encoding = request.ok and request.encoding or None
         
@@ -92,12 +90,11 @@ class URLRetrievalStorage(FileSystemStorage):
     def download(self, urlstr, **kwargs):
         """ Call url_rs.download('URL') to save that URL's contents
         into a new file within the storages' filesystem.
-        
         Optionally setting the 'clobber' keyword to False will raise
         an exception before overwriting existing data.
-        
         Any other keyword args are passed wholesale to URLRequestFile's
         constructor when the new file is saved locally. """
+        
         url = URL(urlstr)
         clobber = bool(kwargs.pop('clobber', True))
         
@@ -123,12 +120,16 @@ class URLRetrievalStorage(FileSystemStorage):
         ext = self._extension(ct)
         fn = "%s%s" % (url.hash, ext)
         ff = URLRequestFile(url, fn, **kwargs)
-        print('ext/ct',ext,ct)
+        #print('ext/ct',ext,ct)
+        
         if self.exists(fn) and not clobber:
-            raise IOError("*** Can't overwrite existing file %s (clobber=%s)" % (fn, clobber))
+            raise IOError(
+                "*** Can't overwrite existing file %s (clobber=%s)" % (fn, clobber))
+        
         if ff.size < URLRetrievalStorage.MINIMUM_BYTE_SIZE:
-            raise ValueError("*** Bailing -- ownloaded data is less than URLRetrievalStorage.MINIMUM_BYTE_SIZE (%sb)" %
-                URLRequestFile.MINIMUM_BYTE_SIZE)
+            raise ValueError(
+                "*** Bailing -- ownloaded data is less than URLRetrievalStorage.MINIMUM_BYTE_SIZE (%sb)" %
+                    URLRequestFile.MINIMUM_BYTE_SIZE)
         
         self.save(fn, ff)
         return ff
@@ -136,6 +137,7 @@ class URLRetrievalStorage(FileSystemStorage):
     def downloaded(self, urlstr, path=None):
         """ We say that a remote file has been 'downloaded' to a local directory
         if we can spot the SHA1 of its URL inside exactly one local filename. """
+        
         path = self.path(path or '')
         oneornone = filter(
             lambda fn: fn.find(URL(urlstr).hash) > -1,
