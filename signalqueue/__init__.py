@@ -50,9 +50,8 @@ def register(signal, name, regkey=None):
         raise SignalRegistryError("Can only register AsyncSignal or descendant types, not %s instance '%s'" % (
             signal.__class__.__name__, signal))
     
-    from signalqueue.utils import logg
-    
-    logg.debug("*** %0s %14s '%s'" % (regkey, signal.__class__.__name__, name))
+    #from signalqueue.utils import logg
+    #logg.debug("*** %0s %14s '%s'" % (regkey, signal.__class__.__name__, name))
     
     if not getattr(signal, 'name', None):
         signal.name = name
@@ -82,7 +81,6 @@ def autodiscover():
         import imp
         from django.conf import settings
         from signalqueue.dispatcher import AsyncSignal
-        
         from signalqueue.utils import logg
         
         # Gather signals that any of the installed apps define in

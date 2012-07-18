@@ -113,6 +113,15 @@ SQ_QUEUES = {
     },
 }
 
+'''
+'celery': {
+    'ENGINE': 'signalqueue.worker.celery.CeleryQueue',
+    'INTERVAL': 30, # 1/3 sec
+    'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
+},
+'''
+
+
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
 
