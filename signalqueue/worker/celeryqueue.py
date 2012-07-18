@@ -1,5 +1,5 @@
 
-from celery import Celery
+#from celery import Celery
 from celery import Task
 from celery.registry import tasks
 

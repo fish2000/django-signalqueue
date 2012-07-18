@@ -80,7 +80,7 @@ INSTALLED_APPS = (
     'signalqueue',
 )
 
-import logging
+#import logging
 LOGGING = dict(
     version=1,
     disable_existing_loggers=False,
@@ -111,15 +111,12 @@ SQ_QUEUES = {
         'INTERVAL': 30, # 1/3 sec
         'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
     },
+    'celery': {
+        'ENGINE': 'signalqueue.worker.celeryqueue.CeleryQueue',
+        'INTERVAL': 30, # 1/3 sec
+        'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
+    },
 }
-
-'''
-'celery': {
-    'ENGINE': 'signalqueue.worker.celery.CeleryQueue',
-    'INTERVAL': 30, # 1/3 sec
-    'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
-},
-'''
 
 
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
