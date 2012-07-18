@@ -75,5 +75,5 @@ class CeleryQueue(QueueBase):
         except tasks.NotRegistered:
             pass
         else:
-            return result.
+            return result
     
