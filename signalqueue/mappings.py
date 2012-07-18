@@ -1,7 +1,7 @@
 
-from signalqueue.utils import ADict
+#from signalqueue.utils import ADict
 from collections import defaultdict
-import django.db.models
+#import django.db.models
 
 arity_map = defaultdict(lambda: Mapper)
 attribute_remap = defaultdict(lambda: Mapper)
@@ -103,7 +103,6 @@ class Cartograph(object):
         for k, v in arity_map.items():
             pass
         
-        
         return arity_map[type(obj).__name__]().map(obj)
         #return arity_map[self.__maptype__]().map(obj)
     
@@ -132,7 +131,7 @@ class Terroir(object):
         instance[self.providing_arg] = value
     
     def __call__(self, maptype):
-        print "YO DOGG I'M CALLIN: %s" % maptype
+        #print "YO DOGG I'M CALLIN: %s" % maptype
         return Cartograph(maptype=maptype)
     
 
@@ -153,10 +152,12 @@ class PickleMapper(Mapper):
     def __init__(self, maptype=object, **kwargs):
         super(PickleMapper, self).__init__(maptype=maptype, **kwargs)
         try:
-            import cPickle as pickle
+            import cPickle
         except ImportError:
             import pickle
-        self.brine = pickle
+            self.brine = pickle
+        else:
+            self.brine = cPickle
     
     def remap(self, map_dict):
         return self.unmap(map_dict).get('pickled')
@@ -189,7 +190,7 @@ class ModelInstanceMapper(Mapper):
         from django.db.models.loading import cache
         self.cache = cache
     
-    def modlcls(self, app, modl):
+    def modlcls(self, app_label, modl_name):
         return self.cache.get_model(
             app_label, modl_name)
     
