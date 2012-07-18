@@ -1,4 +1,6 @@
 
+from __future__ import print_function
+
 #import os, sys, traceback
 import setproctitle
 import sys
@@ -28,7 +30,7 @@ except:
 class FakeLogger(object):
     """ Completely unacceptable fake-logger class, for last-resort use. """
     def log(self, level, msg):
-        print "signalqueue.utils.FakeLogger: %s" % msg
+        print("signalqueue.utils.FakeLogger: %s" % msg)
     
     def logg(self, msg):
         self.log(0, msg)
@@ -50,8 +52,8 @@ except ImportError:
     try:
         import logging
     except ImportError:
-        print "WTF: You have no logging facilities available whatsoever."
-        print "I'm initializing a fake logger class. Love, django-signalqueue."
+        print("WTF: You have no logging facilities available whatsoever.")
+        print("I'm initializing a fake logger class. Love, django-signalqueue.")
         # set up fake logger
         logg = FakeLogger()
     else:
@@ -62,6 +64,7 @@ from contextlib import contextmanager
 
 @contextmanager
 def log_exceptions(exc_type=Exception, **kwargs):
+    from raven.contrib.django.models import client as raven_client
     try:
         yield
     except exc_type, exc:

@@ -10,7 +10,7 @@ from django.conf import settings
 
 rp = None
 
-if __name__ == '__main__':
+def main():
     from signalqueue import settings as signalqueue_settings
     logging_format = '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'
     signalqueue_settings.__dict__.update({
@@ -23,7 +23,6 @@ if __name__ == '__main__':
     logging.config.dictConfig(settings.LOGGING)
     
     import subprocess, os
-    
     redis_dir = '/usr/local/var/db/redis/'
     if not os.path.isdir(redis_dir):
         os.makedirs(redis_dir) # make redis as happy as possible
@@ -45,6 +44,11 @@ if __name__ == '__main__':
     
     import sys
     sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+
+
 
 from django.test import TestCase
 #from django.test.utils import override_settings as override
@@ -521,4 +525,5 @@ class RegistryTests(TestCase):
         
         for sig in [s for s in signals.__dict__.values() if isinstance(s, dispatcher.AsyncSignal)]:
             self.assertTrue(sig in signalqueue.SQ_DMV['signalqueue.signals'])
+
 

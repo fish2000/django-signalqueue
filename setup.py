@@ -49,7 +49,6 @@ setup(
     keywords=['django','signals','async','asynchronous','queue'],
     
     distclass=SQDistribution,
-    
     js_package='signalqueue',
     cs_files=get_coffeescript_files(),
     js_libs=[
@@ -65,6 +64,9 @@ setup(
         'build_coffeescript': build_coffeescript,
         'download_js_libs': download_js_libs,
         'uglify': uglify },
+    
+    entry_points={
+        'console_scripts': ['signalqueue-test = signalqueue.tests:main'] },
     
     include_package_data=True,
     package_data={
