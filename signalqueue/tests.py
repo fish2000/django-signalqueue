@@ -5,12 +5,9 @@ Run this file to test `signalqueue` --
 You'll want to have `nose` and `django-nose` installed.
 
 """
-import logging
-from django.conf import settings
-
-rp = None
-
 def main():
+    from django.conf import settings
+    rp = None
     from signalqueue import settings as signalqueue_settings
     logging_format = '--logging-format="%(asctime)s %(levelname)-8s %(name)s:%(lineno)03d:%(funcName)s %(message)s"'
     signalqueue_settings.__dict__.update({
@@ -49,7 +46,7 @@ if __name__ == '__main__':
     main()
 
 
-
+from django.conf import settings
 from django.test import TestCase
 #from django.test.utils import override_settings as override
 from tornado.testing import AsyncHTTPTestCase
