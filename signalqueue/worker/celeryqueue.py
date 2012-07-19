@@ -82,7 +82,6 @@ class CeleryQueue(QueueBase):
         """ Syntax sugar: myqueue[i] gives you the same value as myqueue.values()[i] """
         return self.values().__getitem__(idx)
     
-    
     '''
     def enqueue(self, signal, sender=None, **kwargs):
         self.dispatch(signal, sender=sender, **kwargs)
