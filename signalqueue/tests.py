@@ -68,8 +68,8 @@ def callback(sender, **kwargs):
     raise TestException(msg)
 
 def callback_no_exception(sender, **kwargs):
-    #msg = "********** NOEXEPT: %s" % kwargs.items()
-    #print msg
+    msg = "********** NOEXEPT: %s" % kwargs.items()
+    print msg
     return kwargs.get('obj', None)
 
 
@@ -123,9 +123,11 @@ class PickleMapperTests(TestCase):
             signalqueue.autodiscover()
             from signalqueue.worker import queues
             
-            for queue in [q for q in queues.all() if q.queue_name is not 'celery']:
+            #for queue in [q for q in queues.all() if q.queue_name is not 'celery']:
+            
+            for queue in queues.all():
                 
-                #print "*** Testing queue: %s" % queue.queue_name
+                print "*** Testing queue: %s" % queue.queue_name
                 #queue.clear()
                 
                 from signalqueue import SQ_DMV
@@ -133,6 +135,7 @@ class PickleMapperTests(TestCase):
                     if regsig.name == "signal_with_object_argument_%s" % queue.queue_name:
                         signal_with_object_argument = regsig
                         break
+                
                 signal_with_object_argument.queue_name = str(queue.queue_name)
                 signal_with_object_argument.connect(callback_no_exception)
                 
@@ -150,19 +153,25 @@ class PickleMapperTests(TestCase):
                         signal_with_object_argument.queue_name, queue.count(), queue.runmode)
                     sigstruct_dequeue, result_list = queue.dequeue()
                     
-                    #from pprint import pformat
-                    #print pformat(sigstruct_send, indent=4)
-                    #print pformat(sigstruct_dequeue, indent=4)
+                    from pprint import pformat
+                    print pformat(sigstruct_send, indent=4)
+                    print pformat(sigstruct_dequeue, indent=4)
+                    
                     self.assertEqual(sigstruct_send, sigstruct_dequeue)
                     
                     # result_list is a list of tuples, each containing a reference
                     # to a callback function at [0] and that callback's return at [1]
                     # ... this is per what the Django signal send() implementation returns.
                     if result_list is not None:
-                        pass
-                        #resultobject = dict(result_list)[callback_no_exception]
-                        #self.assertEqual(resultobject, testobject)
-                        #self.assertEqual(type(resultobject), type(testobject))
+                        resultobject = dict(result_list)[callback_no_exception]
+                        print "*** resultobject (%s) = %s" % (
+                            type(resultobject), resultobject)
+                        
+                        #self.assertEqual(
+                        #    resultobject, testobject)
+                        #self.assertEqual(
+                        #    type(resultobject), type(testobject))
+                        
                     else:
                         print "*** queue.dequeue() returned None"
 
@@ -189,14 +198,14 @@ class WorkerTornadoTests(TestCase, AsyncHTTPTestCase):
     def test_worker_status_url_with_queue_parameter_content(self):
         from signalqueue.worker import queues
         for queue_name in queues.keys():
-            if queue_name is not 'celery':
-                self.http_client.fetch(self.get_url('/status?queue=%s' % queue_name), self.stop)
-                response = self.wait()
-                self.assertTrue(queue_name in response.body)
-                self.assertTrue("enqueued" in response.body)
-                
-                phrase = "%s enqueued signals" % queues[queue_name].count()
-                self.assertTrue(phrase in response.body)
+            #if queue_name is not 'celery':
+            self.http_client.fetch(self.get_url('/status?queue=%s' % queue_name), self.stop)
+            response = self.wait()
+            self.assertTrue(queue_name in response.body)
+            self.assertTrue("enqueued" in response.body)
+            
+            phrase = "%s enqueued signals" % queues[queue_name].count()
+            self.assertTrue(phrase in response.body)
     
     def test_worker_status_url_content(self):
         self.http_client.fetch(self.get_url('/status'), self.stop)

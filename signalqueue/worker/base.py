@@ -109,8 +109,7 @@ class QueueBase(object):
                             modl_name=sender._meta.object_name.lower()) })
                 
                 for k, v in kwargs.items():
-                    if k in signal.mapping:
-                        queue_json.update({ k: signal.mapping[k](maptype=v.__class__).map(v), })
+                    queue_json.update({ k: signal.mapping[k](maptypes=(v.__class__,)).map(v), })
                 
                 #print queue_json
                 self.push(json.dumps(queue_json))
@@ -184,15 +183,17 @@ class QueueBase(object):
         
         if thesignal is not None:
             for k, v in queued_signal.items():
-                if k in thesignal.mapping:
-                    kwargs.update({ k: thesignal.mapping[k](maptype=k).remap(v), })
+                kwargs.update({ k: thesignal.mapping[k](maptypes=(k,)).remap(v), })
             
             # result_list is a list of tuples, each containing a reference
             # to a callback function at [0] and that callback's return at [1]
             # ... this is per what the Django signal send() implementation returns;
             # AsyncSignal.send_now() returns whatever it gets from Signal.send().
             #result_list = thesignal.send_now(sender=sender, **kwargs)
-            result_list = self.dispatch(thesignal, sender, **kwargs)
+            from pprint import pformat
+            print "*** KAY DUBYA:"
+            print "*** %s" % pformat(kwargs)
+            result_list = self.dispatch(thesignal, sender=sender, **kwargs)
             return (queued_signal, result_list)
         
         else:

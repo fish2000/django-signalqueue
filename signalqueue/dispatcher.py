@@ -16,7 +16,7 @@ from signalqueue import SQ_RUNMODES as runmodes
 
 class ClassNameDict(defaultdict):
     def __missing__(self, key):
-        for k in self.keys:
+        for k in self.keys():
             if key in k:
                 return self.get(k, None)
         return super(ClassNameDict, self).__missing__(key)
@@ -36,7 +36,7 @@ class AsyncSignal(Signal):
         self.queue_name = queue_name
         if defaultmapper is None:
             defaultmapper = self.defaultmapper
-            
+        
         self.mapping = ClassNameDict(lambda: defaultmapper)
         just_the_args = []
         

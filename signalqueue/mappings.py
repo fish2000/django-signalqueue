@@ -10,11 +10,14 @@ class MappingError(Exception):
     pass
 
 class MappedAttr(object):
+    
     def __init__(self, map_func, remap_func, **kwargs):
+        
         if not callable(map_func) and map_func is not None:
             raise MappingError("MappedAttr requires a callable mapping function.")
         if not callable(remap_func) and remap_func is not None:
             raise MappingError("MappedAttr requires a callable re-mapping function.")
+        
         self.map_func = (map_func, remap_func)
         self.default = kwargs.pop('default', -1)
     
@@ -22,6 +25,7 @@ class MappedAttr(object):
         return self._default
     def _set_default(self, new_default):
         self._default = new_default
+    
     default = property(_get_default, _set_default)
     
     def __call__(self, mapper, **kwargs):
@@ -34,18 +38,19 @@ class MappedAttr(object):
             return self.default
         return map_func(mapper, obj)
 
+
 class ArityMapper(type):
     
     def __new__(cls, name, bases, attrs):
         outcls = super(ArityMapper, cls).__new__(cls, name, bases, attrs)
-        maptypes = (attrs.get('__maptype__', 'NoneType'),) + attrs.get('__maptypes__', ('NoneType',))
+        maptypes = attrs.get('__maptypes__', ('NoneType',))
         
         mapped_attr_names = map(lambda kv: kv[0],
             filter(lambda kv: isinstance(kv[1], MappedAttr),
                 attrs.items()))
         
-        if '__maptype__' not in attrs:
-            attrs['__maptype__'] = maptypes[0]
+        if '__maptypes__' not in attrs:
+            attrs['__maptypes__'] = tuple(maptypes)
         
         for mt in maptypes:
             arity_map[mt] = outcls
@@ -66,10 +71,10 @@ class Mapper(object):
         lambda mapper, string: str(string),
         default="-1")
     
-    def __init__(self, maptype=str, **kwargs):
-        if maptype and not hasattr(self, '__maptype__'):
-            self.__maptype__ = maptype
-        super(Mapper, self).__init__(**kwargs)
+    def __init__(self, maptypes=(str,int), **kwargs):
+        if maptypes and not hasattr(self, '__maptypes__'):
+            self.__maptypes__ = maptypes
+        object.__init__(self)
     
     def map(self, obj):
         return dict(map(
@@ -88,26 +93,24 @@ class Mapper(object):
 
 
 class Cartograph(object):
-    
     ''' Dumb delegate class that hands off
     the mapping functions based on arity_map's'
     defaultdict-edness. '''
     
     def __init__(self, **kwargs):
-        maptype = kwargs.pop('maptype', str)
-        if maptype and not hasattr(self, '__maptype__'):
-            self.__maptype__ = maptype
-        super(Cartograph, self).__init__(**kwargs)
+        maptypes = kwargs.pop('maptypes', (str,))
+        if maptypes and not hasattr(self, '__maptypes__'):
+            self.__maptypes__ = maptypes
+        object.__init__(self)
     
     def map(self, obj):
         for k, v in arity_map.items():
             pass
         
         return arity_map[type(obj).__name__]().map(obj)
-        #return arity_map[self.__maptype__]().map(obj)
     
     def remap(self, map_dict):
-        return attribute_remap[self.__maptype__]().remap(map_dict)
+        return attribute_remap[self.__maptypes__[-1]]().remap(map_dict)
 
 
 class Terroir(object):
@@ -130,14 +133,15 @@ class Terroir(object):
     def __set__(self, instance, value):
         instance[self.providing_arg] = value
     
-    def __call__(self, maptype):
-        #print "YO DOGG I'M CALLIN: %s" % maptype
-        return Cartograph(maptype=maptype)
+    def __call__(self, maptypes):
+        print ""
+        print "YO DOGG I'M CALLIN: %s" % maptypes
+        return Cartograph(maptypes=maptypes)
     
 
 class PickleMapper(Mapper):
     
-    __maptype__ = 'object'
+    __maptypes__ = ('object','dict','set')
     
     pickled = MappedAttr(
         lambda mapper, obj: mapper.brine.dumps(obj, mapper.protocol(mapper)),
@@ -149,8 +153,8 @@ class PickleMapper(Mapper):
         lambda mapper, number: int(number),
         default=1)
     
-    def __init__(self, maptype=object, **kwargs):
-        super(PickleMapper, self).__init__(maptype=maptype, **kwargs)
+    def __init__(self, maptypes=(object,), **kwargs):
+        super(PickleMapper, self).__init__(maptypes=maptypes, **kwargs)
         try:
             import cPickle
         except ImportError:
@@ -202,6 +206,6 @@ class ModelInstanceMapper(Mapper):
                 return ModlCls.objects.get(pk=pk)
         return None
 
-from pprint import pformat
-print "PUTTING ON ARITY"
-print pformat(arity_map, indent=8)
+#from pprint import pformat
+#print "PUTTING ON ARITY"
+#print pformat(arity_map, indent=8)
