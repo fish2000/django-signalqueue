@@ -139,7 +139,7 @@ CELERY_QUEUES = (
     Queue('yodogg',     routing_key='yodogg.#'),
 )
 
-CELERY_ALWAYS_EAGER = True
+#CELERY_ALWAYS_EAGER = True
 BROKER_URL = 'redis://localhost:8356/0'
 
 BROKER_HOST = "localhost"
@@ -153,7 +153,7 @@ REDIS_DB = 0
 REDIS_CONNECT_RETRY = True
 CELERY_SEND_EVENTS = True
 #CELERY_RESULT_BACKEND = 'redis'
-CELERY_RESULT_BACKEND = "redis://:localhost:8356/0"
+CELERY_RESULT_BACKEND = "redis://localhost:8356/0"
 CELERY_TASK_RESULT_EXPIRES = 10
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
