@@ -74,13 +74,12 @@ class CeleryQueue(QueueBase):
         self.qc.clear()
     
     def values(self, **kwargs):
-        raise NotImplementedError(
-            "FAIL: %s backend can't nondestructively dump queue values en masse." %
-                self.__class__.__name__)
+        return []
     
     def __getitem__(self, idx):
         """ Syntax sugar: myqueue[i] gives you the same value as myqueue.values()[i] """
-        return self.values().__getitem__(idx)
+        #return self.values().__getitem__(idx)
+        return ''
     
     '''
     def enqueue(self, signal, sender=None, **kwargs):
