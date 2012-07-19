@@ -1,7 +1,11 @@
+""" This file contains what is by far the worst code
+    that I have ever written.
+    
+    -fish (See below) """
 
-#from signalqueue.utils import ADict
+from signalqueue.utils import ADict
 from collections import defaultdict
-#import django.db.models
+import django.db.models
 
 arity_map = defaultdict(lambda: Mapper)
 attribute_remap = defaultdict(lambda: Mapper)
@@ -10,6 +14,15 @@ class MappingError(Exception):
     pass
 
 class MappedAttr(object):
+    
+    # this class must be initialized with a pair of
+    # serializer/deserializer functions, with a
+    # 'default=True' thrown in (as if somehow important
+    # for some reason) to designate one of the functions
+    # you originally pass it as a dynamic property --
+    # of an object that is ITSELF callable. That's
+    # ... it's not helpful to anytone, especially
+    # when it's the first of many classes like it.
     
     def __init__(self, map_func, remap_func, **kwargs):
         
@@ -28,6 +41,14 @@ class MappedAttr(object):
     
     default = property(_get_default, _set_default)
     
+    # for some reason this __call__ function has been
+    # rigged up to perform either mapping and UN-mapping;
+    # it looks like it looks at `kwargs` to make that
+    # decision... unbelievable. Who was this supposed
+    # to benefit? Also, it was completely undocumented,
+    # so I chould be totally wrong and it could be another
+    # wierd thing altogether. 
+    
     def __call__(self, mapper, **kwargs):
         obj = kwargs.pop('obj', None)
         remap = kwargs.pop('remap', False)
@@ -40,6 +61,19 @@ class MappedAttr(object):
 
 
 class ArityMapper(type):
+    
+    # this next one is a metaclass type that builds a master
+    # table of every single type, that like any of its subtypes
+    # anywhere were specfied as something that might get passed
+    # to a signal's send() function. This list is correlated with
+    # the function pair, for which the first class of the program
+    # was designed as an extravagantly bizarre double-dynamic-
+    # -property thing. Now if this class were, like, the only
+    # flummoxingly obtuse code-turd in the file, and not just one
+    # in a long parade it might actually be kind of neat. But
+    # ultimately `neat` decays into `illegible` and `frustrating`,
+    # which are actually demonstrably un-neat states that you
+    # ultimately have to clean up, so F that. Yeah.
     
     def __new__(cls, name, bases, attrs):
         outcls = super(ArityMapper, cls).__new__(cls, name, bases, attrs)
@@ -62,6 +96,22 @@ class ArityMapper(type):
 
 
 class Mapper(object):
+    
+    # This is the piece de resistance... map() and unmap()
+    # are defined in the most circuitously daft manner I
+    # can imagine... it's embarassing, really; it's like
+    # I tried to make it as aesthetically Perl-ish as I
+    # possibly could, with the subscript doodads and 
+    # lame-das (get it?) covered in list-operator herpes
+    # and indented with a feverish forthrightness.
+    # Of course, no documentation of any sort interfered
+    # with whatever the plan was here. And see if you can
+    # spot all the confusing and contradictory subjective
+    # syntactic and semantic 'features' -- it's like
+    # if Paul Allen puked, and that puke wrote a Sudoku
+    # puzzle corner, which you're filling out while your
+    # friends are at the bar because your girlfriend left
+    # with the cats. Erm.
     
     __maptypes__ = ('str','int')
     __metaclass__ = ArityMapper
@@ -97,6 +147,11 @@ class Cartograph(object):
     the mapping functions based on arity_map's'
     defaultdict-edness. '''
     
+    # That above comment there is an original part
+    # of the initial structure here, and so I am
+    # preserving it here in all its blubberingly
+    # retarded unhelpfullness. Yes.
+    
     def __init__(self, **kwargs):
         maptypes = kwargs.pop('maptypes', (str,))
         if maptypes and not hasattr(self, '__maptypes__'):
@@ -114,6 +169,16 @@ class Cartograph(object):
 
 
 class Terroir(object):
+    
+    # The comments before the __get__'s return
+    # are also among the original design decisions
+    # that made it in as decoration, like Steven
+    # Holl's watercolors, or the human appendix.
+    # Ditto the stray observation in the next
+    # object. I leave them here, for posterity.
+    # This one here is an object descriptor -- that's
+    # also callable, which the call returns a new 
+    # object of an unrelated type, of course.
     
     def __init__(self, providing_arg):
         self.providing_arg = providing_arg
@@ -169,6 +234,12 @@ class PickleMapper(Mapper):
 
 class ModelInstanceMapper(Mapper):
     
+    # And there we go - I am not sure what I was 
+    # 'just' trying to accompish when it got writ.
+    # Don't be like me -- write code that isn't
+    # retarded, for purposes other than being as
+    # nonsensically clever as possible. Indeed.
+    
     __maptypes__ = (
         'Model', 'ModelBase',
         'django.db.models.Model',
@@ -176,7 +247,9 @@ class ModelInstanceMapper(Mapper):
     
     modl_name = MappedAttr(
         lambda mapper, instance: instance.__class__.__name__.lower(),
-        lambda mapper, string: [m for m in mapper.cache.get_models() if m.__name__.lower() == str(string)].pop(),
+        lambda mapper, string: [m \
+            for m in mapper.cache.get_models() \
+            if m.__name__.lower() == str(string)].pop(),
         default='')
     
     app_label = MappedAttr(
@@ -206,6 +279,3 @@ class ModelInstanceMapper(Mapper):
                 return ModlCls.objects.get(pk=pk)
         return None
 
-#from pprint import pformat
-#print "PUTTING ON ARITY"
-#print pformat(arity_map, indent=8)
