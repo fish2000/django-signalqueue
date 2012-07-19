@@ -7,19 +7,11 @@ Created by FI$H 2000 on 2011-09-09.
 Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 
 """
-import hashlib
-from collections import defaultdict
 from django.dispatch import Signal
 from signalqueue import mappings
 from signalqueue.utils import logg
 from signalqueue import SQ_RUNMODES as runmodes
 
-class ClassNameDict(defaultdict):
-    def __missing__(self, key):
-        for k in self.keys:
-            if key in k:
-                return self.get(k, None)
-        return super(ClassDict, self).__missing__(key)
 
 class AsyncSignal(Signal):
     
