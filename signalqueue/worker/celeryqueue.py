@@ -2,6 +2,8 @@
 #from celery import Celery
 from celery import Task
 from celery.registry import tasks
+from kombu import Connection
+import kombu.exceptions
 
 import signalqueue
 from signalqueue.worker.base import QueueBase
@@ -10,6 +12,10 @@ from signalqueue.worker.base import QueueBase
 def taskmaster(sig):
     class CelerySignalTask(Task):
         name = "%s:%s" % (sig.regkey, sig.name)
+        store_errors_even_if_ignored = True
+        ignore_result = False
+        track_started = True
+        acks_late = True
         
         def __init__(self):
             self.signal_regkey = sig.regkey
@@ -37,36 +43,50 @@ class CeleryQueue(QueueBase):
     """
     def __init__(self, *args, **kwargs):
         super(CeleryQueue, self).__init__(*args, **kwargs)
+        
+        self.queue_name = self.queue_options.pop('queue_name', 'inactive')
+        self.serializer = self.queue_options.pop('serializer', 'json')
+        self.compression = self.queue_options.pop('compression', None)
+        self.kc = Connection(**self.queue_options)
+        self.kc.connect()
+        
+        self.qc = self.kc.SimpleQueue(name=self.queue_name)
     
     def ping(self):
-        return True
+        return self.kc.connected and not self.qc.channel.closed
     
     def push(self, value):
-        pass
+        self.qc.put(value,
+            compression=self.compression, serializer=None)
     
     def pop(self):
-        pass
+        virtual_message = self.qc.get(block=False, timeout=1)
+        return virtual_message.payload
     
     def count(self):
-        pass
+        try:
+            return self.qc.qsize()
+        except kombu.exceptions.StdChannelError:
+            self.qc.queue.declare()
+            return 0
     
     def clear(self):
-        pass
+        self.qc.clear()
     
     def values(self, **kwargs):
-        pass
+        raise NotImplementedError(
+            "FAIL: %s backend can't nondestructively dump queue values en masse." %
+                self.__class__.__name__)
     
-    ''' THE REAL DEAL '''
+    def __getitem__(self, idx):
+        """ Syntax sugar: myqueue[i] gives you the same value as myqueue.values()[i] """
+        return self.values().__getitem__(idx)
     
+    
+    '''
     def enqueue(self, signal, sender=None, **kwargs):
-        queue_json = super(CeleryQueue, self).enqueue(signal, sender, **kwargs)
-        return self.dequeue(queued_signal=queue_json)
-    
-    def retrieve(self):
-        pass
-    
-    def dequeue(self, queued_signal=None):
-        return super(CeleryQueue, self).dequeue(queued_signal=queued_signal)
+        self.dispatch(signal, sender=sender, **kwargs)
+    '''
     
     def dispatch(self, signal, sender=None, **kwargs):
         task_name = "%s:%s" % (signal.regkey, signal.name)

@@ -115,7 +115,7 @@ SQ_QUEUES = {
     'celery': {
         'ENGINE': 'signalqueue.worker.celeryqueue.CeleryQueue',
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
+        'OPTIONS': dict(queue_name='inactive', transport='redis'),
     },
 }
 
@@ -139,12 +139,12 @@ CELERY_QUEUES = (
 )
 
 CELERY_ALWAYS_EAGER = True
-BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL = 'redis://localhost:8356/0'
 
-BROKER_HOST = "192.168.1.33"
+BROKER_HOST = "localhost"
 BROKER_BACKEND = "redis"
-REDIS_PORT = 6379
-REDIS_HOST = "192.168.1.33"
+REDIS_PORT = 8356
+REDIS_HOST = "localhost"
 BROKER_USER = ""
 BROKER_PASSWORD = ""
 BROKER_VHOST = "0"
