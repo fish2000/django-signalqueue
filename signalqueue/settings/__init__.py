@@ -115,7 +115,8 @@ SQ_QUEUES = {
     'celery': {
         'ENGINE': 'signalqueue.worker.celeryqueue.CeleryQueue',
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(queue_name='inactive', transport='redis'),
+        'OPTIONS': dict(queue_name='inactive',
+            transport='redis', port=8356),
     },
 }
 
