@@ -110,12 +110,13 @@ SQ_QUEUES = {
     'db': {
         'ENGINE': 'signalqueue.worker.backends.DatabaseQueueProxy',
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
+        'OPTIONS': dict(app_label='signalqueue',
+            modl_name='EnqueuedSignal'),
     },
     'celery': {
         'ENGINE': 'signalqueue.worker.celeryqueue.CeleryQueue',
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(queue_name='inactive',
+        'OPTIONS': dict(celery_queue_name='inactive',
             transport='redis', port=8356),
     },
 }

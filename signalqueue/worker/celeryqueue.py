@@ -44,13 +44,13 @@ class CeleryQueue(QueueBase):
     def __init__(self, *args, **kwargs):
         super(CeleryQueue, self).__init__(*args, **kwargs)
         
-        self.queue_name = self.queue_options.pop('queue_name', 'inactive')
+        self.celery_queue_name = self.queue_options.pop('celery_queue_name', 'inactive')
         self.serializer = self.queue_options.pop('serializer', 'json')
         self.compression = self.queue_options.pop('compression', None)
         self.kc = Connection(**self.queue_options)
         self.kc.connect()
         
-        self.qc = self.kc.SimpleQueue(name=self.queue_name)
+        self.qc = self.kc.SimpleQueue(name=self.celery_queue_name)
     
     def ping(self):
         return self.kc.connected and not self.qc.channel.closed
