@@ -47,7 +47,6 @@ class Command(BaseCommand):
         from django.conf import settings
         from signalqueue import SQ_RUNMODES as runmodes
         from signalqueue.worker import backends
-        from signalqueue.models import log_exceptions
         import json as library_json
         
         queue_name = options.get('queue_name')
@@ -55,9 +54,13 @@ class Command(BaseCommand):
         queues = backends.ConnectionHandler(settings.SQ_QUEUES, runmodes['SQ_ASYNC_MGMT'])
         
         if not queue_name in queues:
-            self.echo("\n--- No definition found for a queue named '%s'" % (queue_name,), color=16)
-            self.echo("\n--- Your defined queues have these names: '%s'" % ("', '".join(queues.keys()),), color=16)
-            self.echo("\n>>> Exiting ...\n\n", color=16)
+            self.echo("\n--- No definition found for a queue named '%s'" % queue_name,
+                color=16)
+            self.echo("\n--- Your defined queues have these names: '%s'" % (
+                "', '".join(queues.keys()),),
+                color=16)
+            self.echo("\n>>> Exiting ...\n\n",
+                color=16)
             sys.exit(2)
         
         queue = queues[queue_name]
@@ -65,15 +68,23 @@ class Command(BaseCommand):
         try:
             queue_available = queue.ping()
         except:
-            self.echo("\n--- Can't ping the backend for %s named '%s'" % (queue.__class__.__name__, queue_name), color=16)
-            self.echo("\n--- Is the server running?", color=16)
-            self.echo("\n>>> Exiting ...\n\n", color=16)
+            self.echo("\n--- Can't ping the backend for %s named '%s'" % (
+                queue.__class__.__name__, queue_name),
+                color=16)
+            self.echo("\n--- Is the server running?",
+                color=16)
+            self.echo("\n>>> Exiting ...\n\n",
+                color=16)
             sys.exit(2)
         
         if not queue_available:
-            self.echo("\n--- Can't ping the backend for %s named '%s'" % (queue.__class__.__name__, queue_name), color=16)
-            self.echo("\n--- Is the server running?", color=16)
-            self.echo("\n>>> Exiting ...\n\n", color=16)
+            self.echo("\n--- Can't ping the backend for %s named '%s'" % (
+                queue.__class__.__name__, queue_name),
+                color=16)
+            self.echo("\n--- Is the server running?",
+                color=16)
+            self.echo("\n>>> Exiting ...\n\n",
+                color=16)
             sys.exit(2)
         
         queue_json = repr(queue)

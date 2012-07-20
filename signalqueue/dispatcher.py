@@ -27,9 +27,8 @@ class AsyncSignal(Signal):
         
         self.queue_name = queue_name
         if defaultmapper is None:
-            # this iffy here may strike you as backwards
             defaultmapper = self.defaultmapper
-            
+        
         self.mapping = ClassNameDict(lambda: defaultmapper)
         just_the_args = []
         
@@ -49,7 +48,6 @@ class AsyncSignal(Signal):
         return super(AsyncSignal, self).send(sender=sender, **named)
     
     def enqueue(self, sender, **named):
-        
         if self.runmode == runmodes['SQ_SYNC']:
             from signalqueue import SignalDispatchError
             raise SignalDispatchError("WTF: enqueue() called in SQ_SYNC mode")
@@ -83,7 +81,8 @@ class AsyncSignal(Signal):
             
             else:
                 # unknown runmode value -- fire normally
-                logg.info("*** send() called with an unknown runmode: '%s' -- firing sync signal." % self.runmode)
+                logg.info(
+                    "*** send() called with an unknown runmode: '%s' -- firing sync signal." % self.runmode)
                 return self.send_now(sender, **named)
         else:
             # fire normally

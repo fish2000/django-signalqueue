@@ -1,14 +1,3 @@
-**New in 0.3.5: LESS IS MORE.** _The exception logger has been removed completely. It was fun to write, sure, but it was a lot of
-code that wasn't ultimately related to django-signalqueue's core idea -- a remora on the streamlined body of the app;
-a maintenance headache waiting to erupt; an awkwardly unedited metaphoric run-on slapped onto a technical summary; &c.
-The new code will work fine if you're using a reasonably contemporary logging scheme, and it should behave properly even
-if you're not; [post any issues](https://github.com/fish2000/django-signalqueue/issues) either way._
-
-_If your apps were dependant any of the exception logger apparatus (models, views, the URL namespace, or the admin
-panel), refrain from updating for the moment -- the next push will contain support for logging exceptions thrown by
-queued signals with [Sentry](http://github.com/dcramer/sentry) as well as standard logging, I'll include a script for migrating
-exception log data to a Sentry project. If you are concerned about this change, [post your issues now](https://github.com/fish2000/django-signalqueue/issues)
-and I'll assuage your perdicament._
 
 django-signalqueue
 ==================
@@ -25,22 +14,22 @@ That's where django-signalqueue comes in. After you set it up, this is all you n
 
 
     # yourapp/signals.py
-    
+
     from signalqueue import dispatch
     from yourapp.logs import inefficient_log_update_function as log_update
-    
+
     form_submit = dispatch.AsyncSignal(
         providing_args=['instance'])            # define an asynchronous signal
-    
+
     form_submit.connect(log_update)             # doesn't have to be right here, as long
                                                 # as it runs when the app starts up
 
 Now you can call the function in a view without blocking everything:
 
     # yourapp/views.py
-    
+
     from yourapp import signals, models
-    
+
     def process_form(request):
         pk = save_user_form(request)            # your logic here
         obj = models.MyModl.objects.get(pk=pk)
@@ -73,11 +62,11 @@ Watch, I'll show you. First, install django-signalqueue:
 Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, while you're in your `settings.py`:
 
     # settings.py
-    
+
     INSTALLED_APPS = [
         'signalqueue', # ...
     ]
-    
+
     SQ_QUEUES = {
         'default': {                                                # a 'default' queue in SQ_QUEUES is required
             'ENGINE': 'signalqueue.worker.backends.RedisSetQueue',  # also required - the queue's driver
@@ -91,7 +80,7 @@ Add django-signalqueue to your `INSTALLED_APPS`, and the settings for a queue, w
 Besides all that, you just need a call to `signalqueue.autodiscover()` in your root URLConf:
 
     # urls.py
-    
+
     import signalqueue
     signalqueue.autodiscover()
 
@@ -105,9 +94,9 @@ Asynchronous signals are instances of `signalqueue.dispatch.AsyncSignal` that yo
 * *Coming soon:* `signalqueue.register()` *-- so you can put them anywhere else.*
 
 AsyncSignals are subclasses of the familiar `django.dispatch.Signal` class. As such, you define AsyncSignals much like the Django signals you know and love:
-    
+
     # yourapp/your_callbacks.py
-    
+
     # the callback definition can go anywhere
     def callback(sender, **kwargs):
         print "I, %s, have been hereby dispatched asynchronously by %s, thanks to django-signalqueue." % (
@@ -116,15 +105,15 @@ AsyncSignals are subclasses of the familiar `django.dispatch.Signal` class. As s
 
 
     # yourapp/signals.py
-    
+
     from signalqueue.dispatch import AsyncSignal
     from yourapp.your_callbacks import callback
-    
-    my_signal = AsyncSignal(providing_args=['instance'])                # the yuge. 
-    
+
+    my_signal = AsyncSignal(providing_args=['instance'])                # the yuge.
+
     # while you can put your callbacks anywhere, be sure they're connect()-ed to your signals in
     # yourapp/signals.py or another module that loads when the app starts (e.g. models.py)
-    
+
     my_signal.connect(callback)
 
 At the time of writing, arguments specified the providing_args list are assumed to be Django model instances.
@@ -135,16 +124,16 @@ django-signalqueue serializes model instances by looking at:
 * and the object's primary key value - `obj.pk`.
 
 You can define mappings for other object types (the curious can have a look in `signalqueue/mappings.py` for
-how that works) -- this part of the API is currently in flux as we're working towards the simplest, 
+how that works) -- this part of the API is currently in flux as we're working towards the simplest,
 programmer-user-friendliest, most-dependency-unshackled method of implementation for the type stuff.
 
 BUT SO ANYWAY. To start up a worker, use the management command `runqueueserver`:
-    
+
     $ python ./manage.py runqueueserver localhost:2345
     +++ django-signalqueue by Alexander Bohn -- http://objectsinspaceandtime.com/
-    
+
     Validating models...0 errors found
-    
+
     Django version 1.4 pre-alpha SVN-16857, using settings 'settings'
     Tornado worker for queue "default" binding to http://127.0.0.1:11231/
     Quit the server with CONTROL-C.

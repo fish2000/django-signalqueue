@@ -55,17 +55,13 @@ def uglification_cmd():
         also_look=uglification_node_lib_cmds())
 
 class build_coffeescript(Command):
-    
-    """
-    Distutils command for CoffeScript compilation.
+    """ Distutils command for CoffeScript compilation.
     Based largely on the fine build-system architecture
     of Jep. See also:
     
         https://github.com/mrj0/jep/blob/master/commands/java.py
     
-    ... for the orig.
-    
-    """
+    ... for the orig. """
     
     outdir = None
     user_options = [

@@ -55,7 +55,8 @@ class build_js(Command):
                 self.js_outdirs.get(package_name, 'js_out')))
     
     def run(self):
-        # Run all sub-commands (at least those that need to be run)
+        if not self.inplace:
+            self.run_command('build')
         for cmd_name in self.get_sub_commands():
             self.run_command(cmd_name)
         
@@ -71,7 +72,7 @@ class build_js(Command):
                         os.path.join(root, f), outdir)
     
     sub_commands = [
-        ('build', None),
         ('build_coffeescript', None),
         ('download_js_libs', None),
         ('uglify', None)]
+

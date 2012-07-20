@@ -32,7 +32,7 @@ MEDIA_URL = '/face/'
 STATIC_ROOT = os.path.join(adminroot, 'static', 'admin')[0]
 STATIC_URL = '/staticfiles/'
 ADMIN_MEDIA_PREFIX = '/admin-media/'
-ROOT_URLCONF = 'settings.urlconf'
+ROOT_URLCONF = 'signalqueue.settings.urlconf'
 
 TEMPLATE_DIRS = (
     os.path.join(approot, 'templates'),
@@ -76,11 +76,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django_nose',
+    'djcelery',
     'delegate',
     'signalqueue',
 )
 
-import logging
+#import logging
 LOGGING = dict(
     version=1,
     disable_existing_loggers=False,
@@ -109,14 +110,60 @@ SQ_QUEUES = {
     'db': {
         'ENGINE': 'signalqueue.worker.backends.DatabaseQueueProxy',
         'INTERVAL': 30, # 1/3 sec
-        'OPTIONS': dict(app_label='signalqueue', modl_name='EnqueuedSignal'),
+        'OPTIONS': dict(app_label='signalqueue',
+            modl_name='EnqueuedSignal'),
+    },
+    'celery': {
+        'ENGINE': 'signalqueue.worker.celeryqueue.CeleryQueue',
+        'INTERVAL': 30, # 1/3 sec
+        'OPTIONS': dict(celery_queue_name='inactive',
+            transport='redis', port=8356),
     },
 }
+
 
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+
+""" SUCK MY CELERY """
+from kombu import Queue
+
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_DEFAULT_ROUTING_KEY = 'default'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+
+CELERY_QUEUES = (
+    Queue('default',    routing_key='default.#'),
+    Queue('yodogg',     routing_key='yodogg.#'),
+)
+
+#CELERY_ALWAYS_EAGER = True
+BROKER_URL = 'redis://localhost:8356/0'
+
+BROKER_HOST = "localhost"
+BROKER_BACKEND = "redis"
+REDIS_PORT = 8356
+REDIS_HOST = "localhost"
+BROKER_USER = ""
+BROKER_PASSWORD = ""
+BROKER_VHOST = "0"
+REDIS_DB = 0
+REDIS_CONNECT_RETRY = True
+CELERY_SEND_EVENTS = True
+#CELERY_RESULT_BACKEND = 'redis'
+CELERY_RESULT_BACKEND = "redis://localhost:8356/0"
+CELERY_TASK_RESULT_EXPIRES = 10
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+import djcelery
+djcelery.setup_loader()
+
+
+
+
 
 # package path-extension snippet.
 from pkgutil import extend_path

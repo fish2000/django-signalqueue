@@ -275,11 +275,4 @@ class MapperToPedigreeIndex(defaultdict):
         if mapper is not None:
             self.update({ handcock: mapper, })
         return
-    
-
-
-
-
-
-
 
