@@ -1,32 +1,13 @@
 
 from __future__ import print_function
-
 from collections import defaultdict
-import sys
-#import types
-
 
 def who_calls():
     try:
+        import sys
         return sys._getframe(1).f_code.co_name
     except (ValueError, AttributeError):
         return "I was never given a name."
-
-def _resolve_name(name, package, level):
-    """ Return the absolute name of the module to be imported.
-        This function is from the Django source -- specifically,
-        `django.utils.importlib._resolve_name()`;
-        """
-    if not hasattr(package, 'rindex'):
-        raise ValueError("'package' not set to a string")
-    dot = len(package)
-    for x in xrange(level, 1, -1):
-        try:
-            dot = package.rindex('.', 0, dot)
-        except ValueError:
-            raise ValueError("attempted relative import beyond top-level "
-                              "package")
-    return "%s.%s" % (package[:dot], name)
 
 
 class Mapper(object):
