@@ -261,19 +261,19 @@ class MapperToPedigreeIndex(defaultdict):
             with those you'll be flinging down the signal's chute
             as you can find. """
         try:
-            sig = signature(betyped)
+            handcock = signature(betyped)
         except AttributeError:
             print('*** signatures of object instances are currently supported --')
             print('*** but not class types or other higher-order structures.')
             return
         
-        if len(sig) < 3:
-            print('*** instance signature "%s" is too short.' % sig)
+        if len(handcock) < 3:
+            print('*** instance signature "%s" is too short.' % handcock)
             return
         
         mapper, _ = self.demapper_for_value(betyped)
         if mapper is not None:
-            self.update({ sig: mapper, })
+            self.update({ handcock: mapper, })
         return
     
 
