@@ -190,10 +190,6 @@ class QueueBase(object):
             # to a callback function at [0] and that callback's return at [1]
             # ... this is per what the Django signal send() implementation returns;
             # AsyncSignal.send_now() returns whatever it gets from Signal.send().
-            #result_list = thesignal.send_now(sender=sender, **kwargs)
-            from pprint import pformat
-            print "*** KAY DUBYA:"
-            print "*** %s" % pformat(kwargs)
             result_list = self.dispatch(thesignal, sender=sender, **kwargs)
             return (queued_signal, result_list)
         

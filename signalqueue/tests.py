@@ -134,7 +134,7 @@ class PickleMapperTests(TestCase):
             remapped = self.mapper.remap(mapped)
             self.assertEqual(test_instance, remapped)
         
-    def _test_signal_with_pickle_mapped_argument(self):
+    def test_signal_with_pickle_mapped_argument(self):
         with self.settings(**self.dqsettings):
             import signalqueue
             signalqueue.autodiscover()
