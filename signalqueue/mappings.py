@@ -378,7 +378,7 @@ class MapperToPedigreeIndex(defaultdict):
                     return (TestCls, value)
             except Exception:
                 continue
-        return (None, value)
+        return (self[None], value)
     
     def remapper_for_serial(self, serial):
         ''' Generally the sequential order is less important

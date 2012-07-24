@@ -110,8 +110,8 @@ def autodiscover():
             
             for name, thing in mod.__dict__.items():
                 if isinstance(thing, AsyncSignal):
-                    #logg.debug("*** Registering %s: %s.%s ..." % (
-                    #    thing.__class__.__name__, modstring, name))
+                    logg.debug("*** Registering %s: %s.%s ..." % (
+                        thing.__class__.__name__, modstring, name))
                     register(thing, name, modstring)
         
         if hasattr(settings, "SQ_ADDITIONAL_SIGNALS"):
@@ -135,8 +135,8 @@ def autodiscover():
                     
                     for name, thing in addendum.__dict__.items():
                         if isinstance(thing, AsyncSignal):
-                            #logg.debug("*** Registering %s: %s.%s ..." % (
-                            #    thing.__class__.__name__, addendumstring, name))
+                            logg.debug("*** Registering %s: %s.%s ..." % (
+                                thing.__class__.__name__, addendumstring, name))
                             register(thing, name, addendumstring)
     
     finally:
