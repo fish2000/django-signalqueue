@@ -32,8 +32,6 @@ class @SQStatus
         if @interval_id
             window.clearInterval @interval_id
 
-#$.fn.extend
-
     sqstatus: (cmd, args...) ->
         command = "#{ cmd }".toLowerCase()
         return @each () ->
