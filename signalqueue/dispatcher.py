@@ -21,7 +21,7 @@ class AsyncSignal(Signal):
     
     queue_name = None
     mapping = None
-    defaultmapper = mappings.Cartograph # type-map delegate.
+    defaultmapper = mappings.PickleMapper # the most brains-free of them all, currently
     
     def __init__(self, providing_args=None, defaultmapper=None, queue_name='default'):
         
@@ -29,7 +29,7 @@ class AsyncSignal(Signal):
         if defaultmapper is None:
             defaultmapper = self.defaultmapper
         
-        self.mapping = ClassNameDict(lambda: defaultmapper)
+        self.mapping = mappings.MapperToPedigreeIndex()
         just_the_args = []
         
         if isinstance(providing_args, dict):
@@ -39,8 +39,6 @@ class AsyncSignal(Signal):
         
         else: # list, iterable, whatev.
             just_the_args.extend(providing_args)
-            for providing_arg in providing_args:
-                self.mapping.update({ providing_arg: mappings.Terroir(providing_arg), })
         
         super(AsyncSignal, self).__init__(providing_args=just_the_args)
     

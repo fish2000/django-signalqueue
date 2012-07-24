@@ -109,7 +109,7 @@ class QueueBase(object):
                             modl_name=sender._meta.object_name.lower()) })
                 
                 for k, v in kwargs.items():
-                    queue_json.update({ k: signal.mapping[k](maptypes=(v.__class__,)).map(v), })
+                    queue_json.update({ k: signal.mapping.demap(v), })
                 
                 #print queue_json
                 self.push(json.dumps(queue_json))
@@ -144,7 +144,7 @@ class QueueBase(object):
             queued_signal = self.retrieve()
         
         if queued_signal is not None:
-            logg.info("Dequeueing signal: %s" % queued_signal.items())
+            logg.info("Dequeueing signal: %s" % queued_signal)
         else:
             return (None, None)
         
@@ -183,7 +183,8 @@ class QueueBase(object):
         
         if thesignal is not None:
             for k, v in queued_signal.items():
-                kwargs.update({ k: thesignal.mapping[k](maptypes=(k,)).remap(v), })
+                if k not in ('signal', 'sender', 'enqueue_runmode', 'dequeue_runmode'):
+                    kwargs.update({ k: thesignal.mapping.remap(v), })
             
             # result_list is a list of tuples, each containing a reference
             # to a callback function at [0] and that callback's return at [1]
