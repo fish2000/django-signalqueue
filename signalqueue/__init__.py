@@ -21,6 +21,7 @@ __path__ = extend_path(__path__, __name__)
 
 import threading
 from collections import defaultdict
+from signalqueue.dispatcher import AsyncSignal
 
 SQ_RUNMODES = {
     'SQ_SYNC':                      1, # synchronous operation -- fire signals concurrently with save() and cache pragma
@@ -45,7 +46,6 @@ def register(signal, name, regkey=None):
             raise SignalRegistryError("A regkey must be supplied to register a signal without a  __module__ attribute: '%s'" % (
                 signal,))
     
-    from signalqueue.dispatcher import AsyncSignal
     if not isinstance(signal, AsyncSignal):
         raise SignalRegistryError("Can only register AsyncSignal or descendant types, not %s instance '%s'" % (
             signal.__class__.__name__, signal))

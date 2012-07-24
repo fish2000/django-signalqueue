@@ -2,7 +2,6 @@
 import signalqueue
 from signalqueue.utils import json, logg
 from signalqueue import SQ_RUNMODES as runmodes
-from django.db.models.loading import cache
 
 class QueueBase(object):
     """
@@ -128,8 +127,7 @@ class QueueBase(object):
         return None
     
     def dequeue(self, queued_signal=None):
-        """
-        Deserialize and execute a signal, either from the queue or as per the contents
+        """ Deserialize and execute a signal, either from the queue or as per the contents
         of the queued_signal kwarg.
         
         If queued_signal contains a serialized signal call datastructure,* dequeue()
@@ -138,6 +136,8 @@ class QueueBase(object):
         signal, which it will execute if one is returned successfully.
         
         * See the QueueBase docstring for an example. """
+        
+        from django.db.models.loading import cache
         
         if queued_signal is None:
             queued_signal = self.retrieve()

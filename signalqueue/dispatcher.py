@@ -8,10 +8,6 @@ Copyright (c) 2011 Objects In Space And Time, LLC. All rights reserved.
 
 """
 from django.dispatch import Signal
-from signalqueue import mappings
-from signalqueue.utils import logg
-from signalqueue import SQ_RUNMODES as runmodes
-
 
 class AsyncSignal(Signal):
     
@@ -23,6 +19,7 @@ class AsyncSignal(Signal):
     mapping = None
     
     def __init__(self, providing_args=None, queue_name='default'):
+        from signalqueue import mappings
         
         self.queue_name = queue_name
         self.mapping = mappings.MapperToPedigreeIndex()
@@ -42,6 +39,7 @@ class AsyncSignal(Signal):
         return super(AsyncSignal, self).send(sender=sender, **named)
     
     def enqueue(self, sender, **named):
+        from signalqueue import SQ_RUNMODES as runmodes
         if self.runmode == runmodes['SQ_SYNC']:
             from signalqueue import SignalDispatchError
             raise SignalDispatchError("WTF: enqueue() called in SQ_SYNC mode")
@@ -50,7 +48,10 @@ class AsyncSignal(Signal):
         return queues[self.queue_name].enqueue(self, sender=sender, **named)
     
     def send(self, sender, **named):
+        from signalqueue import SQ_RUNMODES as runmodes
         from signalqueue.worker import queues
+        from signalqueue.utils import logg
+        
         self.runmode = int(named.pop('runmode', queues._runmode))
         
         #logg.debug("--- send() called, runmode = %s" % self.runmode)
