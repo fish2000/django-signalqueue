@@ -3,7 +3,7 @@ from django.db import models
 from datetime import datetime
 from delegate import DelegateManager, delegate
 from signalqueue.worker.base import QueueBase
-from signalqueue.utils import logg
+#from signalqueue.utils import logg
 
 
 class SignalQuerySet(models.query.QuerySet):
@@ -30,7 +30,7 @@ class SignalQuerySet(models.query.QuerySet):
     
     @delegate
     def push(self, value):
-        logg.debug("push() value: %s" % value)
+        #logg.debug("push() value: %s" % value)
         self.get_or_create(queue_name=self.queue_name, value=value, enqueued=True)
     
     @delegate
@@ -75,8 +75,9 @@ class SignalManager(DelegateManager, QueueBase):
     __queryset__ = SignalQuerySet
     
     def __init__(self, *args, **kwargs):
-        DelegateManager.__init__(self, *args, **kwargs)
+        self.runmode = kwargs.get('runmode', 4)
         QueueBase.__init__(self, *args, **kwargs)
+        DelegateManager.__init__(self, *args, **kwargs)
     
     def count(self, enqueued=True):
         return self.queued(enqueued=enqueued).count()

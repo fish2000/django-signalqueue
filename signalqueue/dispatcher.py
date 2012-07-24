@@ -21,14 +21,10 @@ class AsyncSignal(Signal):
     
     queue_name = None
     mapping = None
-    defaultmapper = mappings.PickleMapper # the most brains-free of them all, currently
     
-    def __init__(self, providing_args=None, defaultmapper=None, queue_name='default'):
+    def __init__(self, providing_args=None, queue_name='default'):
         
         self.queue_name = queue_name
-        if defaultmapper is None:
-            defaultmapper = self.defaultmapper
-        
         self.mapping = mappings.MapperToPedigreeIndex()
         just_the_args = []
         
@@ -57,7 +53,7 @@ class AsyncSignal(Signal):
         from signalqueue.worker import queues
         self.runmode = int(named.pop('runmode', queues._runmode))
         
-        logg.debug("--- send() called, runmode = %s" % self.runmode)
+        #logg.debug("--- send() called, runmode = %s" % self.runmode)
         
         if self.runmode:
             

@@ -117,7 +117,7 @@ def autodiscover():
         if hasattr(settings, "SQ_ADDITIONAL_SIGNALS"):
             if isinstance(settings.SQ_ADDITIONAL_SIGNALS, (list, tuple)):
                 
-                logg.debug("*** Registering signals from %s modules named in SQ_ADDITIONAL_SIGNALS ..." % (
+                logg.debug("*** Registering signals from %s SQ_ADDITIONAL_SIGNALS modules ..." % (
                     len(settings.SQ_ADDITIONAL_SIGNALS),))
                 
                 for addendumstring in settings.SQ_ADDITIONAL_SIGNALS:
@@ -128,6 +128,7 @@ def autodiscover():
                         # TODO: log this in a reliably sane manner
                         logg.warning("--- SQ_ADDITIONAL_SIGNALS module '%s' import failure: %s" % (
                             addendumstring, err))
+                        continue
                     
                     logg.debug("*** Searching for signals in '%s' ..." % (
                         (addendumstring,)))

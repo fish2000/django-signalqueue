@@ -1,5 +1,4 @@
 
-#from celery import Celery
 from celery import Task
 from celery.registry import tasks
 from kombu import Connection
@@ -34,13 +33,11 @@ def taskmaster(sig):
     return CelerySignalTask
 
 class CeleryQueue(QueueBase):
-    """
-    At some point this will adapt `django-signalqueue` for use
-    with popular `(dj)celery` platform (but not today).
+    """ At some point this will adapt `django-signalqueue` for use
+        with popular `(dj)celery` platform (but not today).
+        
+        When this class is done, I will discuss it here. """
     
-    When this class is done, I will discuss it here.
-    
-    """
     def __init__(self, *args, **kwargs):
         super(CeleryQueue, self).__init__(*args, **kwargs)
         
@@ -77,14 +74,8 @@ class CeleryQueue(QueueBase):
         return []
     
     def __getitem__(self, idx):
-        """ Syntax sugar: myqueue[i] gives you the same value as myqueue.values()[i] """
         #return self.values().__getitem__(idx)
         return ''
-    
-    '''
-    def enqueue(self, signal, sender=None, **kwargs):
-        self.dispatch(signal, sender=sender, **kwargs)
-    '''
     
     def dispatch(self, signal, sender=None, **kwargs):
         task_name = "%s:%s" % (signal.regkey, signal.name)

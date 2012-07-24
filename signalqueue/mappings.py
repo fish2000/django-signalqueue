@@ -350,8 +350,8 @@ class MapperToPedigreeIndex(defaultdict):
         # of thing in here literally, btdubs.
         # etc, etc... it's a heiarchy.
     }
-    pedigrees.update(
-        dict([(signature(T()), LiteralValueMapper) \
+    pedigrees.update(dict(
+        [(signature(T()), LiteralValueMapper) \
             for T in LiteralValueMapper.DEMAP_TYPES]))
     
     def _demap_tests(self):

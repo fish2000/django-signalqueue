@@ -38,6 +38,10 @@ signal_with_object_argument_db = dispatcher.AsyncSignal(
     providing_args=['instance','obj'],
     queue_name='db',
 )
+signal_with_object_argument_celery = dispatcher.AsyncSignal(
+    providing_args=['instance','obj'],
+    queue_name='celery',
+)
 
 class TestObject(object):
     def __init__(self, v):
@@ -66,6 +70,8 @@ class TestModel(models.Model):
 class TestException(Exception):
     def __eq__(self, other):
         return type(self) == type(other)
+    def __repr__(self):
+        return "<TestException (%s)>" % self.__hash__()
 
 def callback(sender, **kwargs):
     msg = "********** CALLBACK: %s" % kwargs.items()
@@ -170,9 +176,9 @@ class PickleMapperTests(TestCase):
                         signal_with_object_argument.queue_name, queue.count(), queue.runmode)
                     sigstruct_dequeue, result_list = queue.dequeue()
                     
-                    from pprint import pformat
-                    print pformat(sigstruct_send, indent=4)
-                    print pformat(sigstruct_dequeue, indent=4)
+                    #from pprint import pformat
+                    #print pformat(sigstruct_send, indent=4)
+                    #print pformat(sigstruct_dequeue, indent=4)
                     
                     self.assertEqual(sigstruct_send, sigstruct_dequeue)
                     

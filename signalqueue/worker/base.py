@@ -138,13 +138,13 @@ class QueueBase(object):
         signal, which it will execute if one is returned successfully.
         
         * See the QueueBase docstring for an example. """
-        #from signalqueue import mappings
         
         if queued_signal is None:
             queued_signal = self.retrieve()
         
         if queued_signal is not None:
-            logg.info("Dequeueing signal: %s" % queued_signal)
+            #logg.debug("Dequeueing signal: %s" % queued_signal)
+            pass
         else:
             return (None, None)
         
