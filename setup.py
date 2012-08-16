@@ -21,7 +21,7 @@ from distributors.coffeescript import uglify
 from distributors import build_js
 
 __author__ = 'Alexander Bohn'
-__version__ = (0, 4, 5)
+__version__ = (0, 4, 6)
 
 import os
 
@@ -88,6 +88,9 @@ setup(
         'signalqueue.settings',
         'signalqueue.templatetags',
         'signalqueue.worker'],
+    
+    setup_requires=[
+        'django'],
     
     install_requires=[
         'django-delegate>=0.2.2',
