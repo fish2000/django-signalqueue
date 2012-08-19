@@ -99,6 +99,8 @@ class EnqueuedSignal(models.Model):
         verbose_name_plural = "Enqueued Signals"
     
     objects = SignalManager()
+    keys = set(
+        ('signal', 'sender', 'enqueue_runmode'))
     
     createdate = models.DateTimeField("Created on",
         default=datetime.now,
@@ -123,12 +125,18 @@ class EnqueuedSignal(models.Model):
         blank=True,
         null=True)
     
-    @property
-    def struct(self):
+    def _get_struct(self):
         if self.value:
             from signalqueue.utils import json
             return json.loads(self.value)
         return {}
+    
+    def _set_struct(self, newstruct):
+        if self.keys.issuperset(newstruct.keys()):
+            from signalqueue.utils import json
+            self.value = json.dumps(newstruct)
+    
+    struct = property(_get_struct, _set_struct)
     
     def __repr__(self):
         if self.value:
@@ -141,5 +149,7 @@ class EnqueuedSignal(models.Model):
     def __unicode__(self):
         if self.value:
             import json as library_json
-            return u"%s" % library_json.dumps(library_json.loads(repr(self)), indent=4)
+            return u"%s" % library_json.dumps(
+                library_json.loads(repr(self)),
+                indent=4)
         return u"{'instance':null}"
