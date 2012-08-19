@@ -127,9 +127,10 @@ class EnqueuedSignal(models.Model):
     
     def _get_struct(self):
         if self.value:
-            from signalqueue.utils import json
-            return json.loads(self.value)
-        return {}
+            from signalqueue.utils import json, ADict
+            return ADict(
+                json.loads(self.value))
+        return ADict()
     
     def _set_struct(self, newstruct):
         if self.keys.issuperset(newstruct.keys()):

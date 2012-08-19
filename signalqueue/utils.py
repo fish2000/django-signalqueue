@@ -90,6 +90,9 @@ class ADict(dict):
     
     def __setattr__(self, name, value):
         self[name] = value
+    
+    def __delattr__(self, name):
+        del self[name]
 
 
 # To consistently use the fastest serializer possible, use:
