@@ -3,7 +3,7 @@
 """
 poolqueue.py
 
-Internal 'pooling' of KewGardens signal-dispatcher interface instances
+Internal 'pooling' of signal-dispatcher instances
 that the tornado worker can safely deal with.
 
 Created by FI$H 2000 on 2011-07-05.
@@ -21,7 +21,7 @@ class PoolQueue(object):
         signalqueue.autodiscover()
         
         from django.conf import settings as django_settings
-        from signalqueue.utils import logg, log_exceptions
+        from signalqueue.utils import logg
         from signalqueue.worker import backends
         from signalqueue import SQ_RUNMODES as runmodes
         
@@ -36,6 +36,7 @@ class PoolQueue(object):
         self.queues = backends.ConnectionHandler(django_settings.SQ_QUEUES, self.runmode)
         self.signalqueue = self.queues[self.queue_name]
         self.signalqueue.runmode = self.runmode
+        self.logg = logg
         
         # use interval from the config if it exists
         interval = kwargs.get('interval', self.signalqueue.queue_interval)
@@ -73,29 +74,29 @@ class PoolQueue(object):
         try:
             self.signalqueue.dequeue()
         except Exception, err:
-            logg.info("--- Exception during dequeue: %s" % err)
+            self.logg.info("--- Exception during dequeue: %s" % err)
     
     def cueball_scratch(self):
         try:
             self.signalqueue.dequeue()
         except Exception, err:
-            logg.info("--- Exception during dequeue: %s" % err)
+            self.logg.info("--- Exception during dequeue: %s" % err)
         if self.signalqueue.count() < 1:
-            logg.info("Queue exhausted, exiting...")
+            self.logg.info("Queue exhausted, exiting...")
             raise KeyboardInterrupt
     
     """ Logging cues (using the Raven client for Sentry) """
     
     def ray_rice(self):
+        from signalqueue.utils import log_exceptions
         with log_exceptions():
             self.signalqueue.dequeue()
     
     def joe_flacco(self):
-        
+        from signalqueue.utils import log_exceptions
         with log_exceptions():
             self.signalqueue.dequeue()
-        
         if self.signalqueue.count() < 1:
-            logg.info("Queue exhausted, exiting...")
+            self.logg.info("Queue exhausted, exiting...")
             raise KeyboardInterrupt
     
