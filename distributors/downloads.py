@@ -1,11 +1,21 @@
 
 from __future__ import print_function
-
-from django.conf import settings
-if not settings.configured:
-    settings.configure(**dict())
-
 import sys
+
+try:
+    from django.conf import settings
+except ImportError:
+    print("build_js can't run without Django",
+        file=sys.stderr)
+else:
+    if not settings.configured:
+        print("build_js running with default Django settings",
+            file=sys.stdout)
+        settings.configure(**dict())
+    else:
+        print("build_js running with settings from an existing Django config",
+            file=sys.stdout)
+
 import mimetypes
 from os.path import dirname
 from urlobject import URLObject as URL
@@ -133,7 +143,7 @@ class URLRetrievalStorage(FileSystemStorage):
         
         if ff.size < URLRetrievalStorage.MINIMUM_BYTE_SIZE:
             raise ValueError(
-                "*** Bailing -- ownloaded data is less than URLRetrievalStorage.MINIMUM_BYTE_SIZE (%sb)" %
+                "*** Bailing -- download's size smaller than MINIMUM_BYTE_SIZE: %sb" %
                     URLRequestFile.MINIMUM_BYTE_SIZE)
         
         self.save(fn, ff)
