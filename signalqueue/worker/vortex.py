@@ -19,7 +19,7 @@ import tornado.websocket
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.options import define, _LogFormatter
-from signalqueue.utils import json, logg
+from signalqueue.utils import json
 from signalqueue.worker import queues
 from signalqueue.worker.poolqueue import PoolQueue
 
@@ -40,7 +40,6 @@ class Application(tornado.web.Application):
         ]
         
         settings = dict(
-            template_path=django_settings.TEMPLATE_DIRS[0],
             static_path=django_settings.MEDIA_ROOT,
             xsrf_cookies=True,
             cookie_secret=hashlib.sha1(django_settings.SECRET_KEY).hexdigest(),
