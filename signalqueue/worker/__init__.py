@@ -4,6 +4,7 @@ from pkgutil import extend_path
 __path__ = extend_path(__path__, __name__)
 
 import os
+from django.utils.functional import SimpleLazyObject
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
@@ -42,6 +43,5 @@ else:
 
 
 queues = backends.ConnectionHandler(settings.SQ_QUEUES, runmode)
-queue = queues['default']
-
+queue = SimpleLazyObject(lambda: queues.get('default'))
 

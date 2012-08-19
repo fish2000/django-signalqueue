@@ -291,6 +291,14 @@ class ConnectionHandler(object):
                 "Queue backend '%s' was instantiated with runmode %s but the ConnectionHandler is in runmode %s" % (val.runmode, self._runmode))
         self._connections[key] = val
     
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except:
+            if default is None:
+                raise
+            return default
+    
     def all(self):
         return [self[alias] for alias in self.connections_info]
     
