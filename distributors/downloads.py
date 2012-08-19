@@ -6,7 +6,6 @@ if not settings.configured:
     settings.configure(**dict())
 
 import sys
-import requests
 import mimetypes
 from os.path import dirname
 from urlobject import URLObject as URL
@@ -25,6 +24,7 @@ class URLRequestFile(SimpleUploadedFile):
         The data from the URL is immediately fetched when one constructs
         a new URLRequestFile object -- exceptions are thrown in
         the event of failure. """
+        import requests
         
         self._source_url = url
         
@@ -94,6 +94,8 @@ class URLRetrievalStorage(FileSystemStorage):
         an exception before overwriting existing data.
         Any other keyword args are passed wholesale to URLRequestFile's
         constructor when the new file is saved locally. """
+        import requests
+        import socket
         
         url = URL(urlstr)
         clobber = bool(kwargs.pop('clobber', True))
@@ -104,7 +106,11 @@ class URLRetrievalStorage(FileSystemStorage):
             requests.exceptions.TooManyRedirects,
             requests.exceptions.ConnectionError,
             requests.exceptions.SSLError,
-            requests.exceptions.Timeout), err:
+            requests.exceptions.Timeout,
+            socket.gaierror,
+            socket.herror,
+            socket.sslerror,
+            socket.timeout), err:
             print("*** HTTP HEAD failed for %s" % url,
                 file=sys.stderr)
             print("--- (%s)" % err,
@@ -120,7 +126,6 @@ class URLRetrievalStorage(FileSystemStorage):
         ext = self._extension(ct)
         fn = "%s%s" % (url.hash, ext)
         ff = URLRequestFile(url, fn, **kwargs)
-        #print('ext/ct',ext,ct)
         
         if self.exists(fn) and not clobber:
             raise IOError(

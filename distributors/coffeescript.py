@@ -7,8 +7,6 @@ from os import environ, makedirs
 from os.path import isdir, join, exists, abspath, basename
 
 from xwhich import xwhich
-from downloads import URLRetrievalStorage
-
 
 JAVASCRIPT_LIB_DLCACHE_DIR = join('build', 'starbucks')
 COFFEESCRIPT_BUILD_OUT_DIR = join('build', 'coffeecup')
@@ -32,6 +30,7 @@ def uglification_build_out_dir():
     return UGLIFICATION_BUILD_OUT_DIR
 
 def js_download_storage():
+    from downloads import URLRetrievalStorage
     return URLRetrievalStorage(
         location=javascript_lib_dlcache_dir(),
         base_url="file://%s" % abspath(javascript_lib_dlcache_dir()))

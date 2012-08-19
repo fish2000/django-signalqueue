@@ -127,38 +127,43 @@ SQ_WORKER_PORT = 11201
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
+try:
+    from kombu import Queue
+except ImportError:
+    pass
+else:
+    CELERY_DEFAULT_QUEUE = 'default'
+    CELERY_DEFAULT_ROUTING_KEY = 'default'
+    CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 
-""" SUCK MY CELERY """
-from kombu import Queue
+    CELERY_QUEUES = (
+        Queue('default',    routing_key='default.#'),
+        Queue('yodogg',     routing_key='yodogg.#'),
+    )
 
-CELERY_DEFAULT_QUEUE = 'default'
-CELERY_DEFAULT_ROUTING_KEY = 'default'
-CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
+    CELERY_ALWAYS_EAGER = True
+    BROKER_URL = 'redis://localhost:8356/0'
 
-CELERY_QUEUES = (
-    Queue('default',    routing_key='default.#'),
-    Queue('yodogg',     routing_key='yodogg.#'),
-)
+    BROKER_HOST = "localhost"
+    BROKER_BACKEND = "redis"
+    REDIS_PORT = 8356
+    REDIS_HOST = "localhost"
+    BROKER_USER = ""
+    BROKER_PASSWORD = ""
+    BROKER_VHOST = "0"
+    REDIS_DB = 0
+    REDIS_CONNECT_RETRY = True
+    CELERY_SEND_EVENTS = True
+    CELERY_RESULT_BACKEND = "redis://localhost:8356/0"
+    CELERY_TASK_RESULT_EXPIRES = 10
+    CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
-CELERY_ALWAYS_EAGER = True
-BROKER_URL = 'redis://localhost:8356/0'
-
-BROKER_HOST = "localhost"
-BROKER_BACKEND = "redis"
-REDIS_PORT = 8356
-REDIS_HOST = "localhost"
-BROKER_USER = ""
-BROKER_PASSWORD = ""
-BROKER_VHOST = "0"
-REDIS_DB = 0
-REDIS_CONNECT_RETRY = True
-CELERY_SEND_EVENTS = True
-CELERY_RESULT_BACKEND = "redis://localhost:8356/0"
-CELERY_TASK_RESULT_EXPIRES = 10
-CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
-
-import djcelery
-djcelery.setup_loader()
+try:
+    import djcelery
+except ImportError:
+    pass
+else:
+    djcelery.setup_loader()
 
 # package path-extension snippet.
 from pkgutil import extend_path

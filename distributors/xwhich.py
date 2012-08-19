@@ -2,7 +2,6 @@
 from os import environ, access, pathsep, X_OK
 from os.path import exists, isdir, split, join
 
-
 is_exe = lambda fpth: exists(fpth) and access(fpth, X_OK)
 
 def xwhich(program, also_look=[]):

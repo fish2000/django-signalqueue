@@ -90,9 +90,10 @@ setup(
         'signalqueue.worker'],
     
     setup_requires=[
-        'django'],
+        'django>=1.4'],
     
     install_requires=[
+        'django',
         'django-delegate>=0.2.2',
         'tornado', 'tornadio2',
         'redis', 'requests',
