@@ -21,7 +21,7 @@ from distributors.coffeescript import uglify
 from distributors import build_js
 
 __author__ = 'Alexander Bohn'
-__version__ = (0, 4, 8)
+__version__ = (0, 5, 0)
 
 import os
 
