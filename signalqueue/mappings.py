@@ -234,12 +234,10 @@ class ModelValueMapper(Mapper):
         
         This mapper uses the analagous corrolary to its
         sibling `ModelIDMapper` in that it 'passes by value'.
-        The model instances' is actually ignored, and the 
+        The model instances' ID is actually ignored, and the 
         object __dict__ is filtered and then JSONated, using
         whatever `django.core.serializers.serialize` employs.
         
-        When remapping the intermediates into Django model
-        instances,
         """
     
     @classmethod
