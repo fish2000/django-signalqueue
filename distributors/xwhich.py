@@ -34,6 +34,7 @@ if __name__ == '__main__':
         'wget',
         'curl',
         'coffee',
+        'lessc',
         'yo-dogg',
     )
     
