@@ -209,7 +209,10 @@ class ModelIDMapper(Mapper):
             intermediate.get('modl_name'))
         if ModCls:
             if pk is not -1:
-                return ModCls.objects.get(pk=pk)
+                try:
+                    return ModCls.objects.get(pk=pk)
+                except ModCls.DoesNotExist:
+                    return None
         return None
     
     @classmethod
