@@ -21,6 +21,8 @@ class Command(BaseCommand):
     can_import_settings = True
     
     def handle(self, *args, **options):
+        import signalqueue
+        signalqueue.autodiscover()
         echo_banner()
         try:
             return self.flush_signal_queue(args, options)
