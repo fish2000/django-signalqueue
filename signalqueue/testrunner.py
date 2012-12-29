@@ -23,7 +23,10 @@ def main():
     import subprocess, os
     redis_dir = '/usr/local/var/db/redis/'
     if not os.path.isdir(redis_dir):
-        os.makedirs(redis_dir) # make redis as happy as possible
+        try:
+            os.makedirs(redis_dir) # make redis as happy as possible
+        except OSError:
+            print "- Couldn't create redis_dir: %s" % redis_dir
     
     rp = subprocess.Popen(['redis-server', "%s" % os.path.join(
         signalqueue_settings.approot, 'settings', 'redis-compatible.conf')])
