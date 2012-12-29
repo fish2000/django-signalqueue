@@ -125,7 +125,7 @@ SQ_QUEUES = {
 SQ_ADDITIONAL_SIGNALS=['signalqueue.tests']
 SQ_WORKER_PORT = 11201
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+#TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 try:
     from kombu import Queue
