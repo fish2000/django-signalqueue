@@ -37,12 +37,12 @@ def js_download_storage():
 
 def coffeescript_node_lib_cmds():
     return [join(pth, 'coffee-script', 'bin') \
-        for pth in environ['NODE_PATH'].split(':') \
+        for pth in environ.get('NODE_PATH', '').split(':') \
         if bool(len(pth)) and isdir(pth)]
 
 def uglification_node_lib_cmds():
     return [join(pth, 'uglify-js', 'bin') \
-        for pth in environ['NODE_PATH'].split(':') \
+        for pth in environ.get('NODE_PATH', '').split(':') \
         if bool(len(pth)) and isdir(pth)]
 
 def coffeescript_cmd():
