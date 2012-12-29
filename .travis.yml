@@ -3,6 +3,9 @@ python:
   - "2.7"
 #  - "3.2"
 
+env:
+  - DJANGO_SETTINGS_MODULE='settings'
+  
 # command to install dependencies
 install:
   - "pip install -U . --use-mirrors"
