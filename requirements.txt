@@ -9,3 +9,5 @@ nose
 django-nose
 nosetty
 rednose
+celery
+django-celery
