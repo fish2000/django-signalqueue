@@ -21,7 +21,7 @@ def main():
     logging.config.dictConfig(settings.LOGGING)
     
     import subprocess, os
-    redis_dir = '/usr/local/var/db/redis/'
+    redis_dir = '/tmp/redis/'
     if not os.path.isdir(redis_dir):
         try:
             os.makedirs(redis_dir) # make redis as happy as possible
