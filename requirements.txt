@@ -1,4 +1,4 @@
-django>=1.4
+django<1.5
 django-delegate>=0.2.2
 tornado
 tornadio2
