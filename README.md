@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/fish2000/django-signalqueue.png?branch=master)](https://travis-ci.org/fish2000/django-signalqueue)
 
 django-signalqueue
 ==================
@@ -41,8 +42,8 @@ Django-signalqueue sticks to Django's naming and calling conventions for signals
 way and feels familiar, while granting you the power of async calls.
 
 
-With django-signalqueue, asynchronous dispatch is not even a thing -- that's how easy it is.
-============================================================================================
+With django-signalqueue, asynchronous dispatch is not even a thing &mdash; that's how easy it is.
+=================================================================================================
 
 Setting It Up
 -------------
