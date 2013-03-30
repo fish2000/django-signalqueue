@@ -18,7 +18,8 @@ import tornado.web
 import tornado.websocket
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
-from tornado.options import define, _LogFormatter
+from tornado.options import define
+from tornado.log import LogFormatter
 from signalqueue.utils import json
 from signalqueue.worker import queues
 from signalqueue.worker.poolqueue import PoolQueue
@@ -138,7 +139,7 @@ def main():
         except:
             pass
     channel = logging.StreamHandler()
-    channel.setFormatter(_LogFormatter(color=color))
+    channel.setFormatter(LogFormatter(color=color))
     logg.addHandler(channel)
     
     logg.info("YO DOGG.")
