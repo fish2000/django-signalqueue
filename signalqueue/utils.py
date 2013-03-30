@@ -64,11 +64,15 @@ from contextlib import contextmanager
 
 @contextmanager
 def log_exceptions(exc_type=Exception, **kwargs):
-    from raven.contrib.django.models import client as raven_client
+    try:
+        from raven.contrib.django.models import client as raven_client
+    except ImportError:
+        raven_client = None
     try:
         yield
     except exc_type, exc:
-        raven_client.captureException(sys.exc_info())
+        if raven_client is not None:
+            raven_client.captureException(sys.exc_info())
         print(exc)
 
 
