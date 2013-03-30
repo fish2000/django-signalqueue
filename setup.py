@@ -93,7 +93,7 @@ setup(
         'django>=1.4'],
     
     install_requires=[
-        'django',
+        'django<1.5',
         'django-delegate>=0.2.2',
         'tornado', 'tornadio2',
         'redis', 'requests',
