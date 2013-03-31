@@ -117,10 +117,12 @@ class QueueServerStatusHandler(BaseHandler):
     
     def get(self):
         nm = self.get_argument('queue', self.application.queue_name)
+        queue = self.queue(nm).signalqueue
         self.write(
             self.template.render(Context({
                 'queue_name': nm,
-                'items': [json.loads(morsel) for morsel in self.queue(nm).signalqueue.values()],
+                'items': [json.loads(morsel) for morsel in queue.values()],
+                'count': queue.count(),
             }))
         )
 

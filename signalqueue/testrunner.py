@@ -26,23 +26,26 @@ def main():
         try:
             os.makedirs(redis_dir) # make redis as happy as possible
         except OSError:
-            print "- Couldn't create redis_dir: %s" % redis_dir
+            print "- Can't create Redis data dir %s" % redis_dir
     
-    rp = subprocess.Popen(['redis-server', "%s" % os.path.join(
-        signalqueue_settings.approot, 'settings', 'redis-compatible.conf')])
+    rp = subprocess.Popen([
+        'redis-server',
+        "%s" % os.path.join(
+            signalqueue_settings.approot,
+            'settings', 'redis-compatible.conf'),
+        ])
     
     from django.core.management import call_command
     call_command('test', 'signalqueue.tests',
         interactive=False, traceback=True, verbosity=2)
     
-    tempdata = settings.tempdata
-    print "Deleting test data: %s" % tempdata
-    os.rmdir(tempdata)
-    
     if rp is not None:
-        import signal
-        print "Shutting down test Redis server instance (pid = %s)" % rp.pid
-        os.kill(rp.pid, signal.SIGKILL)
+        print "Shutting down Redis test process (pid = %s)" % rp.pid
+        rp.kill()
+    
+    tempdata = settings.tempdata
+    print "Deleting test data (%s)" % tempdata
+    os.rmdir(tempdata)
     
     import sys
     sys.exit(0)
