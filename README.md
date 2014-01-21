@@ -165,3 +165,7 @@ callback handlers return (just like a call to a standard signals' send() method)
 As with `django.dispatch.Signal.send()`, the sender kwarg is optional if your callback handlers don't expect it.
 
 *Tune in tomorrow for the astonishing conclusion of... the django-signalqueue README!!!!!!*
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/fish2000/django-signalqueue/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
