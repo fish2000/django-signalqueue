@@ -81,7 +81,6 @@ INSTALLED_APPS = (
     'signalqueue',
 )
 
-#import logging
 LOGGING = dict(
     version=1,
     disable_existing_loggers=False,
